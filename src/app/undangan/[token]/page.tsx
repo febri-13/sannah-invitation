@@ -36,6 +36,24 @@ export default async function UndanganPage({
 
       <div className="max-w-md mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <h3 className="font-bold text-gray-800 mb-4 text-center">QR Code Check-in</h3>
+          <div className="flex justify-center">
+            <div className="p-4 bg-white border-2 border-gold rounded-xl">
+              <QRCode value={token} size={180} />
+            </div>
+          </div>
+          <p className="text-center text-gray-500 text-sm mt-4">
+            Tunjukkan QR Code ini saat check-in di lokasi acara
+          </p>
+          {hasCheckin && (
+            <div className="mt-4 p-3 bg-green-50 rounded-lg flex items-center justify-center gap-2 text-green-700">
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-medium">Sudah Check-in</span>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           <p className="text-gray-500 text-sm mb-2">Kepada Yth.</p>
           <h2 className="text-xl font-bold text-gray-800 mb-1">
             Bapak/Ibu {tamu.nama_ayah || tamu.nama_ibu || ""}
@@ -94,24 +112,6 @@ export default async function UndanganPage({
             <p>10.30 - 11.30 &nbsp; Salam & Foto Bersama</p>
             <p>11.30 - 12.00 &nbsp; Penutupan</p>
           </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <h3 className="font-bold text-gray-800 mb-4 text-center">QR Code Check-in</h3>
-          <div className="flex justify-center">
-            <div className="p-4 bg-white border-2 border-gold rounded-xl">
-              <QRCode value={token} size={180} />
-            </div>
-          </div>
-          <p className="text-center text-gray-500 text-sm mt-4">
-            Tunjukkan QR Code ini saat check-in di lokasi acara
-          </p>
-          {hasCheckin && (
-            <div className="mt-4 p-3 bg-green-50 rounded-lg flex items-center justify-center gap-2 text-green-700">
-              <CheckCircle className="w-5 h-5" />
-              <span className="font-medium">Sudah Check-in</span>
-            </div>
-          )}
         </div>
 
         <RSVPForm token={token} existingRsvp={hasRsvp ? tamu.rsvp[0] : null} />

@@ -45,3 +45,13 @@ supabase/.config.toml
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# --- Graphify (knowledge graph for AI assistant) ---
+# Local metadata - DO NOT COMMIT (mtime cache, cost tracking, cache)
+graphify-out/manifest.json
+graphify-out/cost.json
+graphify-out/cache/
+# Shareable artifacts - safe to commit
+# graphify-out/graph.json
+# graphify-out/GRAPH_REPORT.md
+# graphify-out/graph.html (optional)
