@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Nunito, Amiri } from "next/font/google";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["latin"],
