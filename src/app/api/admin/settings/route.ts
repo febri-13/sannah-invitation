@@ -136,11 +136,12 @@ export async function PUT(request: NextRequest) {
     }
   } catch (error) {
     console.error("Error updating setting:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       { 
         error: "Failed to update setting", 
-        message: error.message,
-        stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        message,
+        stack: process.env.NODE_ENV === "development" && error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     );
