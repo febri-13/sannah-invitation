@@ -10,7 +10,8 @@ import {
   LogOut,
   Plus,
   Scan,
-  Upload
+  Upload,
+  Settings
 } from "lucide-react";
 import TamuTable from "@/components/TamuTable";
 
@@ -148,14 +149,21 @@ export default async function DashboardPage() {
             <Upload className="w-5 h-5" />
             Upload CSV
           </Link>
-          <Link
-            href="/scan"
-            className="flex items-center gap-2 px-4 py-2 bg-gold text-white rounded-lg hover:bg-yellow-600"
-          >
-            <Scan className="w-5 h-5" />
-            Scanner
-          </Link>
-        </div>
+           <Link
+             href="/scan"
+             className="flex items-center gap-2 px-4 py-2 bg-gold text-white rounded-lg hover:bg-yellow-600"
+           >
+             <Scan className="w-5 h-5" />
+             Scanner
+           </Link>
+           <Link
+             href="/admin/pengaturan"
+             className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
+           >
+             <Settings className="w-5 h-5" />
+             Pengaturan
+           </Link>
+         </div>
 
         <TamuTable data={tamuList} />
       </main>

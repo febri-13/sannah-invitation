@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Trash2, MessageCircle, Users, QrCode, Send } from "lucide-react";
+import { generateWhatsAppLink } from "@/lib/utils";
 
 interface TamuData {
   id: string;
@@ -49,11 +50,6 @@ export default function TamuTable({ data }: TamuTableProps) {
     return { filteredData: filtered, counts: { tamu: countTamu, undangan: countUndangan } };
   }, [data, search, activeTab]);
 
-  const getBaseUrl = () => {
-    if (typeof window !== "undefined") return window.location.origin;
-    return "";
-  };
-
   const handleDelete = async (id: string) => {
     const res = await fetch(`/api/tamu/${id}`, {
       method: "DELETE",
@@ -65,11 +61,14 @@ export default function TamuTable({ data }: TamuTableProps) {
     setDeleteId(null);
   };
 
-  const getWhatsAppLink = (tamu: TamuData, target: "ayah" | "ibu") => {
+  const getWhatsAppLink = async (tamu: TamuData, target: "ayah" | "ibu") => {
     const namaOrtu = target === "ayah" ? (tamu.nama_ayah || tamu.nama_siswa) : (tamu.nama_ibu || tamu.nama_siswa);
-    return `https://wa.me/?text=${encodeURIComponent(
-      `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu ${namaOrtu},\n\nDengan hormat, kami mengundang Anda untuk menghadiri acara perpisahan sekolah Akhirusannah.\n\nSilakan klik link berikut untuk melihat undangan:\n${getBaseUrl()}/undangan/${tamu.token}\n\nKami tunggu kehadiran Anda.\nWassalamu'alaikum Wr. Wb.`
-    )}`;
+    return await generateWhatsAppLink(
+      namaOrtu,
+      tamu.token,
+      tamu.nama_siswa
+      // tanggalAcara, waktuAcara, lokasiAcara use defaults
+    );
   };
 
   const hasWhatsApp = (tamu: TamuData) => tamu.no_wa_ayah || tamu.no_wa_ibu;
@@ -173,20 +172,26 @@ export default function TamuTable({ data }: TamuTableProps) {
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex gap-1">
-                        {tamu.no_wa_ayah && (
-                          <button
-                            onClick={() => window.open(getWhatsAppLink(tamu, "ayah"), "_blank")}
-                            className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center gap-1"
-                          >
-                            <Send className="w-3 h-3" />
-                            Ayah
-                          </button>
-                        )}
-                        {tamu.no_wa_ibu && (
-                          <button
-                            onClick={() => window.open(getWhatsAppLink(tamu, "ibu"), "_blank")}
-                            className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center gap-1"
-                          >
+                         {tamu.no_wa_ayah && (
+                           <button
+                             onClick={async () => {
+                               const url = await getWhatsAppLink(tamu, "ayah");
+                               window.open(url, "_blank");
+                             }}
+                             className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center gap-1"
+                           >
+                             <Send className="w-3 h-3" />
+                             Ayah
+                           </button>
+                         )}
+                         {tamu.no_wa_ibu && (
+                           <button
+                             onClick={async () => {
+                               const url = await getWhatsAppLink(tamu, "ibu");
+                               window.open(url, "_blank");
+                             }}
+                             className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center gap-1"
+                           >
                             <Send className="w-3 h-3" />
                             Ibu
                           </button>
