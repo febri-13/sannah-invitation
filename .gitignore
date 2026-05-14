@@ -41,6 +41,7 @@ supabase/.config.toml
 
 # vercel
 .vercel
+.kilo
 
 # typescript
 *.tsbuildinfo
@@ -51,6 +52,10 @@ next-env.d.ts
 graphify-out/manifest.json
 graphify-out/cost.json
 graphify-out/cache/
+# Additional local artifacts (safe to ignore)
+graphify-out/.graphify_labels.json
+graphify-out/.graphify_root
+graphify-out/.rebuild.lock
 # Shareable artifacts - safe to commit
 # graphify-out/graph.json
 # graphify-out/GRAPH_REPORT.md
