@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { rsvpSchema } from "@/lib/schemas";
+import { rsvpNewSchema } from "@/lib/schemas";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validation = rsvpSchema.safeParse(body);
+    const validation = rsvpNewSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
@@ -14,8 +14,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { token, kehadiran, jumlah, pesan } = validation.data;
+    const { token, kehadiran_ortu, kehadiran_anak, pesan } = validation.data;
     const supabaseAdmin = createAdminClient();
+
+    // Compute total attending (1 for Offline/Online, 0 for Tidak Hadir)
+    const jumlah =
+      (kehadiran_ortu === "Offline" || kehadiran_ortu === "Online" ? 1 : 0) +
+      (kehadiran_anak === "Offline" || kehadiran_anak === "Online" ? 1 : 0);
+
+    // Derive legacy kehadiran for backward compatibility
+    const kehadiran = jumlah > 0 ? "Hadir" : "Tidak Hadir";
 
     const { data: tamu, error: tamuError } = await supabaseAdmin
       .from("tamu")
@@ -31,6 +39,8 @@ export async function POST(request: NextRequest) {
       .from("rsvp")
       .insert({
         tamu_id: tamu.id,
+        kehadiran_ortu,
+        kehadiran_anak,
         kehadiran,
         jumlah,
         pesan: pesan || null,

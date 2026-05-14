@@ -16,6 +16,14 @@ export const rsvpSchema = z.object({
   pesan: z.string().max(200).optional(),
 });
 
+// New RSVP schema with separate parent/child attendance
+export const rsvpNewSchema = z.object({
+  token: z.string(),
+  kehadiran_ortu: z.enum(["Offline", "Online", "Tidak Hadir"]),
+  kehadiran_anak: z.enum(["Offline", "Online", "Tidak Hadir"]),
+  pesan: z.string().max(200).optional(),
+});
+
 export const checkinSchema = z.object({
   token: z.string(),
 });

@@ -1,30 +1,45 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, CheckCircle, Users } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, MapPin, Video, X, FileText } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface RSVPFormProps {
   token: string;
   existingRsvp: {
+    kehadiran_ortu: string | null;
+    kehadiran_anak: string | null;
+    pesan: string | null;
+    created_at: string;
+  } | null;
+  legacyRsvp: {
     kehadiran: string;
     jumlah: number;
     pesan: string | null;
+    created_at: string;
   } | null;
 }
 
-export default function RSVPForm({ token, existingRsvp }: RSVPFormProps) {
-  const [kehadiran, setKehadiran] = useState(
-    existingRsvp?.kehadiran || ""
+export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormProps) {
+  const [kehadiranOrtu, setKehadiranOrtu] = useState<"Offline" | "Online" | "Tidak Hadir" | "">(
+    (existingRsvp?.kehadiran_ortu as "Offline" | "Online" | "Tidak Hadir" | null) || ""
   );
-  const [jumlah, setJumlah] = useState(existingRsvp?.jumlah || 1);
+  const [kehadiranAnak, setKehadiranAnak] = useState<"Offline" | "Online" | "Tidak Hadir" | "">(
+    (existingRsvp?.kehadiran_anak as "Offline" | "Online" | "Tidak Hadir" | null) || ""
+  );
   const [pesan, setPesan] = useState(existingRsvp?.pesan || "");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [showNewForm, setShowNewForm] = useState(!legacyRsvp);
+
+  const totalHadir =
+    (kehadiranOrtu === "Offline" || kehadiranOrtu === "Online" ? 1 : 0) +
+    (kehadiranAnak === "Offline" || kehadiranAnak === "Online" ? 1 : 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!kehadiran) return;
+    if (!kehadiranOrtu || !kehadiranAnak) return;
 
     setLoading(true);
     setError("");
@@ -35,8 +50,8 @@ export default function RSVPForm({ token, existingRsvp }: RSVPFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          kehadiran,
-          jumlah,
+          kehadiran_ortu: kehadiranOrtu,
+          kehadiran_anak: kehadiranAnak,
           pesan: pesan || undefined,
         }),
       });
@@ -57,111 +72,133 @@ export default function RSVPForm({ token, existingRsvp }: RSVPFormProps) {
 
   if (success) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="text-center">
-          <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-gray-800 mb-2">
-            Jazakumullah khair
-          </h3>
-          <p className="text-gray-600">
-            Konfirmasi Anda telah diterima. Kami tunggu kehadiran Anda.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (existingRsvp && !success) {
-    return (
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="text-center mb-6">
-          <h3 className="font-bold text-gray-800">Konfirmasi Kehadiran Anda</h3>
-          <p className="text-sm text-gray-500">
-            Anda sudah pernah mengisi form ini
-          </p>
-        </div>
-        <div className="bg-green-50 p-4 rounded-lg mb-4">
-          <p className="text-sm text-gray-600">
-            Status:{" "}
-            <span className="font-medium text-green-700">
-              {existingRsvp.kehadiran}
-            </span>
-          </p>
-          <p className="text-sm text-gray-600">
-            Jumlah: <span className="font-medium">{existingRsvp.jumlah} orang</span>
-          </p>
-          {existingRsvp.pesan && (
-            <p className="text-sm text-gray-600">
-              Pesan: <span className="italic">{existingRsvp.pesan}</span>
-            </p>
-          )}
-        </div>
-        <p className="text-center text-gray-500 text-sm">
-          Terima kasih sudah mengisi konfirmasi.
+      <motion.div
+        className="bg-white rounded-2xl shadow-lg p-8 text-center border-2 border-islamic-teal/20"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <CheckCircle className="w-20 h-20 text-islamic-teal mx-auto mb-4 drop-shadow-md" />
+        <h3 className="text-2xl font-bold text-gray-800 mb-2 font-amiri text-gold">
+          Jazakumullah khair
+        </h3>
+        <p className="text-gray-600">
+          Konfirmasi Anda telah diterima. Kami tunggu kehadiran Anda.
         </p>
-      </div>
+      </motion.div>
     );
   }
 
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h3 className="font-bold text-gray-800 mb-4">Konfirmasi Kehadiran</h3>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Apakah Anda akan menghadiri acara?
-          </label>
-          <div className="flex gap-3">
+  // Legacy RSVP display
+  if (legacyRsvp && !showNewForm) {
+    return (
+      <motion.div
+        className="bg-amber-50 border-l-4 border-amber-500 p-5 rounded-lg shadow"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="flex items-start gap-3">
+          <FileText className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+          <div className="flex-1">
+            <h4 className="font-medium text-amber-800">
+              Data Konfirmasi Lama
+            </h4>
+            <p className="text-sm text-amber-700 mt-1 leading-relaxed">
+              Status: <span className="font-semibold">{legacyRsvp.kehadiran}</span>
+              <br />
+              Jumlah: {legacyRsvp.jumlah} orang
+              {legacyRsvp.pesan && (
+                <>
+                  <br />
+                  Pesan: <span className="italic">"{legacyRsvp.pesan}"</span>
+                </>
+              )}
+            </p>
             <button
-              type="button"
-              onClick={() => setKehadiran("Hadir")}
-              className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
-                kehadiran === "Hadir"
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+              onClick={() => setShowNewForm(true)}
+              className="mt-3 text-sm font-medium text-amber-800 underline hover:no-underline transition-all"
             >
-              Hadir
-            </button>
-            <button
-              type="button"
-              onClick={() => setKehadiran("Tidak Hadir")}
-              className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
-                kehadiran === "Tidak Hadir"
-                  ? "bg-red-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              Tidak Hadir
+              Update Kehadiran →
             </button>
           </div>
         </div>
+      </motion.div>
+    );
+  }
 
-        {kehadiran === "Hadir" && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Jumlah orang yang hadir
-            </label>
-            <div className="flex items-center gap-4">
+  // New dual-selection form
+  return (
+    <motion.div
+      className="bg-white rounded-2xl shadow-lg p-6 border border-gold/20"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h3 className="font-bold text-gray-800 mb-4 text-lg">
+        Konfirmasi Kehadiran
+      </h3>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Orang Tua */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Kehadiran Orang Tua
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {(["Offline", "Online", "Tidak Hadir"] as const).map((opt) => (
               <button
+                key={opt}
                 type="button"
-                onClick={() => setJumlah(Math.max(1, jumlah - 1))}
-                className="w-10 h-10 rounded-lg bg-gray-100 font-bold text-gray-600"
+                onClick={() => setKehadiranOrtu(opt)}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
+                  kehadiranOrtu === opt
+                    ? "border-gold ring-2 ring-gold ring-offset-2 bg-gold/5"
+                    : "border-gray-200 hover:border-gold/50"
+                }`}
               >
-                -
+                {opt === "Offline" && <MapPin className="w-5 h-5 text-islamic-teal" />}
+                {opt === "Online" && <Video className="w-5 h-5 text-islamic-teal" />}
+                {opt === "Tidak Hadir" && <X className="w-5 h-5 text-gray-400" />}
+                <span className="text-xs font-medium text-gray-700">{opt}</span>
               </button>
-              <span className="text-xl font-bold w-8 text-center">{jumlah}</span>
-              <button
-                type="button"
-                onClick={() => setJumlah(Math.min(10, jumlah + 1))}
-                className="w-10 h-10 rounded-lg bg-gray-100 font-bold text-gray-600"
-              >
-                +
-              </button>
-            </div>
+            ))}
           </div>
-        )}
+        </div>
 
+        {/* Anak */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Kehadiran Anak
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {(["Offline", "Online", "Tidak Hadir"] as const).map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setKehadiranAnak(opt)}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
+                  kehadiranAnak === opt
+                    ? "border-gold ring-2 ring-gold ring-offset-2 bg-gold/5"
+                    : "border-gray-200 hover:border-gold/50"
+                }`}
+              >
+                {opt === "Offline" && <MapPin className="w-5 h-5 text-islamic-teal" />}
+                {opt === "Online" && <Video className="w-5 h-5 text-islamic-teal" />}
+                {opt === "Tidak Hadir" && <X className="w-5 h-5 text-gray-400" />}
+                <span className="text-xs font-medium text-gray-700">{opt}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Total */}
+        <div className="p-3 bg-islamic-teal/10 rounded-lg border border-islamic-teal/20">
+          <p className="text-center text-islamic-teal font-semibold">
+            Total hadir: {totalHadir} orang
+          </p>
+        </div>
+
+        {/* Pesan */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Pesan/Doa (opsional)
@@ -169,38 +206,52 @@ export default function RSVPForm({ token, existingRsvp }: RSVPFormProps) {
           <textarea
             value={pesan}
             onChange={(e) => setPesan(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-islamic-teal focus:border-transparent outline-none resize-none"
+            className="w-full px-4 py-3 border-b-2 border-gold focus:border-islamic-teal rounded-t-lg focus:ring-0 bg-gray-50/50 resize-none outline-none transition-colors"
             rows={3}
             placeholder="Tulis pesan atau doa untuk siswa..."
             maxLength={200}
           />
-          <p className="text-xs text-gray-400 mt-1">{ pesan.length}/200</p>
+          <p className="text-xs text-gold-dark mt-1 text-right">
+            {pesan.length}/200
+          </p>
         </div>
 
-        {error && (
-          <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg">
-            {error}
-          </div>
-        )}
+        {/* Error */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="p-3 bg-red-50 border-l-4 border-red-500 text-red-600 text-sm rounded-r-lg"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                {error}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
+        {/* Submit */}
         <button
           type="submit"
-          disabled={loading || !kehadiran}
-          className="w-full py-3 bg-islamic-teal text-white rounded-lg font-medium hover:bg-leaf-green transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          disabled={loading || !kehadiranOrtu || !kehadiranAnak}
+          className="w-full py-3 bg-gradient-to-r from-islamic-teal to-leaf-green text-white rounded-xl font-medium hover:shadow-xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 ring-2 ring-gold/60"
         >
           {loading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin text-gold" />
               Mengirim...
             </>
           ) : (
             <>
-              <Users className="w-5 h-5" />
-              Kirim Konfirmasi
+              <CheckCircle className="w-5 h-5" />
+              Simpan Kehadiran
             </>
           )}
         </button>
       </form>
-    </div>
+    </motion.div>
   );
 }
