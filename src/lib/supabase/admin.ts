@@ -8,5 +8,5 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export function createAdminClient() {
-  return createClient(supabaseUrl, supabaseKey);
+  return createClient(supabaseUrl as string, supabaseKey as string);
 }
