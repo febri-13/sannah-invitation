@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Html5QrcodeScanner, Html5QrcodeScanType, Html5QrcodeScannerState } from "html5-qrcode";
+import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 import { createClient } from "@/lib/supabase/client";
 import { Camera, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +16,11 @@ export default function ScanPage() {
   const [namaTamu, setNamaTamu] = useState("");
   const supabase = createClient();
 
-  useEffect(() => {
+  const startScanner = (clearOld = false) => {
+    if (clearOld) {
+      scannerRef.current?.clear().catch(() => {});
+    }
+
     const scanner = new Html5QrcodeScanner(
       "qr-reader",
       {
@@ -33,15 +37,19 @@ export default function ScanPage() {
       (decodedText) => {
         handleScan(decodedText);
       },
-      (error) => {
+      () => {
         // Ignore scan errors
       }
     );
 
     setStatus("scanning");
+  };
+
+  useEffect(() => {
+    startScanner();
 
     return () => {
-      scanner.clear();
+      scannerRef.current?.clear();
     };
   }, []);
 
@@ -93,29 +101,7 @@ export default function ScanPage() {
     setStatus("idle");
     setMessage("");
     setNamaTamu("");
-    if (scannerRef.current) {
-      try {
-        // resume(true) must be called to restore the camera video stream:
-        //   pause(true)  → sets shouldPauseVideo=true → pauses renderedCamera.surface
-        //   resume()     → no-arg → shouldPauseVideo=false → skips renderedCamera.resume()
-        //   resume(true) → shouldPauseVideo=true → calls renderedCamera.resume() → video visible
-        if (
-          scannerRef.current.getState?.() === Html5QrcodeScannerState.PAUSED
-        ) {
-          // Bypass Html5QrcodeScanner.resume() (always calls Html5Qrcode.resume()
-          // with no args → shouldPauseVideo is undefined → renderedCamera never
-          // restarts → camera stays invisible on retry).
-          // Call Html5Qrcode.resume(true) directly: shouldPauseVideo=true triggers
-          // renderedCamera.resume() so the video stream comes back.
-          const inner = scannerRef.current as unknown as {
-            html5Qrcode?: { resume: (shouldPauseVideo: boolean) => void };
-          };
-          inner.html5Qrcode?.resume?.(true);
-        }
-      } catch {
-        // Ignore — scanner may already be active
-      }
-    }
+    startScanner(true);
   };
 
   return (
