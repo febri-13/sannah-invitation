@@ -9,13 +9,28 @@ export async function DELETE(
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
     const { id } = await params;
     const supabaseAdmin = createAdminClient();
+
+    // Verify the tamu belongs to this admin's sekolah before deleting
+    const { data: tamu, error: tamuError } = await supabaseAdmin
+      .from("tamu")
+      .select("sekolah_id")
+      .eq("id", id)
+      .single();
+
+    if (tamuError || !tamu) {
+      return NextResponse.json({ error: "Tamu tidak ditemukan" }, { status: 404 });
+    }
+
+    if (sekolahId && tamu.sekolah_id !== sekolahId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const { error } = await supabaseAdmin
       .from("tamu")

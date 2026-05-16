@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
     const adminSupabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const key = searchParams.get("key");
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
         .from("pengaturan")
         .select("*")
         .eq("key", key)
+        .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000")
         .single();
 
       if (error) throw error;
@@ -39,7 +41,8 @@ export async function GET(request: NextRequest) {
 
     const { data, error: allError } = await adminSupabase
       .from("pengaturan")
-      .select("*");
+      .select("*")
+      .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000");
 
     if (allError) throw allError;
 
@@ -60,6 +63,14 @@ export async function PUT(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
+    if (!sekolahId) {
+      return NextResponse.json(
+        { error: "Admin account is not linked to a sekolah" },
+        { status: 400 }
+      );
     }
 
     const body = await request.json();
@@ -91,19 +102,17 @@ export async function PUT(request: NextRequest) {
 
     const adminSupabase = createAdminClient();
 
-    // Check if setting exists
-    const { data: existing, error: fetchErr } = await adminSupabase
+    const now = new Date().toISOString();
+
+    // Always insert with sekolah_id — avoids cross-sekolah collisions
+    const { data: existing } = await adminSupabase
       .from("pengaturan")
       .select("key")
       .eq("key", key)
+      .eq("sekolah_id", sekolahId)
       .maybeSingle();
 
-    if (fetchErr) throw fetchErr;
-
-    const now = new Date().toISOString();
-
     if (existing) {
-      // Update existing row (preserve label/description)
       const { data, error } = await adminSupabase
         .from("pengaturan")
         .update({
@@ -111,13 +120,13 @@ export async function PUT(request: NextRequest) {
           updated_at: now,
         })
         .eq("key", key)
+        .eq("sekolah_id", sekolahId)
         .select()
         .single();
 
       if (error) throw error;
       return NextResponse.json(data);
     } else {
-      // Insert new row with defaults
       const defaults = DEFAULTS[key];
       const { data, error } = await adminSupabase
         .from("pengaturan")
@@ -126,6 +135,7 @@ export async function PUT(request: NextRequest) {
           value,
           label: defaults?.label || "Custom Setting",
           description: defaults?.description || "",
+          sekolah_id: sekolahId,
           updated_at: now,
         })
         .select()
@@ -138,8 +148,8 @@ export async function PUT(request: NextRequest) {
     console.error("Error updating setting:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { 
-        error: "Failed to update setting", 
+      {
+        error: "Failed to update setting",
         message,
         stack: process.env.NODE_ENV === "development" && error instanceof Error ? error.stack : undefined
       },

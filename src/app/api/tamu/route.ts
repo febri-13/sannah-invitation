@@ -8,13 +8,14 @@ export async function GET() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
+
     const supabaseAdmin = createAdminClient();
-    const { data: tamu, error } = await supabaseAdmin
+    const query = supabaseAdmin
       .from("tamu")
       .select(`
         *,
@@ -22,6 +23,13 @@ export async function GET() {
         checkin (waktu)
       `)
       .order("created_at", { ascending: false });
+
+    // Filter by sekolah_id when the admin has one linked
+    if (sekolahId) {
+      query.eq("sekolah_id", sekolahId);
+    }
+
+    const { data: tamu, error } = await query;
 
     if (error) throw error;
 
@@ -36,9 +44,16 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
+    if (!sekolahId) {
+      return NextResponse.json(
+        { error: "Admin account is not linked to a sekolah" },
+        { status: 400 }
+      );
     }
 
     const body = await request.json();
@@ -57,14 +72,15 @@ export async function POST(request: NextRequest) {
     const supabaseAdmin = createAdminClient();
     const { data: tamu, error } = await supabaseAdmin
       .from("tamu")
-      .insert({ 
-        token, 
+      .insert({
+        token,
         nama_siswa,
         nama_ayah: nama_ayah || null,
         nama_ibu: nama_ibu || null,
         no_wa_ayah: no_wa_ayah || null,
         no_wa_ibu: no_wa_ibu || null,
-        jenis_kelamin
+        jenis_kelamin,
+        sekolah_id: sekolahId,
       })
       .select()
       .single();

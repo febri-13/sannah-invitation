@@ -87,7 +87,7 @@ export default function PengaturanPage() {
     setSaving(false);
   };
 
-  const insertPlaceholder = (placeholder: string) => {
+  const   insertPlaceholder = (placeholder: string) => {
     const textarea = document.getElementById("template-textarea") as HTMLTextAreaElement;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -98,7 +98,7 @@ export default function PengaturanPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-islamic-teal"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -112,11 +112,11 @@ export default function PengaturanPage() {
       >
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gold/20 rounded-lg">
-            <Settings className="w-6 h-6 text-gold-dark" />
+          <div className="glass p-3">
+            <Settings className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-charcoal">Pengaturan</h1>
+            <h1 className="text-2xl font-bold text-secondary">Pengaturan</h1>
             <p className="text-gray-500 text-sm">Kelola template pesan WhatsApp undangan</p>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function PengaturanPage() {
         <AnimatePresence>
           {error && (
             <motion.div
-              className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg"
+              className="mb-6 p-4 bg-danger/10 border-l-4 border-danger text-danger rounded-r-lg"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
@@ -136,7 +136,7 @@ export default function PengaturanPage() {
 
           {success && (
             <motion.div
-              className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg"
+              className="mb-6 p-4 bg-success/10 border-l-4 border-success text-success rounded-r-lg"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
@@ -147,7 +147,7 @@ export default function PengaturanPage() {
         </AnimatePresence>
 
         {/* Setting Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gold/20 p-6">
+        <div className="glass-card p-6">
           <div className="mb-4">
             <label className="block text-lg font-semibold text-gray-800 mb-2">
               {setting?.label || "Template Pesan"}
@@ -171,7 +171,7 @@ export default function PengaturanPage() {
                   key={ph}
                   type="button"
                   onClick={() => insertPlaceholder(ph)}
-                  className="px-2 py-1 bg-gray-100 hover:bg-gold/10 text-gray-700 text-xs font-mono rounded border border-gray-200 hover:border-gold/30 transition-colors"
+                  className="px-2 py-1 glass hover:bg-primary/10 text-gray-700 text-xs font-mono rounded border border-gray-200 hover:border-primary/30 transition-colors"
                 >
                   {ph}
                 </button>
@@ -184,7 +184,7 @@ export default function PengaturanPage() {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               rows={12}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-islamic-teal focus:ring-2 focus:ring-islamic-teal/20 focus:outline-none resize-none font-mono text-sm leading-relaxed bg-gray-50/50"
+              className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary resize-none font-mono text-sm leading-relaxed"
               placeholder="Tulis template pesan..."
             />
             <p className="text-xs text-gray-400 mt-2 text-right">{value.length} / 5000 karakter</p>
@@ -195,7 +195,7 @@ export default function PengaturanPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-islamic-teal to-leaf-green text-white rounded-xl font-medium hover:shadow-xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="glass-button flex items-center gap-2 px-6 py-3 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <>
@@ -212,7 +212,7 @@ export default function PengaturanPage() {
 
             <button
               onClick={() => setShowPreview(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-gold text-gold-dark rounded-xl font-medium hover:bg-gold/5 transition-all duration-300"
+              className="glass flex items-center gap-2 px-6 py-3 text-secondary font-medium hover:bg-primary/10 transition-all duration-300"
             >
               <Eye className="w-5 h-5" />
               Preview
@@ -221,92 +221,93 @@ export default function PengaturanPage() {
         </div>
 
         {/* Info box */}
-        <div className="mt-6 p-4 bg-islamic-teal/5 border border-islamic-teal/20 rounded-xl">
-          <h4 className="font-semibold text-islamic-teal mb-2">Placeholders yang tersedia:</h4>
+        <div className="mt-6 glass p-4">
+          <h4 className="font-semibold text-primary mb-2">Placeholders yang tersedia:</h4>
           <ul className="text-sm text-gray-600 space-y-1">
             <li>
-              <code className="bg-gray-100 px-2 py-0.5 rounded text-gold-dark">{'{namaOrtu}'}</code> — Nama orang tua (Bapak/Ibu)</li>
-            </ul>
-            <ul className="text-sm text-gray-600 space-y-1">
+              <code className="glass px-2 py-0.5 rounded text-primary">{'{namaOrtu}'}</code> — Nama orang tua (Bapak/Ibu)</li>
+          </ul>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>
+              <code className="glass px-2 py-0.5 rounded text-primary">{'{namaSiswa}'}</code> — Nama anak/siswa</li>
+          </ul>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>
+              <code className="glass px-2 py-0.5 rounded text-primary">{'{link}'}</code> — Link undangan (otomatis diisi)</li>
+          </ul>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>
+              <code className="glass px-2 py-0.5 rounded text-primary">{'{tanggalAcara}'}</code> — Tanggal acara</li>
+          </ul>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>
+              <code className="glass px-2 py-0.5 rounded text-primary">{'{waktuAcara}'}</code> — Waktu acara</li>
+          </ul>
+           <ul className="text-sm text-gray-600 space-y-1">
               <li>
-                <code className="bg-gray-100 px-2 py-0.5 rounded text-gold-dark">{'{namaSiswa}'}</code> — Nama anak/siswa</li>
-            </ul>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>
-                <code className="bg-gray-100 px-2 py-0.5 rounded text-gold-dark">{'{link}'}</code> — Link undangan (otomatis diisi)</li>
-            </ul>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>
-                <code className="bg-gray-100 px-2 py-0.5 rounded text-gold-dark">{'{tanggalAcara}'}</code> — Tanggal acara</li>
-            </ul>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>
-                <code className="bg-gray-100 px-2 py-0.5 rounded text-gold-dark">{'{waktuAcara}'}</code> — Waktu acara</li>
-            </ul>
-             <ul className="text-sm text-gray-600 space-y-1">
-               <li>
-                 <code className="bg-gray-100 px-2 py-0.5 rounded text-gold-dark">{'{lokasiAcara}'}</code> — Lokasi acara</li>
-               </ul>
-           </div>
-      </motion.div>
+                <code className="glass px-2 py-0.5 rounded text-primary">{'{lokasiAcara}'}</code> — Lokasi acara</li>
+              </ul>
+          </div>
 
-      {/* Preview Modal */}
-      <AnimatePresence>
-        {showPreview && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowPreview(false)}
-          >
+        {/* Preview Modal */}
+        <AnimatePresence>
+          {showPreview && (
             <motion.div
-              className="bg-white rounded-2xl max-w-md w-full p-6 relative"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPreview(false)}
             >
-              <button
-                onClick={() => setShowPreview(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              <motion.div
+                className="glass-card max-w-md w-full p-6 relative"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
               >
-                <X className="w-5 h-5" />
-              </button>
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
 
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <Eye className="w-5 h-5 text-islamic-teal" />
-                Preview Pesan WhatsApp
-              </h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-primary" />
+                  Preview Pesan WhatsApp
+                </h3>
 
-              {/* WhatsApp chat bubble mock */}
-              <div className="bg-green-50 rounded-2xl p-4 border border-green-100">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-bold">
-                    A
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-800 text-sm">Admin Akhirusannah</p>
-                    <div className="mt-1 whitespace-pre-wrap text-gray-700 text-sm leading-relaxed">
-                      {value
-                        .replace(/{namaOrtu}/g, previewData.namaOrtu)
-                        .replace(/{namaSiswa}/g, previewData.namaSiswa)
-                        .replace(/{link}/g, previewData.link)
-                        .replace(/{tanggalAcara}/g, previewData.tanggalAcara)
-                        .replace(/{waktuAcara}/g, previewData.waktuAcara)
-                        .replace(/{lokasiAcara}/g, previewData.lokasiAcara)}
+                {/* WhatsApp chat bubble mock */}
+                <div className="glass p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                      A
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-800 text-sm">Admin Akhirusannah</p>
+                      <div className="mt-1 whitespace-pre-wrap text-gray-700 text-sm leading-relaxed">
+                        {value
+                          .replace(/{namaOrtu}/g, previewData.namaOrtu)
+                          .replace(/{namaSiswa}/g, previewData.namaSiswa)
+                          .replace(/{link}/g, previewData.link)
+                          .replace(/{tanggalAcara}/g, previewData.tanggalAcara)
+                          .replace(/{waktuAcara}/g, previewData.waktuAcara)
+                          .replace(/{lokasiAcara}/g, previewData.lokasiAcara)}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <p className="text-xs text-gray-400 mt-3 text-center">
-                *Preview dengan data dummy. Pesan sebenarnya akan diganti dengan data tamu.
-              </p>
+                <p className="text-xs text-gray-400 mt-3 text-center">
+                  *Preview dengan data dummy. Pesan sebenarnya akan diganti dengan data tamu.
+                </p>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
-}
+  }
+

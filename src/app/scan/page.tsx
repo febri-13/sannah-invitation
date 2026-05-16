@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
+import { Html5QrcodeScanner, Html5QrcodeScanType, Html5QrcodeScannerState } from "html5-qrcode";
 import { createClient } from "@/lib/supabase/client";
 import { Camera, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function ScanPage() {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  // processingRef prevents concurrent/duplicate API calls even when React
+  // re-renders with stale closure values (e.g. 10fps foreverScan loop beating state updates).
+  const processingRef = useRef(false);
   const [status, setStatus] = useState<"idle" | "scanning" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [namaTamu, setNamaTamu] = useState("");
@@ -43,9 +46,14 @@ export default function ScanPage() {
   }, []);
 
   const handleScan = async (token: string) => {
-    if (status === "success" || status === "error") return;
+    // Guard 1 (ref): prevents re-entry from the 10fps foreverScan loop even before
+    // React can commit any state change. Ref reads are always current — no stale closure.
+    if (processingRef.current) return;
 
-    setStatus("loading");
+    processingRef.current = true;
+
+    // Pause the scanner to stop the foreverScan loop from producing more callbacks.
+    scannerRef.current?.pause(true);
 
     try {
       const res = await fetch("/api/checkin", {
@@ -63,10 +71,21 @@ export default function ScanPage() {
       } else {
         setStatus("error");
         setMessage(data.error || "Terjadi kesalahan");
+        // Resume the camera stream on error so user can scan again immediately
+        const inner2 = scannerRef.current as unknown as {
+          html5Qrcode?: { resume: (sh: boolean) => void };
+        };
+        inner2.html5Qrcode?.resume?.(true);
       }
     } catch {
       setStatus("error");
       setMessage("Gagal terhubung ke server");
+      const inner3 = scannerRef.current as unknown as {
+        html5Qrcode?: { resume: (sh: boolean) => void };
+      };
+      inner3.html5Qrcode?.resume?.(true);
+    } finally {
+      processingRef.current = false;
     }
   };
 
@@ -75,28 +94,48 @@ export default function ScanPage() {
     setMessage("");
     setNamaTamu("");
     if (scannerRef.current) {
-      scannerRef.current.resume();
+      try {
+        // resume(true) must be called to restore the camera video stream:
+        //   pause(true)  → sets shouldPauseVideo=true → pauses renderedCamera.surface
+        //   resume()     → no-arg → shouldPauseVideo=false → skips renderedCamera.resume()
+        //   resume(true) → shouldPauseVideo=true → calls renderedCamera.resume() → video visible
+        if (
+          scannerRef.current.getState?.() === Html5QrcodeScannerState.PAUSED
+        ) {
+          // Bypass Html5QrcodeScanner.resume() (always calls Html5Qrcode.resume()
+          // with no args → shouldPauseVideo is undefined → renderedCamera never
+          // restarts → camera stays invisible on retry).
+          // Call Html5Qrcode.resume(true) directly: shouldPauseVideo=true triggers
+          // renderedCamera.resume() so the video stream comes back.
+          const inner = scannerRef.current as unknown as {
+            html5Qrcode?: { resume: (shouldPauseVideo: boolean) => void };
+          };
+          inner.html5Qrcode?.resume?.(true);
+        }
+      } catch {
+        // Ignore — scanner may already be active
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-cream p-4">
+    <div className="min-h-screen p-4">
       <header className="flex items-center gap-4 mb-6">
-        <Link href="/admin/dashboard" className="p-2 bg-white rounded-lg shadow-sm">
+        <Link href="/admin/dashboard" className="glass p-2">
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </Link>
-        <h1 className="text-xl font-bold text-leaf-green">Scanner QR Code</h1>
+        <h1 className="text-xl font-bold text-secondary">Scanner QR Code</h1>
       </header>
 
       <div className="max-w-md mx-auto">
         {status === "success" || status === "error" ? (
-          <div className={`p-6 rounded-xl text-center ${
-            status === "success" ? "bg-green-50" : "bg-red-50"
+          <div className={`glass-card p-6 rounded-xl text-center ${
+            status === "success" ? "bg-success/10" : "bg-danger/10"
           }`}>
             {status === "success" ? (
-              <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+              <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
             ) : (
-              <XCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
+              <XCircle className="w-16 h-16 text-danger mx-auto mb-4" />
             )}
             <p className="text-lg font-medium mb-2">{message}</p>
             {status === "success" && (
@@ -104,13 +143,13 @@ export default function ScanPage() {
             )}
             <button
               onClick={resetScanner}
-              className="mt-6 px-6 py-3 bg-islamic-teal text-white rounded-lg font-medium"
+              className="glass-button mt-6 px-6 py-3 text-white font-medium"
             >
               Scan Lagi
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-lg p-4">
+          <div className="glass-card p-4">
             <div id="qr-reader" className="w-full"></div>
             <p className="text-center text-gray-500 mt-4">
               Arahkan kamera ke QR Code tamu

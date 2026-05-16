@@ -74,15 +74,15 @@ export default function TamuTable({ data }: TamuTableProps) {
   const hasWhatsApp = (tamu: TamuData) => tamu.no_wa_ayah || tamu.no_wa_ibu;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      <div className="p-4 border-b">
+    <div className="glass-card overflow-hidden">
+      <div className="p-4 border-b border-gray-200">
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2">
           <button
             onClick={() => setActiveTab("tamu")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               activeTab === "tamu"
-                ? "bg-islamic-teal text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-primary text-white"
+                : "glass text-gray-600 hover:bg-primary/10"
             }`}
           >
             <Users className="w-4 h-4" />
@@ -92,8 +92,8 @@ export default function TamuTable({ data }: TamuTableProps) {
             onClick={() => setActiveTab("undangan")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               activeTab === "undangan"
-                ? "bg-gold text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-secondary text-white"
+                : "glass text-gray-600 hover:bg-secondary/10"
             }`}
           >
             <QrCode className="w-4 h-4" />
@@ -102,7 +102,7 @@ export default function TamuTable({ data }: TamuTableProps) {
         </div>
       </div>
 
-      <div className="p-4 border-b">
+      <div className="p-4 border-b border-gray-200">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
@@ -110,7 +110,7 @@ export default function TamuTable({ data }: TamuTableProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari nama siswa atau token..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-islamic-teal focus:border-transparent outline-none"
+            className="glass-input w-full pl-10 pr-4 py-2 outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function TamuTable({ data }: TamuTableProps) {
                   <tr key={tamu.id} className="hover:bg-gray-50">
                     <td className="px-3 py-3">
                       {hasWhatsApp(tamu) ? (
-                        <MessageCircle className="w-5 h-5 text-green-600" />
+                        <MessageCircle className="w-5 h-5 text-success" />
                       ) : (
                         <MessageCircle className="w-5 h-5 text-gray-300" />
                       )}
@@ -178,7 +178,7 @@ export default function TamuTable({ data }: TamuTableProps) {
                                const url = await getWhatsAppLink(tamu, "ayah");
                                window.open(url, "_blank");
                              }}
-                             className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center gap-1"
+                             className="glass px-2 py-1 text-xs text-success rounded flex items-center gap-1"
                            >
                              <Send className="w-3 h-3" />
                              Ayah
@@ -190,7 +190,7 @@ export default function TamuTable({ data }: TamuTableProps) {
                                const url = await getWhatsAppLink(tamu, "ibu");
                                window.open(url, "_blank");
                              }}
-                             className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center gap-1"
+                             className="glass px-2 py-1 text-xs text-success rounded flex items-center gap-1"
                            >
                             <Send className="w-3 h-3" />
                             Ibu
@@ -198,7 +198,7 @@ export default function TamuTable({ data }: TamuTableProps) {
                         )}
                         <button
                           onClick={() => setDeleteId(tamu.id)}
-                          className="p-1 text-gray-400 hover:text-red-600"
+                          className="p-1 text-gray-400 hover:text-danger"
                           title="Hapus"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -236,8 +236,8 @@ export default function TamuTable({ data }: TamuTableProps) {
                     {hasRsvp && tamu.rsvp?.[0] ? (
                       <span className={`px-2 py-0.5 rounded-full text-xs ${
                         tamu.rsvp[0].kehadiran === "Hadir"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-success/10 text-success"
+                          : "bg-danger/10 text-danger"
                       }`}>
                         {tamu.rsvp[0].kehadiran === "Hadir" ? "Hadir" : "Tidak"} ({tamu.rsvp[0].jumlah})
                       </span>
@@ -247,7 +247,7 @@ export default function TamuTable({ data }: TamuTableProps) {
                   </td>
                   <td className="px-3 py-3">
                     {hasCheckin ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-success/10 text-success">
                         ✓
                       </span>
                     ) : (
@@ -257,7 +257,7 @@ export default function TamuTable({ data }: TamuTableProps) {
                   <td className="px-3 py-3">
                     <button
                       onClick={() => setDeleteId(tamu.id)}
-                      className="p-1 text-gray-400 hover:text-red-600"
+                      className="p-1 text-gray-400 hover:text-danger"
                       title="Hapus"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -272,19 +272,19 @@ export default function TamuTable({ data }: TamuTableProps) {
 
       {deleteId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-sm mx-4">
+          <div className="glass-card p-6 max-w-sm mx-4">
             <h3 className="text-lg font-bold text-gray-800 mb-2">Hapus Tamu?</h3>
             <p className="text-gray-600 mb-4">Data yang dihapus tidak dapat dikembalikan.</p>
             <div className="flex gap-4">
               <button
                 onClick={() => setDeleteId(null)}
-                className="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium"
+                className="glass flex-1 py-2 text-gray-700 rounded-lg font-medium"
               >
                 Batal
               </button>
               <button
                 onClick={() => handleDelete(deleteId)}
-                className="flex-1 py-2 bg-red-600 text-white rounded-lg font-medium"
+                className="glass-button flex-1 py-2 text-white rounded-lg font-medium"
               >
                 Hapus
               </button>

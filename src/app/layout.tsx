@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
-import { Nunito, Amiri } from "next/font/google";
+import { Plus_Jakarta_Sans, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
   subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
 });
 
-const amiri = Amiri({
-  variable: "--font-amiri",
-  weight: ["400", "700"],
-  subsets: ["arabic", "latin"],
+const notoArabic = Noto_Sans_Arabic({
+  variable: "--font-noto-arabic",
+  subsets: ["arabic"],
+  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${nunito.variable} ${amiri.variable}`}>
+    <html lang="id" className={`${plusJakarta.variable} ${notoArabic.variable}`}>
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

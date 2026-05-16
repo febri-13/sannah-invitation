@@ -25,9 +25,10 @@ export async function POST(request: NextRequest) {
     // Derive legacy kehadiran for backward compatibility
     const kehadiran = jumlah > 0 ? "Hadir" : "Tidak Hadir";
 
+    // Look up tamu along with its sekolah_id
     const { data: tamu, error: tamuError } = await supabaseAdmin
       .from("tamu")
-      .select("id")
+      .select("id, sekolah_id")
       .eq("token", token)
       .single();
 
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
       .from("rsvp")
       .insert({
         tamu_id: tamu.id,
+        sekolah_id: tamu.sekolah_id,
         kehadiran_ortu,
         kehadiran_anak,
         kehadiran,

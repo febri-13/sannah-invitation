@@ -14,32 +14,69 @@ import {
   Settings
 } from "lucide-react";
 import TamuTable from "@/components/TamuTable";
+import GenderPieChart from "./GenderPieChart";
 
-async function getStats() {
+async function getStats(sekolahId?: string) {
   const supabase = createAdminClient();
-  
-  const { count: totalTamu } = await supabase
+
+  const tamuQuery = supabase
     .from("tamu")
     .select("*", { count: "exact", head: true });
+  if (sekolahId) tamuQuery.eq("sekolah_id", sekolahId);
+  const { count: totalTamu } = await tamuQuery;
 
-  const { data: rsvps } = await supabase
+  const rsvpQuery = supabase
     .from("rsvp")
     .select("kehadiran");
+  if (sekolahId) rsvpQuery.eq("sekolah_id", sekolahId);
+  const { data: rsvps } = await rsvpQuery;
 
   const hadir = rsvps?.filter(r => r.kehadiran === "Hadir").length || 0;
   const tidakHadir = rsvps?.filter(r => r.kehadiran === "Tidak Hadir").length || 0;
 
-  const { count: totalCheckin } = await supabase
+  const checkinQuery = supabase
     .from("checkin")
     .select("*", { count: "exact", head: true });
+  if (sekolahId) {
+    // checkin row doesn't store sekolah_id; join via tamu
+    const { data: tamuIds } = await supabase
+      .from("tamu")
+      .select("id")
+      .eq("sekolah_id", sekolahId);
+    const ids = tamuIds?.map(t => t.id) || [];
+    if (ids.length === 0) {
+      return { totalTamu: totalTamu || 0, hadir, tidakHadir, totalCheckin: 0 };
+    }
+    checkinQuery.in("tamu_id", ids);
+  }
+  const { count: totalCheckin } = await checkinQuery;
 
   return { totalTamu: totalTamu || 0, hadir, tidakHadir, totalCheckin };
 }
 
-async function getTamu() {
+async function getGenderStats(sekolahId?: string) {
   const supabase = createAdminClient();
-  
-  const { data: tamu } = await supabase
+
+  const query = supabase
+    .from("tamu")
+    .select("jenis_kelamin");
+  if (sekolahId) query.eq("sekolah_id", sekolahId);
+  const { data } = await query;
+
+  const total = data?.length || 0;
+  const laki =
+    data?.filter((t) => t.jenis_kelamin === "Laki-laki").length || 0;
+  const perempuan =
+    data?.filter((t) => t.jenis_kelamin === "Perempuan").length || 0;
+  const belum = total - laki - perempuan;
+
+  return { total, laki, perempuan, belum };
+}
+
+async function getTamu(sekolahId?: string) {
+  const supabase = createAdminClient();
+
+  const query = supabase
     .from("tamu")
     .select(`
       *,
@@ -47,8 +84,10 @@ async function getTamu() {
       checkin (waktu)
     `)
     .order("created_at", { ascending: false });
+  if (sekolahId) query.eq("sekolah_id", sekolahId);
 
-  return tamu || [];
+  const { data } = await query;
+  return data || [];
 }
 
 export default async function DashboardPage() {
@@ -59,8 +98,11 @@ export default async function DashboardPage() {
     redirect("/admin/login");
   }
 
-  const stats = await getStats();
-  const tamuList = await getTamu();
+  const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
+
+  const stats = await getStats(sekolahId);
+  const genderStats = await getGenderStats(sekolahId);
+  const tamuList = await getTamu(sekolahId);
 
   const handleLogout = async () => {
     "use server";
@@ -69,13 +111,13 @@ export default async function DashboardPage() {
     redirect("/admin/login");
   };
 
-  return (
-    <div className="min-h-screen bg-cream-light">
-      <header className="bg-white shadow-sm p-4">
+return (
+    <div className="min-h-screen">
+      <header className="glass p-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold text-leaf-green">Dashboard Panitia</h1>
+          <h1 className="text-xl font-bold text-secondary">Dashboard Panitia</h1>
           <form action={handleLogout}>
-            <button className="flex items-center gap-2 text-gray-600 hover:text-red-600">
+            <button className="flex items-center gap-2 text-gray-600 hover:text-danger">
               <LogOut className="w-5 h-5" />
               <span>Logout</span>
             </button>
@@ -85,10 +127,10 @@ export default async function DashboardPage() {
 
       <main className="max-w-6xl mx-auto p-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="glass-card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-islamic-teal/10 rounded-lg">
-                <Users className="w-6 h-6 text-islamic-teal" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Users className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">Total Undangan</p>
@@ -97,10 +139,10 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="glass-card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="p-2 bg-success/10 rounded-lg">
+                <CheckCircle className="w-6 h-6 text-success" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">RSVP Hadir</p>
@@ -109,10 +151,10 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="glass-card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <XCircle className="w-6 h-6 text-red-600" />
+              <div className="p-2 bg-danger/10 rounded-lg">
+                <XCircle className="w-6 h-6 text-danger" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">RSVP Tidak Hadir</p>
@@ -121,10 +163,10 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="glass-card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gold/20 rounded-lg">
-                <QrCode className="w-6 h-6 text-gold" />
+              <div className="p-2 bg-secondary/20 rounded-lg">
+                <QrCode className="w-6 h-6 text-secondary" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">Sudah Check-in</p>
@@ -134,36 +176,40 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        <div className="glass-card p-4 mb-6">
+          <GenderPieChart {...genderStats} />
+        </div>
+
         <div className="flex flex-wrap gap-4 mb-6">
           <Link
             href="/admin/tamu/baru"
-            className="flex items-center gap-2 px-4 py-2 bg-islamic-teal text-white rounded-lg hover:bg-leaf-green"
+            className="glass-button flex items-center gap-2 px-4 py-2 text-white"
           >
             <Plus className="w-5 h-5" />
             Tambah Manual
           </Link>
           <Link
             href="/admin/tamu/upload"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="glass-button flex items-center gap-2 px-4 py-2 text-white"
           >
             <Upload className="w-5 h-5" />
             Upload CSV
           </Link>
            <Link
              href="/scan"
-             className="flex items-center gap-2 px-4 py-2 bg-gold text-white rounded-lg hover:bg-yellow-600"
+             className="glass-button flex items-center gap-2 px-4 py-2 text-white"
            >
              <Scan className="w-5 h-5" />
              Scanner
            </Link>
            <Link
              href="/admin/pengaturan"
-             className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
+             className="glass-button flex items-center gap-2 px-4 py-2 text-white"
            >
              <Settings className="w-5 h-5" />
              Pengaturan
            </Link>
-         </div>
+        </div>
 
         <TamuTable data={tamuList} />
       </main>

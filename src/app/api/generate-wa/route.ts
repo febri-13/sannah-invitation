@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
     const body = await request.json();
     const { namaOrtu, token, namaSiswa, tanggalAcara, waktuAcara, lokasiAcara } = body;
 
@@ -23,12 +24,24 @@ export async function POST(request: NextRequest) {
 
     const supabaseAdmin = createAdminClient();
 
-    // Fetch template from pengaturan table
-    const { data: setting, error } = await supabaseAdmin
+    // Fetch template from pengaturan, scoped to this admin's sekolah
+    let settingQuery = supabaseAdmin
       .from("pengaturan")
       .select("value")
       .eq("key", "wa_template_invitation")
+      .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000")
       .single();
+
+    if (!sekolahId) {
+      settingQuery = supabaseAdmin
+        .from("pengaturan")
+        .select("value")
+        .eq("key", "wa_template_invitation")
+        .limit(1)
+        .single();
+    }
+
+    const { data: setting, error } = await settingQuery;
 
     if (error) throw error;
 

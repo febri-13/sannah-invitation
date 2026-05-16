@@ -10,15 +10,11 @@ import {
   Video,
   CheckCircle,
   Mail,
-  FileText,
   BookOpen,
   Mic,
   Camera,
   Star,
 } from "lucide-react";
-import Divider from "@/components/ornaments/Divider";
-import CornerAccent from "@/components/ornaments/CornerAccent";
-import HeaderArch from "@/components/ornaments/HeaderArch";
 import RSVPForm from "./RSVPForm";
 
 interface TamuRsvp {
@@ -58,7 +54,6 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
   const latestRsvp = hasRsvp ? tamu.rsvp[0]! : null;
   const isLegacyRsvp = latestRsvp ? !latestRsvp.kehadiran_ortu : false;
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -86,21 +81,16 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
   } as const;
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen">
       {/* Hero Header */}
-      <div className="relative bg-islamic-teal text-white py-16 px-4 text-center overflow-hidden">
-        {/* Arch decoration */}
-        <HeaderArch />
-        {/* Crescent/star corner hints could go here - skipping to keep minimal */}
-
-        {/* Animated Bismillah */}
+      <div className="relative glass-dark text-white py-16 px-4 text-center overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <Landmark className="w-14 h-14 mx-auto mb-4 text-gold opacity-90" />
-          <p className="text-2xl font-serif mb-3 text-gold drop-shadow-md">
+          <Landmark className="w-14 h-14 mx-auto mb-4 text-primary opacity-90" />
+          <p className="text-2xl mb-3 text-white/90 font-noto-arabic">
             بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم
           </p>
         </motion.div>
@@ -115,16 +105,13 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
         </motion.h1>
 
         <motion.p
-          className="text-white/90 text-lg"
+          className="text-white/80 text-lg"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
           Perpisahan Sekolah
         </motion.p>
-
-        {/* Decorative gold bottom border */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-60" />
       </div>
 
       {/* Main Content */}
@@ -136,42 +123,28 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
       >
         {/* QR Code Card */}
         <motion.div
-          className="bg-white rounded-2xl shadow-lg border-2 border-gold ring-2 ring-islamic-teal ring-offset-2 p-6 mb-6 relative overflow-hidden"
+          className="glass-card p-6 mb-6"
           variants={qrVariants}
         >
-          {/* Corner ornaments */}
-          <div className="absolute top-0 left-0 w-8 h-8 pointer-events-none">
-            <CornerAccent />
-          </div>
-          <div className="absolute top-0 right-0 w-8 h-8 pointer-events-none transform rotate-90">
-            <CornerAccent />
-          </div>
-          <div className="absolute bottom-0 left-0 w-8 h-8 pointer-events-none transform -scale-x-100">
-            <CornerAccent />
-          </div>
-          <div className="absolute bottom-0 right-0 w-8 h-8 pointer-events-none transform -scale-x-100 -rotate-90">
-            <CornerAccent />
-          </div>
-
           <h3 className="font-bold text-gray-800 mb-4 text-center">
             QR Code Check-in
           </h3>
           <div className="flex justify-center">
-            <div className="p-4 bg-gradient-to-br from-cream to-white rounded-xl border border-gold/30">
+            <div className="glass p-4 rounded-xl">
               <QRCode value={token} size={180} />
             </div>
           </div>
           <p className="text-center text-gray-500 text-sm mt-4 flex items-center justify-center gap-2">
-            <MapPin className="w-4 h-4 text-islamic-teal" />
+            <MapPin className="w-4 h-4 text-primary" />
             Tunjukkan QR Code ini saat check-in di lokasi acara
           </p>
           {hasCheckin && (
             <motion.div
-              className="mt-4 p-3 bg-green-50 rounded-lg flex items-center justify-center gap-2 text-green-700 border border-green-200"
+              className="mt-4 glass p-3 flex items-center justify-center gap-2 text-success"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
             >
-              <CheckCircle className="w-5 h-5 text-green-600" />
+              <CheckCircle className="w-5 h-5" />
               <span className="font-medium">Sudah Check-in</span>
             </motion.div>
           )}
@@ -179,17 +152,14 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
 
         {/* Guest Greeting Card */}
         <motion.div
-          className="bg-white rounded-2xl shadow-lg p-6 mb-6 relative border border-gold/20 hover:shadow-[0_20px_60px_-15px_rgba(212,175,55,0.2)] transition-all duration-300"
+          className="glass-card p-6 mb-6"
           variants={itemVariants}
         >
-          {/* Top gold border accent */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold/80 via-transparent to-gold/80 rounded-t-2xl" />
-
           <div className="flex items-start gap-3 mb-2">
-            <Mail className="w-5 h-5 text-gold mt-1 shrink-0" />
+            <Mail className="w-5 h-5 text-primary mt-1 shrink-0" />
             <p className="text-gray-500 text-sm">Kepada Yth.</p>
           </div>
-          <h2 className="text-xl font-bold text-charcoal mb-1 pb-2 border-b-2 border-gold/30">
+          <h2 className="text-xl font-bold text-secondary mb-1 pb-2 border-b border-gray-200">
             Bapak/Ibu {tamu.nama_ayah || tamu.nama_ibu || ""}
           </h2>
           <p className="text-gray-600">
@@ -199,7 +169,7 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
           </p>
           <p className="text-gray-600 mt-1">
             bersama{" "}
-            <span className="text-islamic-teal font-medium italic">
+            <span className="text-primary font-medium">
               {tamu.jenis_kelamin === "Laki-laki" ? "Ananda" : "Anak kami"}{" "}
               {tamu.nama_siswa}
             </span>
@@ -208,30 +178,23 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
 
         {/* Event Details Card */}
         <motion.div
-          className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gold/20"
+          className="glass-card p-6 mb-6"
           variants={itemVariants}
         >
-          <Divider />
           <h3 className="font-bold text-gray-800 mb-4">Detail Acara</h3>
 
-          {/* Vertical timeline */}
-          <div className="relative border-l-2 border-double border-gold/40 ml-1.5 pl-6 space-y-6">
-            {/* Date */}
+          <div className="relative border-l-2 border-gray-300 ml-1.5 pl-6 space-y-6">
             <div className="relative flex items-start gap-3">
-              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-islamic-teal border-2 border-gold flex items-center justify-center">
+              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                 <Calendar className="w-3 h-3 text-white" />
               </span>
               <div>
                 <p className="font-medium text-gray-800">Sabtu, 21 Juni 2025</p>
-                <p className="text-sm font-amiri text-gold-dark mt-0.5">
-                  15 Dzulqa'dah 1446 H
-                </p>
               </div>
             </div>
 
-            {/* Time */}
             <div className="relative flex items-start gap-3">
-              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-islamic-teal border-2 border-gold flex items-center justify-center">
+              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                 <Clock className="w-3 h-3 text-white" />
               </span>
               <div>
@@ -241,9 +204,8 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
               </div>
             </div>
 
-            {/* Venue */}
             <div className="relative flex items-start gap-3">
-              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-islamic-teal border-2 border-gold flex items-center justify-center">
+              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                 <MapPin className="w-3 h-3 text-white" />
               </span>
               <div>
@@ -252,16 +214,15 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
               </div>
             </div>
 
-            {/* Live Streaming */}
             <div className="relative flex items-start gap-3">
-              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-islamic-teal border-2 border-gold flex items-center justify-center">
+              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                 <Video className="w-3 h-3 text-white" />
               </span>
               <div>
                 <p className="font-medium text-gray-800">Live Streaming</p>
                 <a
                   href="#"
-                  className="text-sm text-islamic-teal hover:underline font-medium"
+                  className="text-sm text-primary hover:underline font-medium"
                 >
                   Link YouTube
                 </a>
@@ -272,22 +233,20 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
 
         {/* Agenda Card */}
         <motion.div
-          className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gold/20"
+          className="glass-card p-6 mb-6"
           variants={itemVariants}
         >
           <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-gold">📋</span> Susunan Acara
+            <span className="text-primary">📋</span> Susunan Acara
           </h3>
 
-          <div className="relative border-l-2 border-gold/60 ml-3 pl-6 space-y-5">
-            {/* 08.00 - 08.30 */}
+          <div className="relative border-l-2 border-gray-300 ml-3 pl-6 space-y-5">
             <div className="group relative">
-              {/* Timeline circle */}
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-islamic-teal text-white text-xs font-bold flex items-center justify-center ring-2 ring-gold/60">
+              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
                 08
               </span>
               <div className="flex items-start gap-2">
-                <BookOpen className="w-4 h-4 text-gold mt-1" />
+                <BookOpen className="w-4 h-4 text-primary mt-1" />
                 <div>
                   <p className="text-sm font-medium text-gray-800">
                     08.00 - 08.30
@@ -297,13 +256,12 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
               </div>
             </div>
 
-            {/* 08.30 - 09.30 */}
             <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-islamic-teal text-white text-xs font-bold flex items-center justify-center ring-2 ring-gold/60">
+              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
                 08
               </span>
               <div className="flex items-start gap-2">
-                <Mic className="w-4 h-4 text-gold mt-1" />
+                <Mic className="w-4 h-4 text-primary mt-1" />
                 <div>
                   <p className="text-sm font-medium text-gray-800">
                     08.30 - 09.30
@@ -313,13 +271,12 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
               </div>
             </div>
 
-            {/* 09.30 - 10.30 */}
             <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-islamic-teal text-white text-xs font-bold flex items-center justify-center ring-2 ring-gold/60">
+              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
                 09
               </span>
               <div className="flex items-start gap-2">
-                <Video className="w-4 h-4 text-gold mt-1" />
+                <Video className="w-4 h-4 text-primary mt-1" />
                 <div>
                   <p className="text-sm font-medium text-gray-800">
                     09.30 - 10.30
@@ -329,13 +286,12 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
               </div>
             </div>
 
-            {/* 10.30 - 11.30 */}
             <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-islamic-teal text-white text-xs font-bold flex items-center justify-center ring-2 ring-gold/60">
+              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
                 10
               </span>
               <div className="flex items-start gap-2">
-                <Camera className="w-4 h-4 text-gold mt-1" />
+                <Camera className="w-4 h-4 text-primary mt-1" />
                 <div>
                   <p className="text-sm font-medium text-gray-800">
                     10.30 - 11.30
@@ -345,13 +301,12 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
               </div>
             </div>
 
-            {/* 11.30 - 12.00 */}
             <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-islamic-teal text-white text-xs font-bold flex items-center justify-center ring-2 ring-gold/60">
+              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
                 11
               </span>
               <div className="flex items-start gap-2">
-                <Star className="w-4 h-4 text-gold mt-1" />
+                <Star className="w-4 h-4 text-primary mt-1" />
                 <div>
                   <p className="text-sm font-medium text-gray-800">
                     11.30 - 12.00
@@ -374,10 +329,10 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
       </motion.div>
 
       {/* Footer */}
-      <footer className="text-center py-6 text-gray-500 text-sm border-t-2 border-gold/30 mt-12">
+      <footer className="text-center py-6 text-gray-500 text-sm mt-12">
         <div className="flex items-center justify-center gap-2">
-          <span className="font-amiri text-lg">© ٢٠٢٥</span>
-          <span className="text-gold text-lg">✦</span>
+          <span className="font-noto-arabic text-lg">© 2025</span>
+          <span className="text-primary text-lg">✦</span>
           <span>Akhirusannah. Semua hak dilindungi.</span>
         </div>
       </footer>

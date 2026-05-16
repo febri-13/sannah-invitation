@@ -34,11 +34,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="glass-card w-full max-w-md p-8">
         <div className="flex flex-col items-center mb-8">
-          <Landmark className="w-12 h-12 text-islamic-teal mb-2" />
-          <h1 className="text-2xl font-bold text-leaf-green">Login Panitia</h1>
+          <Landmark className="w-12 h-12 text-primary mb-2" />
+          <h1 className="text-2xl font-bold text-secondary">Login Panitia</h1>
           <p className="text-gray-500 text-sm">Akses dashboard undangan</p>
         </div>
 
@@ -51,8 +51,8 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-islamic-teal focus:border-transparent outline-none"
-              placeholder="admin@undangan.sch.id"
+              className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+               placeholder="masukkan email admin"
               required
             />
           </div>
@@ -65,14 +65,14 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-islamic-teal focus:border-transparent outline-none"
+              className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
               placeholder="••••••••"
               required
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg">
+            <div className="p-3 bg-danger/10 text-danger text-sm rounded-lg">
               {error}
             </div>
           )}
@@ -80,7 +80,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-islamic-teal text-white rounded-lg font-medium hover:bg-leaf-green transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="glass-button w-full py-3 text-white font-medium disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
