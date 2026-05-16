@@ -85,16 +85,14 @@ export default function ScanPage() {
         setNamaTamu(`${data.nama_ortu} dan ${data.nama_siswa}`);
         setMessage("Berhasil check-in!");
       } else {
+        await scannerRef.current?.clear();
         setStatus("error");
         setMessage((data.error as string) || "Terjadi kesalahan");
-        // Re-create scanner so user can scan again immediately
-        startScanner();
       }
     } catch {
       setStatus("error");
       setMessage("Gagal terhubung ke server");
       scannerRef.current?.clear();
-      startScanner();
     } finally {
       processingRef.current = false;
     }
