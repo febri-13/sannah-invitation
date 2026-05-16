@@ -8,19 +8,14 @@ import Link from "next/link";
 
 export default function ScanPage() {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
-  // processingRef prevents concurrent/duplicate API calls even when React
-  // re-renders with stale closure values (e.g. 10fps foreverScan loop beating state updates).
   const processingRef = useRef(false);
   const [status, setStatus] = useState<"idle" | "scanning" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [namaTamu, setNamaTamu] = useState("");
+  const [scannerKey, setScannerKey] = useState(0);
   const supabase = createClient();
 
-  const startScanner = (clearOld = false) => {
-    if (clearOld) {
-      scannerRef.current?.clear().catch(() => {});
-    }
-
+  useEffect(() => {
     const scanner = new Html5QrcodeScanner(
       "qr-reader",
       {
@@ -43,15 +38,11 @@ export default function ScanPage() {
     );
 
     setStatus("scanning");
-  };
-
-  useEffect(() => {
-    startScanner();
 
     return () => {
-      scannerRef.current?.clear();
+      scanner.clear();
     };
-  }, []);
+  }, [scannerKey]);
 
   const handleScan = async (token: string) => {
     // Guard 1 (ref): prevents re-entry from the 10fps foreverScan loop even before
@@ -101,7 +92,7 @@ export default function ScanPage() {
     setStatus("idle");
     setMessage("");
     setNamaTamu("");
-    setTimeout(() => startScanner(true), 100);
+    setScannerKey((k) => k + 1);
   };
 
   return (
