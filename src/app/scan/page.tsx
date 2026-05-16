@@ -16,6 +16,7 @@ export default function ScanPage() {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const processingRef = useRef(false);
   const handleScanRef = useRef<((token: string) => Promise<void>) | null>(null);
+  const autoResetRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [status, setStatus] = useState<"idle" | "scanning" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [namaTamu, setNamaTamu] = useState("");
@@ -51,6 +52,7 @@ export default function ScanPage() {
     startScanner();
 
     return () => {
+      clearTimeout(autoResetRef.current);
       scannerRef.current?.clear();
     };
   }, []);
@@ -84,21 +86,25 @@ export default function ScanPage() {
         setStatus("success");
         setNamaTamu(`${data.nama_ortu} dan ${data.nama_siswa}`);
         setMessage("Berhasil check-in!");
+        autoResetRef.current = setTimeout(resetScanner, 1500);
       } else {
         await scannerRef.current?.clear();
         setStatus("error");
         setMessage((data.error as string) || "Terjadi kesalahan");
+        autoResetRef.current = setTimeout(resetScanner, 2500);
       }
     } catch {
       setStatus("error");
       setMessage("Gagal terhubung ke server");
       scannerRef.current?.clear();
+      autoResetRef.current = setTimeout(resetScanner, 2500);
     } finally {
       processingRef.current = false;
     }
   };
 
   const resetScanner = () => {
+    clearTimeout(autoResetRef.current);
     setStatus("idle");
     setMessage("");
     setNamaTamu("");
