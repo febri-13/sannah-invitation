@@ -101,7 +101,7 @@ export default function ScanPage() {
     setStatus("idle");
     setMessage("");
     setNamaTamu("");
-    startScanner(true);
+    setTimeout(() => startScanner(true), 100);
   };
 
   return (
