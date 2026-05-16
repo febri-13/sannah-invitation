@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
     const body = await request.json();
-    const { namaOrtu, token, namaSiswa, tanggalAcara, waktuAcara, lokasiAcara } = body;
+    const { namaOrtu, token, namaSiswa, tanggalAcara, waktuAcara, lokasiAcara, phoneNumber } = body;
 
     if (!namaOrtu || !token) {
       return NextResponse.json(
@@ -58,7 +58,11 @@ export async function POST(request: NextRequest) {
       .replace(/{waktuAcara}/g, waktuAcara || "08.00 - 12.00 WIB")
       .replace(/{lokasiAcara}/g, lokasiAcara || "MTsN 1 Kota");
 
-    const waLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const cleanPhone = phoneNumber?.replace(/[^0-9]/g, "");
+    const internationalPhone = cleanPhone?.startsWith("0") ? `62${cleanPhone.slice(1)}` : cleanPhone;
+    const waLink = internationalPhone
+      ? `https://wa.me/${internationalPhone}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
 
     return NextResponse.json({ url: waLink });
   } catch (error) {

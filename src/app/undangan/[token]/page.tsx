@@ -7,18 +7,23 @@ export default async function UndanganPage({
 }: {
   params: Promise<{ token: string }>;
 }) {
-  const { token } = await params;
+  try {
+    const { token } = await params;
 
-  const supabase = createAdminClient();
-  const { data: tamu, error } = await supabase
-    .from("tamu")
-    .select("*, rsvp(*), checkin(*)")
-    .eq("token", token)
-    .single();
+    const supabase = createAdminClient();
+    const { data: tamu, error } = await supabase
+      .from("tamu")
+      .select("*, rsvp(*), checkin(*)")
+      .eq("token", token)
+      .single();
 
-  if (error || !tamu) {
+    if (error || !tamu) {
+      notFound();
+    }
+
+    return <InvitationClient tamu={tamu} token={token} />;
+  } catch (error) {
+    console.error("Gagal memuat undangan:", error);
     notFound();
   }
-
-  return <InvitationClient tamu={tamu} token={token} />;
 }

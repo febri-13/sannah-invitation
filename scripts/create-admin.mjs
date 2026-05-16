@@ -11,9 +11,12 @@ const supabase = createClient(supabaseUrl, serviceKey, {
 });
 
 async function createAdmin() {
+  const email = process.argv[2] || process.env.ADMIN_EMAIL || "admin@undangan.sch.id";
+  const password = process.argv[3] || process.env.ADMIN_PASSWORD || "1123581321";
+
   const { data, error } = await supabase.auth.signUp({
-    email: "admin@undangan.sch.id",
-    password: "1123581321",
+    email,
+    password,
   });
 
   if (error) {
@@ -21,7 +24,7 @@ async function createAdmin() {
     process.exit(1);
   }
 
-  console.log("Admin user created:", data.user);
+  console.log("Admin user created:", data.user?.id);
 }
 
 createAdmin();

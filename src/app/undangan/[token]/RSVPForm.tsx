@@ -10,13 +10,13 @@ interface RSVPFormProps {
     kehadiran_ortu: string | null;
     kehadiran_anak: string | null;
     pesan: string | null;
-    created_at: string;
+    created_at: string | null;
   } | null;
   legacyRsvp: {
     kehadiran: string;
     jumlah: number;
     pesan: string | null;
-    created_at: string;
+    created_at: string | null;
   } | null;
 }
 

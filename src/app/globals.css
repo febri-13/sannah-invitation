@@ -2,11 +2,20 @@
 
 @theme {
   --color-primary: #1856FF;
+  --color-primary-container: #dde0ff;
+  --color-on-primary-container: #001453;
   --color-secondary: #3A344E;
   --color-success: #07CA6B;
   --color-warning: #E89558;
   --color-danger: #EA2143;
   --color-surface: #FFFFFF;
+  --color-surface-container-low: #f3f2ff;
+  --color-surface-container: #eeecff;
+  --color-surface-container-high: #e7e6ff;
+  --color-on-surface: #1b1b21;
+  --color-on-surface-variant: #464654;
+  --color-outline: #767685;
+  --color-outline-variant: #c6c5d6;
   --color-text: #141414;
   --color-neutral: #FFFFFF;
 
@@ -58,12 +67,27 @@ body {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   }
 
-  .glass-input {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
     border-radius: 12px;
+  }
+
+  .glass-input:focus {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: #1856ff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(24, 86, 255, 0.2);
   }
 
   .glass-button {

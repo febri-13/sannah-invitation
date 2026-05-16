@@ -15,7 +15,7 @@ interface TamuData {
   jenis_kelamin: string | null;
   token: string;
   rsvp: { kehadiran: string; jumlah: number }[] | null;
-  checkin: { waktu: string }[] | null;
+  checkin: { waktu: string | null }[] | null;
 }
 
 interface TamuTableProps {
@@ -51,23 +51,30 @@ export default function TamuTable({ data }: TamuTableProps) {
   }, [data, search, activeTab]);
 
   const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/tamu/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`/api/tamu/${id}`, {
+        method: "DELETE",
+      });
 
-    if (res.ok) {
-      router.refresh();
+      if (res.ok) {
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Gagal menghapus tamu:", error);
+    } finally {
+      setDeleteId(null);
     }
-    setDeleteId(null);
   };
 
   const getWhatsAppLink = async (tamu: TamuData, target: "ayah" | "ibu") => {
     const namaOrtu = target === "ayah" ? (tamu.nama_ayah || tamu.nama_siswa) : (tamu.nama_ibu || tamu.nama_siswa);
+    const noWa = target === "ayah" ? tamu.no_wa_ayah : tamu.no_wa_ibu;
     return await generateWhatsAppLink(
       namaOrtu,
       tamu.token,
-      tamu.nama_siswa
-      // tanggalAcara, waktuAcara, lokasiAcara use defaults
+      tamu.nama_siswa,
+      undefined, undefined, undefined,
+      noWa ?? undefined
     );
   };
 

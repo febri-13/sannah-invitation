@@ -20,16 +20,22 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+      } else {
+        router.push("/admin/dashboard");
+      }
+    } catch (error) {
+      console.error("Gagal login:", error);
+      setError("Gagal terhubung ke server");
+    } finally {
       setLoading(false);
-    } else {
-      router.push("/admin/dashboard");
     }
   };
 

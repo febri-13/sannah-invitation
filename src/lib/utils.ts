@@ -38,14 +38,15 @@ export async function generateWhatsAppLink(
   namaSiswa?: string,
   tanggalAcara?: string,
   waktuAcara?: string,
-  lokasiAcara?: string
+  lokasiAcara?: string,
+  phoneNumber?: string
 ): Promise<string> {
   // Fallback: call the API endpoint
   try {
     const res = await fetch("/api/generate-wa", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ namaOrtu, token, namaSiswa, tanggalAcara, waktuAcara, lokasiAcara }),
+      body: JSON.stringify({ namaOrtu, token, namaSiswa, tanggalAcara, waktuAcara, lokasiAcara, phoneNumber }),
     });
     const data = await res.json();
     if (res.ok) return data.url;
@@ -58,6 +59,10 @@ export async function generateWhatsAppLink(
     const text = encodeURIComponent(
       `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu ${namaOrtu},\n\nDengan hormat, kami mengundang Anda untuk menghadiri acara perpisahan sekolah Akhirusannah untuk Ananda ${namaSiswa || ""}.\n\nSilakan klik link berikut untuk melihat undangan:\n${link}\n\nKami tunggu kehadiran Anda.\nWassalamu'alaikum Wr. Wb.`
     );
-    return `https://wa.me/?text=${text}`;
+    const cleanPhone = phoneNumber?.replace(/[^0-9]/g, "");
+    const internationalPhone = cleanPhone?.startsWith("0") ? `62${cleanPhone.slice(1)}` : cleanPhone;
+    return internationalPhone
+      ? `https://wa.me/${internationalPhone}?text=${text}`
+      : `https://wa.me/?text=${text}`;
   }
 }

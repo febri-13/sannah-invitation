@@ -24,12 +24,12 @@ interface TamuRsvp {
   kehadiran_ortu: string | null;
   kehadiran_anak: string | null;
   pesan: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 interface TamuCheckin {
   id: string;
-  checkin_at: string;
+  waktu: string | null;
 }
 
 interface Tamu {
@@ -37,7 +37,7 @@ interface Tamu {
   nama_ayah: string | null;
   nama_ibu: string | null;
   nama_siswa: string;
-  jenis_kelamin: string;
+  jenis_kelamin: string | null;
   token: string;
   rsvp: TamuRsvp[];
   checkin: TamuCheckin[];

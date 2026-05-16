@@ -113,34 +113,37 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen p-4">
-      <header className="flex items-center gap-4 mb-6">
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-white/90 backdrop-blur-md w-full sticky top-0 z-50 flex items-center gap-3 px-6 py-4 border-b border-white/40">
         <button
           onClick={() => router.push("/admin/dashboard")}
-          className="glass p-2"
+          className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface hover:bg-white/40 px-3 py-2 rounded-full transition-all duration-200"
         >
-          <ArrowLeft className="w-5 h-5 text-gray-600" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold text-secondary">Upload Tamu (CSV)</h1>
+        <h1 className="text-xl font-bold text-on-surface">Upload Tamu (CSV)</h1>
       </header>
 
-      <div className="max-w-md mx-auto">
+      <main className="flex-1 w-full max-w-lg mx-auto p-4 md:p-6 lg:p-8 flex flex-col gap-6">
         {!success ? (
-          <div className="glass-card p-6">
-            <div className="glass p-4 rounded-lg mb-6">
-              <h3 className="font-medium text-secondary mb-2">Format CSV</h3>
-              <p className="text-sm text-gray-600">
-                Format: <code>nama_siswa;jenis_kelamin;nama_ayah;nama_ibu;no_wa_ayah;no_wa_ibu</code>
+          <div className="glass-panel rounded-3xl p-6 md:p-8 flex flex-col gap-6">
+            <div className="bg-surface-container-low rounded-2xl p-5">
+              <h3 className="font-semibold text-on-surface mb-3">Format CSV</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed">
+                Gunakan delimiter <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono">;</code> (titik koma)
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Contoh: Fatimah;Perempuan;Ahmad Wijaya;Siti Aminah;081234567890;
+              <div className="bg-white/60 rounded-xl p-3 mt-3 font-mono text-xs text-on-surface-variant leading-relaxed break-all">
+                nama_siswa;jenis_kelamin;nama_ayah;nama_ibu;no_wa_ayah;no_wa_ibu
+              </div>
+              <p className="text-xs text-on-surface-variant mt-3">
+                Contoh: <span className="font-mono">Fatimah;Perempuan;Ahmad Wijaya;Siti Aminah;081234567890;</span>
               </p>
-              <p className="text-xs text-gray-500 mt-2">
-                *) jenis_kelamin wajib: &quot;Laki-laki&quot; atau &quot;Perempuan&quot;
+              <p className="text-xs text-on-surface-variant mt-2">
+                *) <span className="font-medium">jenis_kelamin</span> wajib: &quot;Laki-laki&quot; atau &quot;Perempuan&quot;
               </p>
             </div>
 
-            <div className="mb-4">
+            <div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -150,25 +153,27 @@ export default function UploadPage() {
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-4 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center gap-2 text-gray-500 hover:border-primary hover:text-primary transition-colors glass-input"
+                className="w-full py-6 border-2 border-dashed border-outline-variant rounded-2xl flex flex-col items-center justify-center gap-2 text-on-surface-variant hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-200 glass-input"
               >
-                <Upload className="w-5 h-5" />
-                {file ? file.name : "Pilih file CSV"}
+                <Upload className="w-6 h-6" />
+                <span className="text-sm font-medium">{file ? file.name : "Pilih file CSV"}</span>
               </button>
             </div>
 
             {parsedData.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileSpreadsheet className="w-5 h-5 text-success" />
-                  <span className="font-medium text-gray-700">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
+                    <FileSpreadsheet className="w-4 h-4 text-success" />
+                  </div>
+                  <span className="font-semibold text-on-surface text-sm">
                     {parsedData.length} data ditemukan
                   </span>
                 </div>
-                <div className="max-h-40 overflow-y-auto glass rounded-lg p-2">
+                <div className="max-h-40 overflow-y-auto bg-surface-container-low rounded-2xl p-3 space-y-1">
                   {parsedData.map((row, i) => (
-                    <div key={i} className="text-sm py-1 border-b last:border-0">
-                      {row.nama_siswa} ({row.jenis_kelamin})
+                    <div key={i} className="text-sm py-1.5 px-3 rounded-xl bg-white/60 text-on-surface">
+                      {row.nama_siswa} <span className="text-on-surface-variant">({row.jenis_kelamin})</span>
                     </div>
                   ))}
                 </div>
@@ -176,7 +181,7 @@ export default function UploadPage() {
             )}
 
             {error && (
-              <div className="p-3 bg-danger/10 text-danger text-sm rounded-lg mb-4">
+              <div className="flex items-center gap-2 p-3 bg-danger/10 text-danger text-sm rounded-2xl">
                 {error}
               </div>
             )}
@@ -184,7 +189,7 @@ export default function UploadPage() {
             <button
               onClick={handleUpload}
               disabled={loading || parsedData.length === 0}
-              className="glass-button w-full py-3 text-white font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+              className="bg-primary text-white hover:bg-blue-700 w-full py-3 rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm transition-colors"
             >
               {loading ? (
                 <>
@@ -200,40 +205,42 @@ export default function UploadPage() {
             </button>
           </div>
         ) : (
-          <div className="glass-card p-6">
-            <div className="text-center mb-6">
-              <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-gray-800">Upload Selesai</h2>
+          <div className="glass-panel rounded-3xl p-6 md:p-8 flex flex-col gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-success" />
+              </div>
+              <h2 className="text-xl font-bold text-on-surface">Upload Selesai</h2>
             </div>
 
-            <div className="glass rounded-lg p-4 mb-6">
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">Berhasil:</span>
-                <span className="font-medium text-success">{results?.success}</span>
+            <div className="bg-surface-container-low rounded-2xl p-4 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-on-surface-variant">Berhasil</span>
+                <span className="font-semibold text-success bg-success/10 px-3 py-1 rounded-full text-sm">{results?.success}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Gagal:</span>
-                <span className="font-medium text-danger">{results?.failed}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-on-surface-variant">Gagal</span>
+                <span className="font-semibold text-danger bg-danger/10 px-3 py-1 rounded-full text-sm">{results?.failed}</span>
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <button
                 onClick={() => router.push("/admin/dashboard")}
-                className="glass-button flex-1 py-3 text-white font-medium"
+                className="bg-primary text-white hover:bg-blue-700 flex-1 py-3 rounded-full font-semibold shadow-sm transition-colors"
               >
                 Lihat Dashboard
               </button>
               <button
                 onClick={handleReset}
-                className="glass flex-1 py-3 text-gray-700 font-medium"
+                className="glass-panel text-on-surface hover:bg-white/80 flex-1 py-3 rounded-full font-semibold transition-colors"
               >
                 Upload Lagi
               </button>
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

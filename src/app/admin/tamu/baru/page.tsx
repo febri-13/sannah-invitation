@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Loader2, Copy, CheckCircle, X } from "lucide-react";
+import { ArrowLeft, Plus, Loader2, Copy, CheckCircle, X, Send } from "lucide-react";
 
 export default function TambahTamuPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function TambahTamuPage() {
   const [error, setError] = useState("");
   
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" }>({ show: false, message: "", type: "success" });
-  const [lastCreated, setLastCreated] = useState<{ token: string; namaSiswa: string } | null>(null);
+  const [lastCreated, setLastCreated] = useState<{ token: string; namaSiswa: string; noWaAyah: string; noWaIbu: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,39 +24,45 @@ export default function TambahTamuPage() {
     setError("");
     setLoading(true);
 
-    const res = await fetch("/api/tamu", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nama_siswa: namaSiswa,
-        jenis_kelamin: jenisKelamin,
-        nama_ayah: namaAyah || undefined,
-        nama_ibu: namaIbu || undefined,
-        no_wa_ayah: noWaAyah || undefined,
-        no_wa_ibu: noWaIbu || undefined,
-      }),
-    });
+    try {
+      const res = await fetch("/api/tamu", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nama_siswa: namaSiswa,
+          jenis_kelamin: jenisKelamin,
+          nama_ayah: namaAyah || undefined,
+          nama_ibu: namaIbu || undefined,
+          no_wa_ayah: noWaAyah || undefined,
+          no_wa_ibu: noWaIbu || undefined,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      setLastCreated({ token: data.token, namaSiswa });
-      setToast({ show: true, message: "Tamu berhasil ditambahkan!", type: "success" });
-      
-      setNamaSiswa("");
-      setJenisKelamin("");
-      setNamaAyah("");
-      setNamaIbu("");
-      setNoWaAyah("");
-      setNoWaIbu("");
-      
-      setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
-    } else {
-      setToast({ show: true, message: data.error || "Terjadi kesalahan", type: "error" });
+      if (res.ok) {
+        setLastCreated({ token: data.token, namaSiswa, noWaAyah: noWaAyah || "", noWaIbu: noWaIbu || "" });
+        setToast({ show: true, message: "Tamu berhasil ditambahkan!", type: "success" });
+        
+        setNamaSiswa("");
+        setJenisKelamin("");
+        setNamaAyah("");
+        setNamaIbu("");
+        setNoWaAyah("");
+        setNoWaIbu("");
+        
+        setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
+      } else {
+        setToast({ show: true, message: data.error || "Terjadi kesalahan", type: "error" });
+        setTimeout(() => setToast({ show: false, message: "", type: "error" }), 3000);
+      }
+    } catch (error) {
+      console.error("Gagal menambah tamu:", error);
+      setToast({ show: true, message: "Gagal terhubung ke server", type: "error" });
       setTimeout(() => setToast({ show: false, message: "", type: "error" }), 3000);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const copyLink = () => {
@@ -224,18 +230,36 @@ export default function TambahTamuPage() {
                 </button>
               </div>
             </div>
-            <button
-              onClick={() => {
-                const waLink = `https://wa.me/?text=${encodeURIComponent(`Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu ${namaAyah || lastCreated.namaSiswa},\n\nDengan hormat, kami mengundang Anda untuk menghadiri acara perpisahan sekolah Akhirusannah.\n\nSilakan klik link berikut untuk melihat undangan:\n${typeof window !== "undefined" ? window.location.origin : ""}/undangan/${lastCreated.token}\n\nKami tunggu kehadiran Anda.\nWassalamu'alaikum Wr. Wb.`)}`;
-                window.open(waLink, "_blank");
-              }}
-              className="mt-3 w-full py-2 bg-success text-white rounded-lg font-medium flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.173-.185.296-.3.396-.3.127 0 .347.1.528.3.214.233.734.794.734 1.854 0 .813-.594 1.423-1.447 1.683-.274.085-.611.104-.886.04-.304-.073-.609-.114-.87-.057-.26.054-.495.084-.705.084-.207 0-.542-.027-.78-.121-.237-.093-.398-.143-.571.214-.172.297-.591.794-.644.907-.053.113-.001.283.07.38.07.097.185.293.315.414.127.12.213.21.304.26.091.049.182.097.245.164.063.067.097.128.132.192.035.065.035.13.021.2-.014.07-.06.174-.09.26z" />
-              </svg>
-              Kirim WhatsApp
-            </button>
+            <div className="mt-3 flex gap-2">
+              {lastCreated.noWaAyah && (
+                <button
+                  onClick={async () => {
+                    const namaOrtu = namaAyah || lastCreated.namaSiswa;
+                    const cleanPhone = lastCreated.noWaAyah.replace(/[^0-9]/g, "").replace(/^0/, "62");
+                    const body = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu ${namaOrtu},\n\nDengan hormat, kami mengundang Anda untuk menghadiri acara perpisahan sekolah Akhirusannah untuk Ananda ${lastCreated.namaSiswa}.\n\nSilakan klik link berikut untuk melihat undangan:\n${typeof window !== "undefined" ? window.location.origin : ""}/undangan/${lastCreated.token}\n\nKami tunggu kehadiran Anda.\nWassalamu'alaikum Wr. Wb.`;
+                    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(body)}`, "_blank");
+                  }}
+                  className="flex-1 py-2 bg-success text-white rounded-lg font-medium flex items-center justify-center gap-2 text-sm"
+                >
+                  <Send className="w-4 h-4" />
+                  Kirim ke Ayah
+                </button>
+              )}
+              {lastCreated.noWaIbu && (
+                <button
+                  onClick={async () => {
+                    const namaOrtu = namaIbu || lastCreated.namaSiswa;
+                    const cleanPhone = lastCreated.noWaIbu.replace(/[^0-9]/g, "").replace(/^0/, "62");
+                    const body = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu ${namaOrtu},\n\nDengan hormat, kami mengundang Anda untuk menghadiri acara perpisahan sekolah Akhirusannah untuk Ananda ${lastCreated.namaSiswa}.\n\nSilakan klik link berikut untuk melihat undangan:\n${typeof window !== "undefined" ? window.location.origin : ""}/undangan/${lastCreated.token}\n\nKami tunggu kehadiran Anda.\nWassalamu'alaikum Wr. Wb.`;
+                    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(body)}`, "_blank");
+                  }}
+                  className="flex-1 py-2 bg-success text-white rounded-lg font-medium flex items-center justify-center gap-2 text-sm"
+                >
+                  <Send className="w-4 h-4" />
+                  Kirim ke Ibu
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
