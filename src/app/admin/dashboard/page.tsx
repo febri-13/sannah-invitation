@@ -30,9 +30,11 @@ const TamuTable = dynamic(() => import("@/components/TamuTable"), {
   ),
 });
 import GenderPieChart from "./GenderPieChart";
+import AttendancePieChart from "./AttendancePieChart";
 
 const defaultStats = { totalTamu: 0, hadir: 0, tidakHadir: 0, totalCheckin: 0 };
 const defaultGenderStats = { total: 0, laki: 0, perempuan: 0, belum: 0 };
+const defaultAttendanceStats = { total: 0, offline: 0, online: 0, tidakHadir: 0, belum: 0 };
 
 async function getStats(sekolahId?: string) {
   try {
@@ -100,6 +102,47 @@ async function getGenderStats(sekolahId?: string) {
   }
 }
 
+async function getAttendanceStats(sekolahId?: string) {
+  try {
+    const supabase = createAdminClient();
+
+    // Total tamu
+    const tamuQuery = supabase
+      .from("tamu")
+      .select("*", { count: "exact", head: true });
+    if (sekolahId) tamuQuery.eq("sekolah_id", sekolahId);
+    const { count: totalTamu } = await tamuQuery;
+
+    // RSVP data
+    const rsvpQuery = supabase
+      .from("rsvp")
+      .select("kehadiran_ortu, kehadiran_anak");
+    if (sekolahId) rsvpQuery.eq("sekolah_id", sekolahId);
+    const { data: rsvps } = await rsvpQuery;
+
+    let offline = 0, online = 0, tidakHadir = 0;
+
+    for (const r of rsvps || []) {
+      if (r.kehadiran_ortu === "Offline") offline++;
+      else if (r.kehadiran_ortu === "Online") online++;
+      else if (r.kehadiran_ortu === "Tidak Hadir") tidakHadir++;
+
+      if (r.kehadiran_anak === "Offline") offline++;
+      else if (r.kehadiran_anak === "Online") online++;
+      else if (r.kehadiran_anak === "Tidak Hadir") tidakHadir++;
+    }
+
+    const totalResponded = offline + online + tidakHadir;
+    const belum = (totalTamu || 0) - (rsvps?.length || 0) + (rsvps?.filter(r => !r.kehadiran_ortu && !r.kehadiran_anak).length || 0);
+    const total = totalResponded + belum;
+
+    return { total, offline, online, tidakHadir, belum };
+  } catch (error) {
+    console.error("Gagal mengambil statistik kehadiran:", error);
+    return defaultAttendanceStats;
+  }
+}
+
 async function getTamu(sekolahId?: string) {
   try {
     const supabase = createAdminClient();
@@ -129,11 +172,13 @@ export default async function DashboardPage() {
 
   let stats = defaultStats;
   let genderStats = defaultGenderStats;
+  let attendanceStats = defaultAttendanceStats;
   let tamuList: Awaited<ReturnType<typeof getTamu>> = [];
 
   try {
     stats = await getStats(sekolahId);
     genderStats = await getGenderStats(sekolahId);
+    attendanceStats = await getAttendanceStats(sekolahId);
     tamuList = await getTamu(sekolahId);
   } catch (error) {
     console.error("Gagal memuat dashboard:", error);
@@ -203,8 +248,13 @@ return (
           </div>
         </section>
 
-        <section className="glass-panel rounded-3xl p-8 flex flex-col items-center justify-center text-center">
-          <GenderPieChart {...genderStats} />
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="glass-panel rounded-3xl p-8 flex flex-col items-center justify-center text-center">
+            <GenderPieChart {...genderStats} />
+          </div>
+          <div className="glass-panel rounded-3xl p-8 flex flex-col items-center justify-center text-center">
+            <AttendancePieChart {...attendanceStats} />
+          </div>
         </section>
 
         <section className="flex flex-wrap gap-3">
