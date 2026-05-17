@@ -16,6 +16,13 @@ import {
   Star,
 } from "lucide-react";
 import RSVPForm from "./RSVPForm";
+import type { Tables } from "@/lib/database.types";
+
+interface AgendaItem {
+  waktu: string;
+  icon: string;
+  judul: string;
+}
 
 interface TamuRsvp {
   id: string;
@@ -39,6 +46,7 @@ interface Tamu {
   nama_siswa: string;
   jenis_kelamin: string | null;
   token: string;
+  sekolah_id: string | null;
   rsvp: TamuRsvp[];
   checkin: TamuCheckin[];
 }
@@ -46,13 +54,24 @@ interface Tamu {
 interface InvitationClientProps {
   tamu: Tamu;
   token: string;
+  konten: Tables<"konten_undangan">;
 }
 
-export default function InvitationClient({ tamu, token }: InvitationClientProps) {
+const ICON_MAP: Record<string, React.ElementType> = {
+  BookOpen,
+  Mic,
+  Video,
+  Camera,
+  Star,
+};
+
+export default function InvitationClient({ tamu, token, konten }: InvitationClientProps) {
   const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
   const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
   const latestRsvp = hasRsvp ? tamu.rsvp[0]! : null;
   const isLegacyRsvp = latestRsvp ? !latestRsvp.kehadiran_ortu : false;
+
+  const agenda = (konten.agenda as unknown as AgendaItem[]) || [];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -80,6 +99,16 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
     },
   } as const;
 
+  const getIcon = (iconName: string) => {
+    const Icon = ICON_MAP[iconName];
+    return Icon ? <Icon className="w-4 h-4 text-primary mt-1" /> : null;
+  };
+
+  const getTimeLabel = (waktu: string) => {
+    const hour = waktu.split(".")[0];
+    return hour || "00";
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Header */}
@@ -91,7 +120,7 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
         >
           <Landmark className="w-14 h-14 mx-auto mb-4 text-primary opacity-90" />
           <p className="text-2xl mb-3 text-white/90 font-noto-arabic">
-            بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم
+            {konten.bismillah}
           </p>
         </motion.div>
 
@@ -101,17 +130,30 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          Akhirusannah
+          {konten.judul}
         </motion.h1>
 
-        <motion.p
-          className="text-white/80 text-lg"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          Perpisahan Sekolah
-        </motion.p>
+        {konten.hero_desc && (
+          <motion.p
+            className="text-white/80 text-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            {konten.hero_desc}
+          </motion.p>
+        )}
+
+        {konten.subtitle && (
+          <motion.p
+            className="text-white/60 text-sm mt-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+          >
+            {konten.subtitle}
+          </motion.p>
+        )}
       </div>
 
       {/* Main Content */}
@@ -189,7 +231,7 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
                 <Calendar className="w-3 h-3 text-white" />
               </span>
               <div>
-                <p className="font-medium text-gray-800">Sabtu, 21 Juni 2025</p>
+                <p className="font-medium text-gray-800">{konten.tanggal}</p>
               </div>
             </div>
 
@@ -198,9 +240,7 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
                 <Clock className="w-3 h-3 text-white" />
               </span>
               <div>
-                <p className="font-medium text-gray-800">
-                  Pukul 08.00 - 12.00 WIB
-                </p>
+                <p className="font-medium text-gray-800">{konten.waktu}</p>
               </div>
             </div>
 
@@ -209,114 +249,64 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
                 <MapPin className="w-3 h-3 text-white" />
               </span>
               <div>
-                <p className="font-medium text-gray-800">MTsN 1 Kota</p>
-                <p className="text-sm text-gray-500">Jl. Pendidikan No. 123</p>
+                <p className="font-medium text-gray-800">{konten.lokasi_nama}</p>
+                {konten.lokasi_alamat && (
+                  <p className="text-sm text-gray-500">{konten.lokasi_alamat}</p>
+                )}
               </div>
             </div>
 
-            <div className="relative flex items-start gap-3">
-              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                <Video className="w-3 h-3 text-white" />
-              </span>
-              <div>
-                <p className="font-medium text-gray-800">Live Streaming</p>
-                <a
-                  href="#"
-                  className="text-sm text-primary hover:underline font-medium"
-                >
-                  Link YouTube
-                </a>
+            {konten.link_youtube && (
+              <div className="relative flex items-start gap-3">
+                <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                  <Video className="w-3 h-3 text-white" />
+                </span>
+                <div>
+                  <p className="font-medium text-gray-800">Live Streaming</p>
+                  <a
+                    href={konten.link_youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline font-medium"
+                  >
+                    Link YouTube
+                  </a>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </motion.div>
 
         {/* Agenda Card */}
-        <motion.div
-          className="glass-card p-6 mb-6"
-          variants={itemVariants}
-        >
-          <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-primary">📋</span> Susunan Acara
-          </h3>
+        {agenda.length > 0 && (
+          <motion.div
+            className="glass-card p-6 mb-6"
+            variants={itemVariants}
+          >
+            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span className="text-primary">📋</span> Susunan Acara
+            </h3>
 
-          <div className="relative border-l-2 border-gray-300 ml-3 pl-6 space-y-5">
-            <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                08
-              </span>
-              <div className="flex items-start gap-2">
-                <BookOpen className="w-4 h-4 text-primary mt-1" />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    08.00 - 08.30
-                  </p>
-                  <p className="text-gray-600">Pembukaan & Doa</p>
+            <div className="relative border-l-2 border-gray-300 ml-3 pl-6 space-y-5">
+              {agenda.map((item, index) => (
+                <div key={index} className="group relative">
+                  <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
+                    {getTimeLabel(item.waktu)}
+                  </span>
+                  <div className="flex items-start gap-2">
+                    {getIcon(item.icon)}
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">
+                        {item.waktu}
+                      </p>
+                      <p className="text-gray-600">{item.judul}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-
-            <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                08
-              </span>
-              <div className="flex items-start gap-2">
-                <Mic className="w-4 h-4 text-primary mt-1" />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    08.30 - 09.30
-                  </p>
-                  <p className="text-gray-600">Laporan & Pidato</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                09
-              </span>
-              <div className="flex items-start gap-2">
-                <Video className="w-4 h-4 text-primary mt-1" />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    09.30 - 10.30
-                  </p>
-                  <p className="text-gray-600">Pemutaran Video Kenangan</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                10
-              </span>
-              <div className="flex items-start gap-2">
-                <Camera className="w-4 h-4 text-primary mt-1" />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    10.30 - 11.30
-                  </p>
-                  <p className="text-gray-600">Salam & Foto Bersama</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative">
-              <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                11
-              </span>
-              <div className="flex items-start gap-2">
-                <Star className="w-4 h-4 text-primary mt-1" />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    11.30 - 12.00
-                  </p>
-                  <p className="text-gray-600">Penutupan</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* RSVP Form */}
         <motion.div variants={itemVariants}>
@@ -331,9 +321,9 @@ export default function InvitationClient({ tamu, token }: InvitationClientProps)
       {/* Footer */}
       <footer className="text-center py-6 text-gray-500 text-sm mt-12">
         <div className="flex items-center justify-center gap-2">
-          <span className="font-noto-arabic text-lg">© 2025</span>
+          <span className="font-noto-arabic text-lg">{konten.header_arabic}</span>
           <span className="text-primary text-lg">✦</span>
-          <span>Akhirusannah. Semua hak dilindungi.</span>
+          <span>{konten.footer}</span>
         </div>
       </footer>
     </div>

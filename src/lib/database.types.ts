@@ -9,35 +9,8 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
-  }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
   }
   public: {
     Tables: {
@@ -66,6 +39,71 @@ export type Database = {
             columns: ["tamu_id"]
             isOneToOne: false
             referencedRelation: "tamu"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      konten_undangan: {
+        Row: {
+          agenda: Json
+          bismillah: string
+          created_at: string | null
+          footer: string
+          header_arabic: string
+          hero_desc: string
+          id: string
+          judul: string
+          link_youtube: string
+          lokasi_alamat: string
+          lokasi_nama: string
+          sekolah_id: string
+          subtitle: string
+          tanggal: string
+          updated_at: string | null
+          waktu: string
+        }
+        Insert: {
+          agenda?: Json
+          bismillah?: string
+          created_at?: string | null
+          footer?: string
+          header_arabic?: string
+          hero_desc?: string
+          id?: string
+          judul?: string
+          link_youtube?: string
+          lokasi_alamat?: string
+          lokasi_nama?: string
+          sekolah_id: string
+          subtitle?: string
+          tanggal?: string
+          updated_at?: string | null
+          waktu?: string
+        }
+        Update: {
+          agenda?: Json
+          bismillah?: string
+          created_at?: string | null
+          footer?: string
+          header_arabic?: string
+          hero_desc?: string
+          id?: string
+          judul?: string
+          link_youtube?: string
+          lokasi_alamat?: string
+          lokasi_nama?: string
+          sekolah_id?: string
+          subtitle?: string
+          tanggal?: string
+          updated_at?: string | null
+          waktu?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "konten_undangan_sekolah_id_fkey"
+            columns: ["sekolah_id"]
+            isOneToOne: true
+            referencedRelation: "sekolah"
             referencedColumns: ["id"]
           },
         ]
@@ -377,3 +415,4 @@ export type Rsvp = Tables<"rsvp">;
 export type Checkin = Tables<"checkin">;
 export type Pengaturan = Tables<"pengaturan">;
 export type Sekolah = Tables<"sekolah">;
+export type KontenUndangan = Tables<"konten_undangan">;

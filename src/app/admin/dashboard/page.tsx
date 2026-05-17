@@ -11,7 +11,8 @@ import {
   Plus,
   Scan,
   Upload,
-  Settings
+  Settings,
+  FileText
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -234,6 +235,13 @@ return (
           >
             <Settings className="w-5 h-5" />
             Pengaturan
+          </Link>
+          <Link
+            href="/admin/konten-undangan"
+            className="glass-panel text-on-surface hover:bg-white/80 px-5 py-2.5 rounded-full font-medium flex items-center gap-2 transition-colors"
+          >
+            <FileText className="w-5 h-5" />
+            Konten Undangan
           </Link>
         </section>
 
