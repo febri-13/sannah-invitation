@@ -55,6 +55,7 @@ export type Database = {
           judul: string
           link_youtube: string
           lokasi_alamat: string
+          lokasi_maps: string
           lokasi_nama: string
           sekolah_id: string
           subtitle: string
@@ -73,6 +74,7 @@ export type Database = {
           judul?: string
           link_youtube?: string
           lokasi_alamat?: string
+          lokasi_maps?: string
           lokasi_nama?: string
           sekolah_id: string
           subtitle?: string
@@ -91,6 +93,7 @@ export type Database = {
           judul?: string
           link_youtube?: string
           lokasi_alamat?: string
+          lokasi_maps?: string
           lokasi_nama?: string
           sekolah_id?: string
           subtitle?: string

@@ -12,6 +12,7 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "created_at" |
   waktu: "Pukul 08.00 - 12.00 WIB",
   lokasi_nama: "MTsN 1 Kota",
   lokasi_alamat: "Jl. Pendidikan No. 123",
+  lokasi_maps: "",
   link_youtube: "",
   agenda: [
     { waktu: "08.00 - 08.30", icon: "BookOpen", judul: "Pembukaan & Doa" },

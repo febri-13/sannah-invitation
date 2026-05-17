@@ -31,6 +31,7 @@ interface KontenData {
   waktu: string;
   lokasi_nama: string;
   lokasi_alamat: string;
+  lokasi_maps: string;
   link_youtube: string;
   agenda: AgendaItem[];
   header_arabic: string;
@@ -74,6 +75,7 @@ export default function KontenUndanganPage() {
   const [waktu, setWaktu] = useState("");
   const [lokasiNama, setLokasiNama] = useState("");
   const [lokasiAlamat, setLokasiAlamat] = useState("");
+  const [lokasiMaps, setLokasiMaps] = useState("");
   const [linkYoutube, setLinkYoutube] = useState("");
   const [agenda, setAgenda] = useState<AgendaItem[]>(DEFAULT_AGENDA);
   const [headerArabic, setHeaderArabic] = useState("");
@@ -97,6 +99,7 @@ export default function KontenUndanganPage() {
         setWaktu(result.waktu || "");
         setLokasiNama(result.lokasi_nama || "");
         setLokasiAlamat(result.lokasi_alamat || "");
+        setLokasiMaps(result.lokasi_maps || "");
         setLinkYoutube(result.link_youtube || "");
         setAgenda(
           Array.isArray(result.agenda) && result.agenda.length > 0
@@ -132,6 +135,7 @@ export default function KontenUndanganPage() {
           waktu,
           lokasi_nama: lokasiNama,
           lokasi_alamat: lokasiAlamat,
+          lokasi_maps: lokasiMaps,
           link_youtube: linkYoutube,
           agenda,
           header_arabic: headerArabic,
@@ -346,6 +350,20 @@ export default function KontenUndanganPage() {
                 rows={3}
                 className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary resize-none"
                 placeholder="Jl. Pendidikan No. 123"
+              />
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Google Maps Link{" "}
+                <span className="text-gray-400 font-normal">
+                  (buka Google Maps → Share → Copy link)
+                </span>
+              </label>
+              <input
+                value={lokasiMaps}
+                onChange={(e) => setLokasiMaps(e.target.value)}
+                className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                placeholder="https://maps.google.com/?q=..."
               />
             </div>
           </div>

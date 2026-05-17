@@ -14,6 +14,7 @@ import {
   Mic,
   Camera,
   Star,
+  Navigation,
 } from "lucide-react";
 import RSVPForm from "./RSVPForm";
 import type { Tables } from "@/lib/database.types";
@@ -270,6 +271,26 @@ export default function InvitationClient({ tamu, token, konten }: InvitationClie
                     className="text-sm text-primary hover:underline font-medium"
                   >
                     Link YouTube
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {konten.lokasi_maps && (
+              <div className="relative flex items-start gap-3">
+                <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                  <Navigation className="w-3 h-3 text-white" />
+                </span>
+                <div>
+                  <p className="font-medium text-gray-800">Google Maps</p>
+                  <a
+                    href={konten.lokasi_maps}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline font-medium inline-flex items-center gap-1"
+                  >
+                    <Navigation className="w-3 h-3" />
+                    Buka Google Maps
                   </a>
                 </div>
               </div>
