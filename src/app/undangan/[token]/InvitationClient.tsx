@@ -1,19 +1,14 @@
 'use client';
 
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import QRCode from "react-qr-code";
 import {
-  Landmark,
   Calendar,
   Clock,
   MapPin,
   Video,
   CheckCircle,
-  Mail,
-  BookOpen,
-  Mic,
-  Camera,
-  Star,
   Navigation,
 } from "lucide-react";
 import RSVPForm from "./RSVPForm";
@@ -56,17 +51,81 @@ interface InvitationClientProps {
   tamu: Tamu;
   token: string;
   konten: Tables<"konten_undangan">;
+  sekolahNama?: string;
 }
 
-const ICON_MAP: Record<string, React.ElementType> = {
-  BookOpen,
-  Mic,
-  Video,
-  Camera,
-  Star,
-};
+function useCountdown(targetISO: string) {
+  const calc = useCallback(() => {
+    const diff = new Date(targetISO).getTime() - Date.now();
+    if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
+    return {
+      d: Math.floor(diff / 86400000),
+      h: Math.floor((diff / 3600000) % 24),
+      m: Math.floor((diff / 60000) % 60),
+      s: Math.floor((diff / 1000) % 60),
+    };
+  }, [targetISO]);
+  const [c, setC] = useState(calc);
+  useEffect(() => {
+    const id = setInterval(() => setC(calc()), 1000);
+    return () => clearInterval(id);
+  }, [calc]);
+  return c;
+}
 
-export default function InvitationClient({ tamu, token, konten }: InvitationClientProps) {
+function parseDateToISO(dateStr: string): string {
+  const months: Record<string, string> = {
+    januari:"01",februari:"02",maret:"03",april:"04",mei:"05",juni:"06",
+    juli:"07",agustus:"08",september:"09",oktober:"10",november:"11",desember:"12",
+  };
+  const parts = dateStr.toLowerCase().split(" ");
+  const day = parts.find(p => /^\d+$/.test(p));
+  const month = parts.find(p => months[p]);
+  if (day && month) {
+    const y = parts.find(p => /^\d{4}$/.test(p)) || "2025";
+    return `${y}-${months[month]!}-${day!.padStart(2,"0")}T08:00:00`;
+  }
+  return "";
+}
+
+function BgOrbs() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute w-[360px] h-[360px] -left-[100px] -top-[120px] rounded-full"
+        style={{ background: "radial-gradient(circle at 30% 30%, #E89B6B 0%, rgba(232,155,107,0) 65%)" }} />
+      <div className="absolute w-[320px] h-[320px] -right-[90px] top-[400px] rounded-full"
+        style={{ background: "radial-gradient(circle at 60% 40%, #A9C0A2 0%, rgba(169,192,162,0) 65%)" }} />
+      <div className="absolute w-[380px] h-[380px] -left-[60px] top-[900px] rounded-full"
+        style={{ background: "radial-gradient(circle at 50% 50%, #D9B281 0%, rgba(217,178,129,0) 65%)" }} />
+      <div className="absolute w-[340px] h-[340px] -right-[120px] top-[1500px] rounded-full"
+        style={{ background: "radial-gradient(circle at 50% 50%, #C97A5D 0%, rgba(201,122,93,0) 65%)" }} />
+      <div className="absolute w-[360px] h-[360px] -left-[80px] top-[2200px] rounded-full"
+        style={{ background: "radial-gradient(circle at 40% 40%, #8FA68B 0%, rgba(143,166,139,0) 65%)" }} />
+      <div className="absolute w-[360px] h-[360px] -right-[100px] -bottom-[120px] rounded-full"
+        style={{ background: "radial-gradient(circle at 50% 50%, #E89B6B 0%, rgba(232,155,107,0) 65%)" }} />
+    </div>
+  );
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" as const },
+  },
+} as const;
+
+const qrVariants = {
+  hidden: { scale: 0.8, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: { type: "spring" as const, stiffness: 300, damping: 20 },
+  },
+} as const;
+
+export default function InvitationClient({ tamu, token, konten, sekolahNama = "SDIT Al-Hikmah" }: InvitationClientProps) {
   const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
   const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
   const latestRsvp = hasRsvp ? tamu.rsvp[0]! : null;
@@ -74,279 +133,301 @@ export default function InvitationClient({ tamu, token, konten }: InvitationClie
 
   const agenda = (konten.agenda as unknown as AgendaItem[]) || [];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.1 },
-    },
-  } as const;
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" },
-    },
-  } as const;
-
-  const qrVariants = {
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 300, damping: 20 },
-    },
-  } as const;
-
-  const getIcon = (iconName: string) => {
-    const Icon = ICON_MAP[iconName];
-    return Icon ? <Icon className="w-4 h-4 text-primary mt-1" /> : null;
-  };
-
-  const getTimeLabel = (waktu: string) => {
-    const hour = waktu.split(".")[0];
-    return hour || "00";
-  };
+  const targetISO = parseDateToISO(konten.tanggal);
+  const c = useCountdown(targetISO);
+  const countdownParts = [
+    { v: c.d, l: "HARI" }, { v: c.h, l: "JAM" }, { v: c.m, l: "MENIT" }, { v: c.s, l: "DETIK" },
+  ];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Header */}
-      <div className="relative glass-dark text-white py-16 px-4 text-center overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <Landmark className="w-14 h-14 mx-auto mb-4 text-primary opacity-90" />
-          <p className="text-2xl mb-3 text-white/90 font-noto-arabic">
-            {konten.bismillah}
-          </p>
-        </motion.div>
+    <div className="min-h-screen relative" style={{ background: "linear-gradient(180deg, #FDF6E8 0%, #F4E6D0 40%, #F8E5D6 70%, #FDF6E8 100%)" }}>
+      <div className="max-w-[390px] mx-auto relative overflow-hidden">
+        <BgOrbs />
 
-        <motion.h1
-          className="text-3xl font-bold mb-2 text-white"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          {konten.judul}
-        </motion.h1>
-
-        {konten.hero_desc && (
-          <motion.p
-            className="text-white/80 text-lg"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-            {konten.hero_desc}
-          </motion.p>
-        )}
-
-        {konten.subtitle && (
-          <motion.p
-            className="text-white/60 text-sm mt-1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-          >
-            {konten.subtitle}
-          </motion.p>
-        )}
-      </div>
-
-      {/* Main Content */}
-      <motion.div
-        className="max-w-md mx-auto px-4 py-8"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {/* QR Code Card */}
-        <motion.div
-          className="glass-card p-6 mb-6"
-          variants={qrVariants}
-        >
-          <h3 className="font-bold text-gray-800 mb-4 text-center">
-            QR Code Check-in
-          </h3>
-          <div className="flex justify-center">
-            <div className="glass p-4 rounded-xl">
-              <QRCode value={token} size={180} />
-            </div>
-          </div>
-          <p className="text-center text-gray-500 text-sm mt-4 flex items-center justify-center gap-2">
-            <MapPin className="w-4 h-4 text-primary" />
-            Tunjukkan QR Code ini saat check-in di lokasi acara
-          </p>
-          {hasCheckin && (
-            <motion.div
-              className="mt-4 glass p-3 flex items-center justify-center gap-2 text-success"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-            >
-              <CheckCircle className="w-5 h-5" />
-              <span className="font-medium">Sudah Check-in</span>
-            </motion.div>
-          )}
-        </motion.div>
-
-        {/* Guest Greeting Card */}
-        <motion.div
-          className="glass-card p-6 mb-6"
-          variants={itemVariants}
-        >
-          <div className="flex items-start gap-3 mb-2">
-            <Mail className="w-5 h-5 text-primary mt-1 shrink-0" />
-            <p className="text-gray-500 text-sm">Kepada Yth.</p>
-          </div>
-          <h2 className="text-xl font-bold text-secondary mb-1 pb-2 border-b border-gray-200">
-            Bapak/Ibu {tamu.nama_ayah || tamu.nama_ibu || ""}
-          </h2>
-          <p className="text-gray-600">
-            {tamu.nama_ayah && tamu.nama_ibu && `dan Ibu ${tamu.nama_ibu}`}
-            {tamu.nama_ayah && !tamu.nama_ibu && "dan Ibu"}
-            {!tamu.nama_ayah && tamu.nama_ibu && "dan Bapak"}
-          </p>
-          <p className="text-gray-600 mt-1">
-            bersama{" "}
-            <span className="text-primary font-medium">
-              {tamu.jenis_kelamin === "Laki-laki" ? "Ananda" : "Anak kami"}{" "}
-              {tamu.nama_siswa}
-            </span>
-          </p>
-        </motion.div>
-
-        {/* Event Details Card */}
-        <motion.div
-          className="glass-card p-6 mb-6"
-          variants={itemVariants}
-        >
-          <h3 className="font-bold text-gray-800 mb-4">Detail Acara</h3>
-
-          <div className="relative border-l-2 border-gray-300 ml-1.5 pl-6 space-y-6">
-            <div className="relative flex items-start gap-3">
-              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                <Calendar className="w-3 h-3 text-white" />
-              </span>
-              <div>
-                <p className="font-medium text-gray-800">{konten.tanggal}</p>
-              </div>
-            </div>
-
-            <div className="relative flex items-start gap-3">
-              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                <Clock className="w-3 h-3 text-white" />
-              </span>
-              <div>
-                <p className="font-medium text-gray-800">{konten.waktu}</p>
-              </div>
-            </div>
-
-            <div className="relative flex items-start gap-3">
-              <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                <MapPin className="w-3 h-3 text-white" />
-              </span>
-              <div>
-                <p className="font-medium text-gray-800">{konten.lokasi_nama}</p>
-                {konten.lokasi_alamat && (
-                  <p className="text-sm text-gray-500">{konten.lokasi_alamat}</p>
-                )}
-              </div>
-            </div>
-
-            {konten.link_youtube && (
-              <div className="relative flex items-start gap-3">
-                <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                  <Video className="w-3 h-3 text-white" />
-                </span>
-                <div>
-                  <p className="font-medium text-gray-800">Live Streaming</p>
-                  <a
-                    href={konten.link_youtube}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline font-medium"
-                  >
-                    Link YouTube
-                  </a>
-                </div>
-              </div>
-            )}
-
-            {konten.lokasi_maps && (
-              <div className="relative flex items-start gap-3">
-                <span className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                  <Navigation className="w-3 h-3 text-white" />
-                </span>
-                <div>
-                  <p className="font-medium text-gray-800">Google Maps</p>
-                  <a
-                    href={konten.lokasi_maps}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    <Navigation className="w-3 h-3" />
-                    Buka Google Maps
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Agenda Card */}
-        {agenda.length > 0 && (
+        <div className="relative">
+          {/* Hero */}
           <motion.div
-            className="glass-card p-6 mb-6"
-            variants={itemVariants}
+            className="px-[22px] pt-[30px] pb-[10px]"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="text-primary">📋</span> Susunan Acara
-            </h3>
+            <div className="glass-card p-[30px_22px_28px] text-center relative overflow-hidden">
+              <div className="absolute inset-[-20px] pointer-events-none"
+                style={{ background: "radial-gradient(circle at 50% 0%, rgba(255,210,180,0.5), transparent 60%)" }} />
+              <div className="relative">
+                <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "#8B4A2F", marginBottom: 14, opacity: 0.85 }}>
+                  {sekolahNama.toUpperCase()} · INVITATION
+                </p>
+                <p className="font-arabic text-[26px] leading-[1.5]" style={{ color: "#8B4A2F", marginBottom: 18 }}>
+                  {konten.bismillah}
+                </p>
+                <h1 className="font-serif-display text-[42px] leading-[0.95] font-medium italic" style={{ color: "#2A2520" }}>
+                  {konten.judul}
+                </h1>
+                {konten.subtitle && (
+                  <p className="font-serif-display text-[42px] leading-[0.95] font-medium italic" style={{ color: "#C26A4A", marginBottom: 6 }}>
+                    {konten.subtitle}
+                  </p>
+                )}
+                {konten.hero_desc && (
+                  <p className="text-[13px] leading-[1.6]" style={{ color: "#7a6655", marginTop: 8 }}>
+                    {konten.hero_desc}
+                  </p>
+                )}
 
-            <div className="relative border-l-2 border-gray-300 ml-3 pl-6 space-y-5">
-              {agenda.map((item, index) => (
-                <div key={index} className="group relative">
-                  <span className="absolute -left-[21px] top-1 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                    {getTimeLabel(item.waktu)}
-                  </span>
-                  <div className="flex items-start gap-2">
-                    {getIcon(item.icon)}
-                    <div>
-                      <p className="text-sm font-medium text-gray-800">
-                        {item.waktu}
-                      </p>
-                      <p className="text-gray-600">{item.judul}</p>
-                    </div>
+                <div className="glass-chip inline-flex items-center gap-4 mt-[22px] p-[14px_18px]">
+                  <div className="text-center">
+                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F" }}>
+                      {(() => {
+                        const d = new Date(konten.tanggal);
+                        const days = ["MINGGU","SENIN","SELASA","RABU","KAMIS","JUMAT","SABTU"];
+                        return isNaN(d.getTime()) ? "" : days[d.getDay()] || "";
+                      })()}
+                    </p>
+                    <p className="font-serif-display text-[36px] leading-[1] font-medium" style={{ color: "#2A2520" }}>
+                      {(() => { const d = new Date(konten.tanggal); return isNaN(d.getTime()) ? "" : d.getDate(); })()}
+                    </p>
+                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F" }}>
+                      {(() => {
+                        const d = new Date(konten.tanggal);
+                        const months = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+                        return isNaN(d.getTime()) ? "" : months[d.getMonth()] || "";
+                      })()} {(() => { const d = new Date(konten.tanggal); return isNaN(d.getTime()) ? "" : d.getFullYear(); })()}
+                    </p>
+                  </div>
+                  <div className="w-px h-[50px]" style={{ background: "rgba(139,74,47,0.25)" }} />
+                  <div className="text-left">
+                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F" }}>WAKTU</p>
+                    <p className="font-serif-display text-[22px] leading-[1.1] font-medium italic" style={{ color: "#2A2520" }}>
+                      {konten.waktu.split(" ")[1] || konten.waktu.split(" ")[0] || "08.00"}
+                    </p>
+                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F" }}>
+                      {konten.waktu.includes("WIB") ? "WIB — SELESAI" : konten.waktu}
+                    </p>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
           </motion.div>
-        )}
 
-        {/* RSVP Form */}
-        <motion.div variants={itemVariants}>
-          <RSVPForm
-            token={token}
-            existingRsvp={isLegacyRsvp ? null : latestRsvp}
-            legacyRsvp={isLegacyRsvp ? latestRsvp : null}
-          />
-        </motion.div>
-      </motion.div>
+          {/* Greeting */}
+          <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
+            <div className="glass-card p-[26px_24px] text-center">
+              <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "#8B4A2F", marginBottom: 14 }}>
+                KEPADA YANG TERHORMAT
+              </p>
+              <p className="font-serif-display text-[22px] leading-[1.3] italic" style={{ color: "#2A2520" }}>
+                {tamu.nama_ayah ? `Bapak ${tamu.nama_ayah}` : ""}
+              </p>
+              {tamu.nama_ayah && tamu.nama_ibu && (
+                <p className="font-serif-display text-[14px] leading-[1]" style={{ color: "#C26A4A", margin: "2px 0" }}>&amp;</p>
+              )}
+              <p className="font-serif-display text-[22px] leading-[1.3] italic" style={{ color: "#2A2520", marginBottom: 14 }}>
+                {tamu.nama_ibu ? `Ibu ${tamu.nama_ibu}` : (tamu.nama_ayah ? "dan Ibu" : "")}
+              </p>
+              <div className="w-8 h-px mx-auto mb-[14px]" style={{ background: "#C26A4A" }} />
+              <p className="text-[12px] leading-[1.6]" style={{ color: "#7a6655" }}>
+                bersama putra/putri tercinta
+              </p>
+              <p className="font-serif-display text-[20px] font-semibold" style={{ color: "#C26A4A", marginTop: 4 }}>
+                {tamu.nama_siswa}
+              </p>
+              {tamu.jenis_kelamin && (
+                <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#7a6655", marginTop: 6 }}>
+                  {tamu.jenis_kelamin.toUpperCase()}
+                </p>
+              )}
+            </div>
+          </motion.div>
 
-      {/* Footer */}
-      <footer className="text-center py-6 text-gray-500 text-sm mt-12">
-        <div className="flex items-center justify-center gap-2">
-          <span className="font-noto-arabic text-lg">{konten.header_arabic}</span>
-          <span className="text-primary text-lg">✦</span>
-          <span>{konten.footer}</span>
+          {/* Countdown */}
+          {targetISO && (
+            <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
+              <div className="glass-card p-[24px_18px]">
+                <p className="font-mono-label text-[9px] tracking-[0.3em] text-center" style={{ color: "#8B4A2F", marginBottom: 4 }}>
+                  MENUJU HARI BAHAGIA
+                </p>
+                <p className="font-serif-display text-[18px] italic text-center" style={{ color: "#2A2520", marginBottom: 16 }}>
+                  Hitung mundur
+                </p>
+                <div className="grid grid-cols-4 gap-2">
+                  {countdownParts.map((p, i) => (
+                    <div key={i} className="glass-chip text-center p-[12px_4px_10px]" style={{ background: "rgba(255,248,235,0.7)" }}>
+                      <p className="font-serif-display text-[28px] leading-[1] font-medium" style={{ color: "#C26A4A" }}>
+                        {String(p.v).padStart(2, "0")}
+                      </p>
+                      <p className="font-mono-label text-[8px] tracking-[0.2em]" style={{ color: "#8B4A2F", marginTop: 6 }}>
+                        {p.l}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Event Details */}
+          <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
+            <div className="glass-card p-[24px]">
+              <p className="font-serif-display text-[22px] italic" style={{ color: "#2A2520", marginBottom: 2 }}>
+                Detail Acara
+              </p>
+              <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F", marginBottom: 16 }}>
+                WAKTU &amp; TEMPAT
+              </p>
+              <div className="space-y-0">
+                {[
+                  { icon: <Calendar size={18} />, label: "TANGGAL", value: konten.tanggal },
+                  { icon: <Clock size={18} />, label: "WAKTU", value: konten.waktu },
+                  { icon: <MapPin size={18} />, label: "LOKASI", value: konten.lokasi_nama, sub: konten.lokasi_alamat },
+                  ...(konten.link_youtube ? [{ icon: <Video size={18} />, label: "LIVE", value: "Streaming YouTube", link: konten.link_youtube }] : []),
+                ].map((row, i, arr) => (
+                  <div key={i}
+                    className="flex gap-[14px] py-[14px]"
+                    style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(139,74,47,0.15)" : "none" }}
+                  >
+                    <div className="w-10 h-10 rounded-[12px] shrink-0 flex items-center justify-center"
+                      style={{ background: "rgba(194,106,74,0.15)", color: "#C26A4A" }}>
+                      {row.icon}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F", marginBottom: 2 }}>
+                        {row.label}
+                      </p>
+                      {"link" in row && row.link ? (
+                        <a href={row.link} target="_blank" rel="noopener noreferrer"
+                          className="text-[14px] font-semibold leading-[1.3] hover:underline"
+                          style={{ color: "#C26A4A" }}>
+                          {row.value}
+                        </a>
+                      ) : (
+                        <p className="text-[14px] font-semibold leading-[1.3]" style={{ color: "#2A2520" }}>
+                          {row.value}
+                        </p>
+                      )}
+                      {"sub" in row && row.sub && (
+                        <p className="text-[11px] leading-[1.5] mt-[2px]" style={{ color: "#7a6655" }}>
+                          {row.sub}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {konten.lokasi_maps && (
+                <a href={konten.lokasi_maps} target="_blank" rel="noopener noreferrer"
+                  className="w-full mt-4 p-[14px] rounded-[14px] inline-flex items-center justify-center gap-[10px] cursor-pointer"
+                  style={{
+                    background: "#C26A4A", color: "#F5EEE0",
+                    fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.22em", fontSize: 11,
+                    boxShadow: "0 6px 18px rgba(194,106,74,0.35)",
+                  }}>
+                  BUKA GOOGLE MAPS <Navigation size={14} />
+                </a>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Agenda */}
+          {agenda.length > 0 && (
+            <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
+              <div className="glass-card p-[24px_22px]">
+                <p className="font-serif-display text-[22px] italic" style={{ color: "#2A2520", marginBottom: 2 }}>
+                  Susunan Acara
+                </p>
+                <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F", marginBottom: 18 }}>
+                  RANGKAIAN ACARA
+                </p>
+                <div className="relative pl-[18px]">
+                  <div className="absolute left-[5px] top-[6px] bottom-[6px] w-px"
+                    style={{ background: "linear-gradient(180deg, #C26A4A, rgba(194,106,74,0.1))" }} />
+                  {agenda.map((a, i) => (
+                    <div key={i} className="relative pb-4">
+                      <span className="absolute -left-[18px] top-[6px] w-[11px] h-[11px] rounded-full border-2"
+                        style={{
+                          background: "#C26A4A",
+                          borderColor: "#FBF7EE",
+                          boxShadow: "0 0 0 1px #C26A4A",
+                        }} />
+                      <p className="font-mono-label text-[10px] tracking-[0.22em] font-semibold" style={{ color: "#C26A4A" }}>
+                        {a.waktu}
+                      </p>
+                      <p className="text-[14px] font-semibold mt-[2px]" style={{ color: "#2A2520" }}>
+                        {a.judul}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* QR Check-in */}
+          <motion.div className="px-[22px] py-[10px]" variants={qrVariants}>
+            <div className="glass-card p-[26px_22px] text-center">
+              <p className="font-serif-display text-[22px] italic" style={{ color: "#2A2520" }}>
+                QR Check-in
+              </p>
+              <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F", marginBottom: 18 }}>
+                PRESENSI DIGITAL
+              </p>
+              <div className="inline-block p-[14px] glass-chip rounded-[14px]" style={{ background: "rgba(255,255,255,0.85)" }}>
+                <QRCode value={token} size={160} fgColor="#2A2520" bgColor="#FFFFFF" />
+              </div>
+              <div className="flex justify-center gap-[10px] mt-[14px]">
+                <span className="font-mono-label text-[9px] tracking-[0.22em] px-[10px] py-[4px] rounded-full inline-flex items-center gap-[6px]"
+                  style={{
+                    color: "#5C7058",
+                    background: "rgba(143,166,139,0.18)",
+                  }}>
+                  <CheckCircle size={12} /> AKTIF
+                </span>
+              </div>
+              <p className="text-[11px] leading-[1.6] mt-[12px]" style={{ color: "#7a6655", maxWidth: 280, margin: "12px auto 0" }}>
+                Tunjukkan kode ini kepada panitia saat hadir di lokasi acara.
+              </p>
+              {hasCheckin && (
+                <div className="mt-4 glass-chip p-[12px] flex items-center justify-center gap-2"
+                  style={{ background: "rgba(143,166,139,0.18)", color: "#5C7058" }}>
+                  <CheckCircle size={16} />
+                  <span className="font-mono-label text-[10px] tracking-[0.2em]">SUDAH CHECK-IN</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* RSVP Form */}
+          <motion.div variants={itemVariants}>
+            <RSVPForm
+              token={token}
+              existingRsvp={isLegacyRsvp ? null : latestRsvp}
+              legacyRsvp={isLegacyRsvp ? latestRsvp : null}
+            />
+          </motion.div>
+
+          {/* Footer */}
+          <motion.div className="px-[22px] py-[10px_22px_30px]" variants={itemVariants}>
+            <div className="glass-card p-[26px_22px] text-center">
+              <p className="font-arabic text-[22px]" style={{ color: "#C26A4A", marginBottom: 6 }}>
+                {konten.header_arabic}
+              </p>
+              <p className="font-serif-display text-[14px] italic" style={{ color: "#2A2520", marginBottom: 18 }}>
+                {konten.footer}
+              </p>
+              <p className="font-mono-label text-[9px] tracking-[0.28em]" style={{ color: "#8B4A2F", marginBottom: 4 }}>
+                HORMAT KAMI,
+              </p>
+              <p className="font-serif-display text-[18px] italic" style={{ color: "#2A2520" }}>
+                Keluarga Besar
+              </p>
+              <p className="font-serif-display text-[22px] font-semibold" style={{ color: "#C26A4A" }}>
+                {sekolahNama}
+              </p>
+            </div>
+          </motion.div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

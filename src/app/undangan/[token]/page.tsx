@@ -45,6 +45,7 @@ export default async function UndanganPage({
     }
 
     let konten: KontenUndangan;
+    let sekolahNama = "SDIT Al-Hikmah";
 
     if (tamu.sekolah_id) {
       const { data } = await supabase
@@ -64,6 +65,13 @@ export default async function UndanganPage({
           updated_at: null,
         };
       }
+
+      const { data: sekolah } = await supabase
+        .from("sekolah")
+        .select("nama")
+        .eq("id", tamu.sekolah_id)
+        .single();
+      if (sekolah) sekolahNama = sekolah.nama;
     } else {
       konten = {
         ...FALLBACK_KONTEN,
@@ -75,7 +83,7 @@ export default async function UndanganPage({
     }
 
     return (
-      <InvitationClient tamu={tamu} token={token} konten={konten} />
+      <InvitationClient tamu={tamu} token={token} konten={konten} sekolahNama={sekolahNama} />
     );
   } catch (error) {
     console.error("Gagal memuat undangan:", error);

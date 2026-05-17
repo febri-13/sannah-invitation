@@ -1,113 +1,131 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #1856FF;
-  --color-primary-container: #dde0ff;
-  --color-on-primary-container: #001453;
-  --color-secondary: #3A344E;
-  --color-success: #07CA6B;
-  --color-warning: #E89558;
-  --color-danger: #EA2143;
-  --color-surface: #FFFFFF;
-  --color-surface-container-low: #f3f2ff;
-  --color-surface-container: #eeecff;
-  --color-surface-container-high: #e7e6ff;
-  --color-on-surface: #1b1b21;
-  --color-on-surface-variant: #464654;
-  --color-outline: #767685;
-  --color-outline-variant: #c6c5d6;
-  --color-text: #141414;
-  --color-neutral: #FFFFFF;
+  --color-primary: #C26A4A;
+  --color-primary-container: #F5EEE0;
+  --color-on-primary-container: #2A2520;
+  --color-secondary: #8B4A2F;
+  --color-gold: #C9A35E;
+  --color-offwhite: #FBF7EE;
+  --color-cream: #F5EEE0;
+  --color-ink: #2A2520;
+  --color-ink-70: #5b4b3e;
+  --color-ink-55: #7a6655;
+  --color-sage: #8FA68B;
+  --color-sage-deep: #5C7058;
+  --color-success: #5C7058;
+  --color-warning: #C9A35E;
+  --color-danger: #B5403B;
+  --color-surface: #FBF7EE;
+  --color-surface-container-low: #FDF9F3;
+  --color-surface-container: #F5EEE0;
+  --color-surface-container-high: #F0E8D8;
+  --color-on-surface: #2A2520;
+  --color-on-surface-variant: #5b4b3e;
+  --color-outline: #7a6655;
+  --color-outline-variant: #D4C9B8;
+  --color-text: #2A2520;
+  --color-neutral: #FBF7EE;
 
   --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
-  --font-noto-arabic: "Noto Sans Arabic", sans-serif;
+  --font-cormorant: "Cormorant Garamond", serif;
+  --font-amiri: "Amiri", serif;
+  --font-jetbrains: "JetBrains Mono", monospace;
 }
 
 :root {
-  --background: #F8FAFC;
-  --foreground: #141414;
+  --background: #FBF7EE;
+  --foreground: #2A2520;
 }
 
 body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #FDF6E8 0%, #F4E6D0 40%, #F8E5D6 70%, #FDF6E8 100%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-plus-jakarta);
 }
 
 @layer utilities {
-  /* Font utilities */
-  .font-noto-arabic {
-    font-family: var(--font-noto-arabic), sans-serif;
+  .font-serif-display {
+    font-family: var(--font-cormorant), serif;
   }
 
-  /* Glassmorphism base */
+  .font-arabic {
+    font-family: var(--font-amiri), serif;
+  }
+
+  .font-mono-label {
+    font-family: var(--font-jetbrains), monospace;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Glassmorphism warm earthy */
   .glass {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 248, 235, 0.55);
+    backdrop-filter: blur(22px) saturate(1.1);
+    -webkit-backdrop-filter: blur(22px) saturate(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 40px rgba(58, 36, 20, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
   }
 
   .glass-dark {
-    background: rgba(58, 52, 78, 0.85);
+    background: rgba(139, 74, 47, 0.82);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px rgba(58, 36, 20, 0.2);
   }
 
   .glass-card {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 248, 235, 0.55);
+    backdrop-filter: blur(22px) saturate(1.1);
+    -webkit-backdrop-filter: blur(22px) saturate(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(58, 36, 20, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
   }
 
-  .glass-panel {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  .glass-chip {
+    background: rgba(255, 248, 235, 0.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 14px;
   }
 
   .glass-input {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 14px;
   }
 
   .glass-input:focus {
     background: rgba(255, 255, 255, 0.8);
-    border-color: #1856ff;
+    border-color: #C26A4A;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(24, 86, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(194, 106, 74, 0.2);
   }
 
   .glass-button {
-    background: linear-gradient(135deg, #1856FF 0%, #3A344E 100%);
+    background: linear-gradient(135deg, #C26A4A 0%, #8B4A2F 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(24, 86, 255, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(194, 106, 74, 0.4);
     transition: all 0.2s ease;
   }
 
   .glass-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(24, 86, 255, 0.4);
+    box-shadow: 0 12px 30px rgba(194, 106, 74, 0.5);
   }
 
   .glass-button:active {
     transform: translateY(0);
   }
 
-  /* Gentle pulse animation for check-in badge */
   @keyframes pulse-gentle {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.05); opacity: 0.9; }
@@ -116,7 +134,6 @@ body {
     animation: pulse-gentle 2s ease-in-out infinite;
   }
 
-  /* Fade-in-up entrance */
   @keyframes fade-in-up {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -125,7 +142,6 @@ body {
     animation: fade-in-up 0.6s ease-out forwards;
   }
 
-  /* Scale-in bounce for QR */
   @keyframes scale-in-bounce {
     0% { opacity: 0; transform: scale(0.8); }
     60% { transform: scale(1.05); }
@@ -135,7 +151,6 @@ body {
     animation: scale-in-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
-  /* Respect reduced motion preferences */
   @media (prefers-reduced-motion: reduce) {
     .animate-pulse-gentle,
     .animate-fade-in-up,
@@ -144,7 +159,6 @@ body {
     }
   }
 
-  /* === Pie / Donut chart (GenderPieChart) === */
   .pie-base {
     width: 140px;
     height: 140px;
@@ -160,7 +174,7 @@ body {
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background: white;
+    background: #FBF7EE;
     width: 65%;
     height: 65%;
     top: 50%;
