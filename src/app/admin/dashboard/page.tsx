@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import type { KontenUndangan } from "@/lib/database.types";
 import DashboardClient from "./DashboardClient";
 
 const defaultStats = { totalTamu: 0, hadir: 0, tidakHadir: 0, totalCheckin: 0 };
@@ -143,6 +144,7 @@ export default async function DashboardPage() {
   let attendanceStats = defaultAttendanceStats;
   let tamuList: Awaited<ReturnType<typeof getTamu>> = [];
   let sekolahNama = "Sekolah";
+  let konten: KontenUndangan | null = null;
 
   try {
     stats = await getStats(sekolahId);
@@ -157,6 +159,13 @@ export default async function DashboardPage() {
         .eq("id", sekolahId)
         .single();
       if (sekolah) sekolahNama = sekolah.nama;
+
+      const { data: kontenData } = await createAdminClient()
+        .from("konten_undangan")
+        .select("*")
+        .eq("sekolah_id", sekolahId)
+        .single();
+      if (kontenData) konten = kontenData;
     }
   } catch (error) {
     console.error("Gagal memuat dashboard:", error);
@@ -172,6 +181,7 @@ export default async function DashboardPage() {
       attendanceStats={attendanceStats}
       tamuList={tamuList}
       sekolahNama={sekolahNama}
+      konten={konten}
     />
   );
 }

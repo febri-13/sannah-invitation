@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import DonutChart from "./DonutChart";
 import TamuTable from "@/components/TamuTable";
+import type { KontenUndangan } from "@/lib/database.types";
 
 /* ─── Inline SVG icons ─── */
 const icons = {
@@ -361,8 +362,38 @@ function ActivityCard() {
   );
 }
 
+/* ─── Countdown helper ─── */
+function parseTanggal(tanggal: string): Date | null {
+  const months: Record<string, number> = {
+    januari: 0, februari: 1, maret: 2, april: 3, mei: 4, juni: 5,
+    juli: 6, agustus: 7, september: 8, oktober: 9, november: 10, desember: 11,
+  };
+  const clean = tanggal.replace(/^[^,]*,?\s*/i, "");
+  const parts = clean.split(/\s+/);
+  if (parts.length < 3) return null;
+  const day = parseInt(parts[0], 10);
+  const month = months[parts[1]?.toLowerCase()];
+  const year = parseInt(parts[2], 10);
+  if (isNaN(day) || month === undefined || isNaN(year)) return null;
+  return new Date(year, month, day);
+}
+
+function useCountdownText(tanggal: string): string {
+  return useMemo(() => {
+    const target = parseTanggal(tanggal);
+    if (!target) return "";
+    const diff = target.getTime() - Date.now();
+    if (diff <= 0) return "Acara telah berlangsung";
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    return `${d} hari · ${h < 10 ? "0" + h : h} jam`;
+  }, [tanggal]);
+}
+
 /* ─── Event banner ─── */
-function EventBanner() {
+function EventBanner({ konten }: { konten?: KontenUndangan | null }) {
+  const countdownText = useCountdownText(konten?.tanggal || "");
+
   return (
     <div className="relative flex items-stretch gap-6 px-[30px] py-[26px] overflow-hidden"
       style={{
@@ -380,16 +411,16 @@ function EventBanner() {
         <div className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "#C9A35E" }}>——— ACARA AKTIF</div>
         <div className="flex items-baseline gap-[14px] mt-1 flex-wrap">
           <div className="font-serif-display text-[32px] italic leading-[1.05] font-medium" style={{ color: "#F5EEE0" }}>
-            Wisuda Tahfidz &amp; Pelepasan Siswa
+            {konten?.judul || "Wisuda Tahfidz & Pelepasan Siswa"}
           </div>
           <Tag tone="terra"><span className="mr-1">●</span> LIVE · DRAFT TERKIRIM</Tag>
         </div>
         <div className="flex gap-7 mt-[18px] flex-wrap">
           {[
-            { l: "TANGGAL", v: "Sabtu, 27 Juni 2026" },
-            { l: "WAKTU", v: "08.00 — 12.00 WIB" },
-            { l: "LOKASI", v: "Aula Utama Al-Hikmah" },
-            { l: "COUNTDOWN", v: "41 hari · 06 jam", gold: true },
+            { l: "TANGGAL", v: konten?.tanggal || "Belum diatur", gold: false },
+            { l: "WAKTU", v: konten?.waktu || "Belum diatur", gold: false },
+            { l: "LOKASI", v: konten?.lokasi_nama || "Belum diatur", gold: false },
+            ...(countdownText ? [{ l: "COUNTDOWN", v: countdownText, gold: true as const }] : []),
           ].map((m, i) => (
             <div key={i}>
               <div className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "rgba(245,238,224,0.65)" }}>{m.l}</div>
@@ -469,9 +500,10 @@ interface DashboardClientProps {
   attendanceStats: { total: number; offline: number; online: number; tidakHadir: number; belum: number };
   tamuList: unknown[];
   sekolahNama?: string;
+  konten?: KontenUndangan | null;
 }
 
-export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, genderStats, attendanceStats, tamuList, sekolahNama }: DashboardClientProps) {
+export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, genderStats, attendanceStats, tamuList, sekolahNama, konten }: DashboardClientProps) {
   const totalRsvp = hadir + tidakHadir;
   const rsvpPct = totalTamu > 0 ? Math.round((totalRsvp / totalTamu) * 100) : 0;
   const akanHadir = hadir;
@@ -490,7 +522,7 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
         <div className="flex-1 min-w-0 flex flex-col overflow-auto">
           <TopBar totalTamu={totalTamu} />
           <div className="p-5 pt-4 flex flex-col gap-4">
-            <EventBanner />
+            <EventBanner konten={konten} />
 
             {/* Stats row */}
             <div className="grid grid-cols-4 gap-4">
