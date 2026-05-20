@@ -7,6 +7,7 @@ export const tamuInputSchema = z.object({
   nama_ibu: z.string().max(100).optional(),
   no_wa_ayah: z.string().max(20).optional(),
   no_wa_ibu: z.string().max(20).optional(),
+  event_id: z.string().uuid().optional(),
 });
 
 export const rsvpSchema = z.object({

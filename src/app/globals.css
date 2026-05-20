@@ -34,14 +34,105 @@
 }
 
 :root {
-  --background: #FBF7EE;
-  --foreground: #2A2520;
+  --color-primary: #C26A4A;
+  --color-primary-rgb: 194, 106, 74;
+  --color-secondary: #8B4A2F;
+  --color-secondary-rgb: 139, 74, 47;
+  --color-gold: #C9A35E;
+  --color-text: #2A2520;
+  --color-text-muted: #7a6655;
+  --color-on-primary: #F5EEE0;
+  --color-success: #5C7058;
+  --color-success-rgb: 92, 112, 88;
+  --color-success-bg: rgba(143, 166, 139, 0.18);
+  --color-bg-start: #FDF6E8;
+  --color-bg-mid: #F4E6D0;
+  --color-bg-end: #FDF6E8;
+  --color-glass-bg: rgba(255, 248, 235, 0.55);
+  --color-glass-border: rgba(255, 255, 255, 0.5);
+  --color-glass-chip-bg: rgba(255, 248, 235, 0.7);
+  --color-glass-button: #C26A4A;
+  --color-glass-button-end: #8B4A2F;
+  --color-button-shadow: rgba(194, 106, 74, 0.4);
+  --color-orb-1: #E89B6B;
+  --color-orb-2: #A9C0A2;
+  --color-orb-3: #D9B281;
+  --color-orb-4: #C97A5D;
+  --color-orb-5: #8FA68B;
+  --color-orb-6: #E89B6B;
+  --color-bg-gradient: linear-gradient(180deg, var(--color-bg-start) 0%, var(--color-bg-mid) 40%, var(--color-bg-end) 100%);
+  --orb-1: radial-gradient(circle at 30% 30%, var(--color-orb-1) 0%, transparent 65%);
+  --orb-2: radial-gradient(circle at 60% 40%, var(--color-orb-2) 0%, transparent 65%);
+  --orb-3: radial-gradient(circle at 50% 50%, var(--color-orb-3) 0%, transparent 65%);
+  --orb-4: radial-gradient(circle at 50% 50%, var(--color-orb-4) 0%, transparent 65%);
+  --orb-5: radial-gradient(circle at 40% 40%, var(--color-orb-5) 0%, transparent 65%);
+  --orb-6: radial-gradient(circle at 50% 50%, var(--color-orb-6) 0%, transparent 65%);
+}
+
+/* ── Theme: Classic Gold ──────────────────────────────────────── */
+.theme-classic-gold {
+  --color-primary: #B8860B;
+  --color-primary-rgb: 184, 134, 11;
+  --color-secondary: #6B5B00;
+  --color-secondary-rgb: 107, 91, 0;
+  --color-text: #1C1A14;
+  --color-text-muted: #6B5B00;
+  --color-on-primary: #FFF8E7;
+  --color-success: #2E5C4A;
+  --color-success-rgb: 46, 92, 74;
+  --color-success-bg: rgba(46, 92, 74, 0.15);
+  --color-bg-start: #F7F1E0;
+  --color-bg-mid: #EDE4CC;
+  --color-bg-end: #F7F1E0;
+  --color-glass-bg: rgba(255, 252, 240, 0.55);
+  --color-glass-border: rgba(184, 134, 11, 0.2);
+  --color-glass-chip-bg: rgba(255, 252, 240, 0.7);
+  --color-glass-button: #B8860B;
+  --color-glass-button-end: #6B5B00;
+  --color-button-shadow: rgba(184, 134, 11, 0.4);
+  --color-orb-1: #D4AF37;
+  --color-orb-2: #556B2F;
+  --color-orb-3: #B8860B;
+  --color-orb-4: #8B7355;
+  --color-orb-5: #6B8E23;
+  --color-orb-6: #D4AF37;
+  --color-bg-gradient: linear-gradient(180deg, var(--color-bg-start) 0%, var(--color-bg-mid) 50%, var(--color-bg-end) 100%);
+}
+
+/* ── Theme: Modern Sage ────────────────────────────────────────── */
+.theme-modern-sage {
+  --color-primary: #5C7058;
+  --color-primary-rgb: 92, 112, 88;
+  --color-secondary: #3D4F3A;
+  --color-secondary-rgb: 61, 79, 58;
+  --color-text: #1E211D;
+  --color-text-muted: #5C7058;
+  --color-on-primary: #F0F5EE;
+  --color-success: #3D7A5A;
+  --color-success-rgb: 61, 122, 90;
+  --color-success-bg: rgba(61, 122, 90, 0.15);
+  --color-bg-start: #F4F5F0;
+  --color-bg-mid: #E8EBE0;
+  --color-bg-end: #F4F5F0;
+  --color-glass-bg: rgba(244, 245, 240, 0.55);
+  --color-glass-border: rgba(92, 112, 88, 0.15);
+  --color-glass-chip-bg: rgba(244, 245, 240, 0.7);
+  --color-glass-button: #5C7058;
+  --color-glass-button-end: #3D4F3A;
+  --color-button-shadow: rgba(92, 112, 88, 0.4);
+  --color-orb-1: #8FA68B;
+  --color-orb-2: #B5C9B2;
+  --color-orb-3: #7B9A78;
+  --color-orb-4: #A3B8A0;
+  --color-orb-5: #C4D4C1;
+  --color-orb-6: #8FA68B;
+  --color-bg-gradient: linear-gradient(180deg, var(--color-bg-start) 0%, var(--color-bg-mid) 50%, var(--color-bg-end) 100%);
 }
 
 body {
-  background: linear-gradient(180deg, #FDF6E8 0%, #F4E6D0 40%, #F8E5D6 70%, #FDF6E8 100%);
+  background: var(--color-bg-gradient);
   background-attachment: fixed;
-  color: var(--foreground);
+  color: var(--color-text);
   font-family: var(--font-plus-jakarta);
 }
 
@@ -62,10 +153,10 @@ body {
 
   /* Glassmorphism warm earthy */
   .glass {
-    background: rgba(255, 248, 235, 0.55);
+    background: var(--color-glass-bg);
     backdrop-filter: blur(22px) saturate(1.1);
     -webkit-backdrop-filter: blur(22px) saturate(1.1);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-glass-border);
     box-shadow: 0 10px 40px rgba(58, 36, 20, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
   }
 
@@ -78,10 +169,10 @@ body {
   }
 
   .glass-card {
-    background: rgba(255, 248, 235, 0.55);
+    background: var(--color-glass-bg);
     backdrop-filter: blur(22px) saturate(1.1);
     -webkit-backdrop-filter: blur(22px) saturate(1.1);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-glass-border);
     border-radius: 24px;
     box-shadow: 0 10px 40px rgba(58, 36, 20, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
   }
@@ -104,22 +195,22 @@ body {
 
   .glass-input:focus {
     background: rgba(255, 255, 255, 0.8);
-    border-color: #C26A4A;
+    border-color: var(--color-primary);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(194, 106, 74, 0.2);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
   }
 
   .glass-button {
-    background: linear-gradient(135deg, #C26A4A 0%, #8B4A2F 100%);
+    background: linear-gradient(135deg, var(--color-glass-button) 0%, var(--color-glass-button-end) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 14px;
-    box-shadow: 0 8px 22px rgba(194, 106, 74, 0.4);
+    box-shadow: 0 8px 22px var(--color-button-shadow);
     transition: all 0.2s ease;
   }
 
   .glass-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(194, 106, 74, 0.5);
+    box-shadow: 0 12px 30px var(--color-button-shadow);
   }
 
   .glass-button:active {

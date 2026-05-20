@@ -19,10 +19,17 @@ export default function TambahTamuPage() {
   const [lastCreated, setLastCreated] = useState<{ token: string; namaSiswa: string; noWaAyah: string; noWaIbu: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const getActiveEvent = () => {
+    const match = document.cookie.match(new RegExp("(^| )active_event_id=([^;]+)"));
+    return match ? match[2] : undefined;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    const eventId = getActiveEvent();
 
     try {
       const res = await fetch("/api/tamu", {
@@ -35,6 +42,7 @@ export default function TambahTamuPage() {
           nama_ibu: namaIbu || undefined,
           no_wa_ayah: noWaAyah || undefined,
           no_wa_ibu: noWaIbu || undefined,
+          event_id: eventId,
         }),
       });
 

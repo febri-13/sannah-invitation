@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import DonutChart from "./DonutChart";
 import TamuTable from "@/components/TamuTable";
 import type { KontenUndangan } from "@/lib/database.types";
+import { setActiveEvent } from "@/lib/event-cookie";
 
 /* ─── Inline SVG icons ─── */
 const icons = {
@@ -66,7 +68,79 @@ function Tag({ tone = "neutral", children }: { tone?: "sage" | "gold" | "danger"
 }
 
 /* ─── Sidebar ─── */
-function Sidebar({ activeKey = "dashboard", sekolahNama = "Sekolah" }: { activeKey?: string; sekolahNama?: string }) {
+function EventSwitcher({ events, activeEventId, onCreate }: { events: { id: string; nama: string; slug: string }[]; activeEventId?: string; onCreate?: () => void }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  const active = events.find(e => e.id === activeEventId);
+
+  const switchEvent = useCallback((eventId: string) => {
+    setActiveEvent(eventId);
+    setOpen(false);
+    window.location.reload();
+  }, []);
+
+  return (
+    <div className="relative mb-4">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-2 px-[14px] py-[10px] rounded-[12px] cursor-pointer text-left"
+        style={{
+          background: "rgba(245,238,224,0.1)",
+          border: "1px solid rgba(245,238,224,0.15)",
+          color: "#F5EEE0",
+        }}>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 4v4M15 4v4"/>
+        </svg>
+        <div className="flex-1 min-w-0">
+          <div className="font-mono-label text-[7px] tracking-[0.22em]" style={{ color: "rgba(245,238,224,0.5)" }}>EVENT AKTIF</div>
+          <div className="font-medium text-[12px] truncate">{active?.nama || "Pilih event"}</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" className={`transition-transform ${open ? "rotate-180" : ""}`}>
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute left-0 right-0 top-full mt-1 z-50 overflow-hidden rounded-[12px]"
+          style={{
+            background: "rgba(58, 36, 20, 0.95)",
+            backdropFilter: "blur(22px)",
+            border: "1px solid rgba(245,238,224,0.15)",
+            boxShadow: "0 10px 40px rgba(20,12,4,0.35)",
+          }}>
+          {events.map(e => (
+            <button
+              key={e.id}
+              onClick={() => switchEvent(e.id)}
+              className="w-full flex items-center gap-3 px-[14px] py-[10px] text-left cursor-pointer"
+              style={{
+                color: e.id === activeEventId ? "#C9A35E" : "rgba(245,238,224,0.7)",
+                background: e.id === activeEventId ? "rgba(201,163,94,0.12)" : "transparent",
+              }}>
+              <span className="w-[6px] h-[6px] rounded-full shrink-0"
+                style={{ background: e.id === activeEventId ? "#C9A35E" : "rgba(245,238,224,0.25)" }} />
+              <div className="font-mono-label text-[10px] tracking-[0.16em]">{e.nama.toUpperCase()}</div>
+              {e.id === activeEventId && <span className="ml-auto text-[8px] tracking-[0.2em]" style={{ color: "#C9A35E" }}>AKTIF</span>}
+            </button>
+          ))}
+          <div style={{ borderTop: "1px solid rgba(245,238,224,0.1)", margin: "4px 8px" }} />
+          <button
+            onClick={() => { setOpen(false); onCreate?.(); }}
+            className="w-full flex items-center gap-3 px-[14px] py-[10px] text-left cursor-pointer"
+            style={{ color: "#C9A35E", background: "transparent" }}>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            <div className="font-mono-label text-[10px] tracking-[0.16em]">BUAT EVENT BARU</div>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Sidebar({ activeKey = "dashboard", sekolahNama = "Sekolah", eventsList, activeEventId, onCreateEvent }: { activeKey?: string; sekolahNama?: string; eventsList?: { id: string; nama: string; slug: string }[]; activeEventId?: string; onCreateEvent?: () => void }) {
   const items = [
     { key: "dashboard", label: "Dashboard", icon: icons.dash },
     { key: "tamu", label: "Daftar Tamu", icon: icons.users, href: "/admin/tamu/baru" },
@@ -97,6 +171,7 @@ function Sidebar({ activeKey = "dashboard", sekolahNama = "Sekolah" }: { activeK
       </div>
 
       <div className="flex-1 p-5 overflow-y-auto">
+        <EventSwitcher events={eventsList || []} activeEventId={activeEventId} onCreate={onCreateEvent} />
         <div className="font-mono-label text-[8px] tracking-[0.28em] px-[10px] pb-[10px]" style={{ color: "rgba(245,238,224,0.45)" }}>
           — MENU UTAMA
         </div>
@@ -130,7 +205,7 @@ function Sidebar({ activeKey = "dashboard", sekolahNama = "Sekolah" }: { activeK
           {[
             { label: "Tambah Tamu Manual", icon: icons.add, href: "/admin/tamu/baru" },
             { label: "Upload CSV", icon: icons.up, href: "/admin/tamu/upload" },
-            { label: "Broadcast WhatsApp", icon: icons.send, href: "/admin/tamu/baru" },
+            { label: "Broadcast WhatsApp", icon: icons.send, href: "/admin/pengaturan" },
           ].map((a, i) => (
             <Link key={i} href={a.href} className="flex items-center gap-3 px-3 py-[10px] rounded-[12px]"
               style={{ color: "rgba(245,238,224,0.7)", fontSize: 12 }}>
@@ -294,11 +369,11 @@ function ChartCard({ eyebrow, title, segments, footnote }: {
                   <div className="flex items-baseline gap-2">
                     <span className="font-serif-display text-[20px] italic font-medium leading-[1.1]" style={{ color: "#2A2520" }}>{s.value}</span>
                     <span className="font-mono-label text-[10px] tracking-[0.14em]" style={{ color: "#7a6655" }}>{pct}%</span>
-                  </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          );
+        })}
         </div>
       </div>
       {footnote && (
@@ -306,6 +381,98 @@ function ChartCard({ eyebrow, title, segments, footnote }: {
           ✦ {footnote}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ─── Create Event Modal (rendered inside DashboardClient) ─── */
+function CreateEventModal({ show, onClose }: { show: boolean; onClose: () => void }) {
+  const [newEventName, setNewEventName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center"
+      style={{ background: "rgba(20,12,4,0.6)", backdropFilter: "blur(8px)" }}>
+      <div className="w-[380px] p-[28px] rounded-[24px]"
+        style={{
+          background: "rgba(255,248,235,0.95)",
+          backdropFilter: "blur(22px)",
+          border: "1px solid rgba(255,255,255,0.6)",
+          boxShadow: "0 20px 60px rgba(20,12,4,0.3)",
+        }}>
+        <div className="font-serif-display text-[22px] italic font-medium mb-1" style={{ color: "#2A2520" }}>
+          Buat Event Baru
+        </div>
+        <div className="font-mono-label text-[9px] tracking-[0.2em] mb-5" style={{ color: "#7a6655" }}>
+          ——— AKHIRUSANNAH / AWWALUSANNAH
+        </div>
+        <input
+          value={newEventName}
+          onChange={e => setNewEventName(e.target.value)}
+          placeholder="Nama event, misal: Awwalusannah"
+          className="w-full px-4 py-3 rounded-[14px] outline-none mb-4"
+          style={{
+            background: "rgba(255,248,235,0.6)",
+            border: "1px solid rgba(122,102,85,0.25)",
+            color: "#2A2520", fontSize: 14,
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+          }} />
+        {createError && (
+          <div className="font-mono-label text-[10px] mb-4 px-3 py-2 rounded-[10px]"
+            style={{ background: "rgba(181,64,59,0.1)", color: "#B5403B", border: "1px solid rgba(181,64,59,0.2)" }}>
+            {createError}
+          </div>
+        )}
+        <div className="flex gap-3">
+          <button
+            onClick={() => { setNewEventName(""); setCreateError(""); onClose(); }}
+            className="flex-1 py-3 rounded-[14px] cursor-pointer"
+            style={{
+              background: "rgba(122,102,85,0.12)", color: "#5b4b3e",
+              border: "1px solid rgba(122,102,85,0.2)",
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.22em",
+            }}>
+            BATAL
+          </button>
+          <button
+            disabled={creating || !newEventName.trim()}
+            onClick={async () => {
+              setCreating(true);
+              setCreateError("");
+              try {
+                const res = await fetch("/api/admin/events", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ nama: newEventName.trim() }),
+                });
+                if (!res.ok) {
+                  const err = await res.json();
+                  setCreateError(err.error || "Gagal membuat event");
+                  return;
+                }
+                const event = await res.json();
+                setActiveEvent(event.id);
+                window.location.reload();
+              } catch {
+                setCreateError("Gagal terhubung ke server");
+              } finally {
+                setCreating(false);
+              }
+            }}
+            className="flex-1 py-3 rounded-[14px] cursor-pointer disabled:opacity-50"
+            style={{
+              background: "linear-gradient(135deg, #C26A4A, #8B4A2F)", color: "#F5EEE0",
+              border: "1px solid rgba(255,255,255,0.2)",
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.22em",
+              boxShadow: "0 6px 18px rgba(194,106,74,0.35)",
+            }}>
+            {creating ? "MENYIMPAN..." : "BUAT EVENT"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -460,7 +627,7 @@ function QuickActions() {
     { icon: icons.add, label: "TAMBAH TAMU", caption: "Input manual nama siswa & orang tua", primary: true, href: "/admin/tamu/baru" },
     { icon: icons.up, label: "UPLOAD CSV", caption: "Bulk import dari spreadsheet", href: "/admin/tamu/upload" },
     { icon: icons.scan, label: "BUKA SCANNER", caption: "QR check-in di lokasi acara", href: "/scan" },
-    { icon: icons.send, label: "BROADCAST WA", caption: "Kirim undangan via WhatsApp", href: "/admin/tamu/baru" },
+    { icon: icons.send, label: "BROADCAST WA", caption: "Kirim undangan via WhatsApp", href: "/admin/pengaturan" },
     { icon: icons.file, label: "KONTEN", caption: "Edit teks & detail undangan", href: "/admin/konten-undangan" },
   ];
   return (
@@ -501,9 +668,12 @@ interface DashboardClientProps {
   tamuList: unknown[];
   sekolahNama?: string;
   konten?: KontenUndangan | null;
+  eventsList?: { id: string; nama: string; slug: string; is_active: boolean | null }[];
+  activeEventId?: string;
 }
 
-export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, genderStats, attendanceStats, tamuList, sekolahNama, konten }: DashboardClientProps) {
+export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, genderStats, attendanceStats, tamuList, sekolahNama, konten, eventsList, activeEventId }: DashboardClientProps) {
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
   const totalRsvp = hadir + tidakHadir;
   const rsvpPct = totalTamu > 0 ? Math.round((totalRsvp / totalTamu) * 100) : 0;
   const akanHadir = hadir;
@@ -518,7 +688,7 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
       }}>
       <BgOrbs />
       <div className="relative flex h-full w-full">
-        <Sidebar activeKey="dashboard" sekolahNama={sekolahNama} />
+        <Sidebar activeKey="dashboard" sekolahNama={sekolahNama} eventsList={eventsList} activeEventId={activeEventId} onCreateEvent={() => setShowCreateEvent(true)} />
         <div className="flex-1 min-w-0 flex flex-col overflow-auto">
           <TopBar totalTamu={totalTamu} />
           <div className="p-5 pt-4 flex flex-col gap-4">
@@ -583,6 +753,8 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
           </div>
         </div>
       </div>
+
+      <CreateEventModal show={showCreateEvent} onClose={() => setShowCreateEvent(false)} />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/server";
 import { useRouter } from "next/navigation";
+import { getActiveEvent } from "@/lib/event-cookie";
 import { Settings, Save, Eye, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -40,7 +40,11 @@ export default function PengaturanPage() {
 
   const fetchSetting = async () => {
     try {
-      const res = await fetch("/api/admin/settings?key=wa_template_invitation");
+      const eventId = getActiveEvent();
+      const params = new URLSearchParams({ key: "wa_template_invitation" });
+      if (eventId) params.set("event_id", eventId);
+
+      const res = await fetch(`/api/admin/settings?${params}`);
       const data = await res.json();
       if (res.ok) {
         setSetting(data);
@@ -62,10 +66,11 @@ export default function PengaturanPage() {
     setError("");
 
     try {
+      const eventId = getActiveEvent();
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: setting.key, value }),
+        body: JSON.stringify({ key: setting.key, value, event_id: eventId || null }),
       });
 
       const data = await res.json();

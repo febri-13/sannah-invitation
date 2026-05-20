@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import InvitationClient from "../[token]/InvitationClient";
 import type { KontenUndangan } from "@/lib/database.types";
 
-const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "created_at" | "updated_at"> = {
+const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "event_id" | "created_at" | "updated_at"> &
+  Partial<Pick<KontenUndangan, "template_slug">> = {
   judul: "Akhirusannah",
   subtitle: "Perpisahan Sekolah",
   bismillah: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم",
@@ -24,6 +25,7 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "created_at" |
   ],
   header_arabic: "© 2025",
   footer: "Akhirusannah. Semua hak dilindungi.",
+  template_slug: "glass-premium",
 };
 
 const SAMPLE_TAMU = {
@@ -47,11 +49,24 @@ export default async function DemoPage() {
   let sekolahNama = "SDIT Al-Hikmah";
 
   if (sekolahId) {
-    const { data } = await createAdminClient()
-      .from("konten_undangan")
-      .select("*")
+    const adminSupabase = createAdminClient();
+
+    const { data: events } = await adminSupabase
+      .from("events")
+      .select("id")
       .eq("sekolah_id", sekolahId)
-      .single();
+      .order("is_active", { ascending: false })
+      .limit(1);
+
+    const eventId = events?.[0]?.id;
+    const kontenQuery = adminSupabase.from("konten_undangan").select("*");
+    if (eventId) {
+      kontenQuery.eq("event_id", eventId);
+    } else {
+      kontenQuery.eq("sekolah_id", sekolahId);
+    }
+
+    const { data } = await kontenQuery.single();
 
     if (data) {
       konten = data;
@@ -60,12 +75,13 @@ export default async function DemoPage() {
         ...FALLBACK_KONTEN,
         id: "",
         sekolah_id: sekolahId,
+        event_id: eventId || "",
         created_at: null,
         updated_at: null,
       };
     }
 
-    const { data: sekolah } = await createAdminClient()
+    const { data: sekolah } = await adminSupabase
       .from("sekolah")
       .select("nama")
       .eq("id", sekolahId)
@@ -76,6 +92,7 @@ export default async function DemoPage() {
       ...FALLBACK_KONTEN,
       id: "",
       sekolah_id: "",
+      event_id: "",
       created_at: null,
       updated_at: null,
     };

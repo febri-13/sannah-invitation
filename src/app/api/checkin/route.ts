@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     const { data: tamu, error: tamuError } = await supabaseAdmin
       .from("tamu")
-      .select("id, nama_siswa, nama_ayah, nama_ibu, sekolah_id")
+      .select("id, nama_siswa, nama_ayah, nama_ibu, sekolah_id, event_id")
       .eq("token", token)
       .single();
 

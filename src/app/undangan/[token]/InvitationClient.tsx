@@ -92,17 +92,17 @@ function BgOrbs() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <div className="absolute w-[360px] h-[360px] -left-[100px] -top-[120px] rounded-full"
-        style={{ background: "radial-gradient(circle at 30% 30%, #E89B6B 0%, rgba(232,155,107,0) 65%)" }} />
+        style={{ background: "var(--orb-1)" }} />
       <div className="absolute w-[320px] h-[320px] -right-[90px] top-[400px] rounded-full"
-        style={{ background: "radial-gradient(circle at 60% 40%, #A9C0A2 0%, rgba(169,192,162,0) 65%)" }} />
+        style={{ background: "var(--orb-2)" }} />
       <div className="absolute w-[380px] h-[380px] -left-[60px] top-[900px] rounded-full"
-        style={{ background: "radial-gradient(circle at 50% 50%, #D9B281 0%, rgba(217,178,129,0) 65%)" }} />
+        style={{ background: "var(--orb-3)" }} />
       <div className="absolute w-[340px] h-[340px] -right-[120px] top-[1500px] rounded-full"
-        style={{ background: "radial-gradient(circle at 50% 50%, #C97A5D 0%, rgba(201,122,93,0) 65%)" }} />
+        style={{ background: "var(--orb-4)" }} />
       <div className="absolute w-[360px] h-[360px] -left-[80px] top-[2200px] rounded-full"
-        style={{ background: "radial-gradient(circle at 40% 40%, #8FA68B 0%, rgba(143,166,139,0) 65%)" }} />
+        style={{ background: "var(--orb-5)" }} />
       <div className="absolute w-[360px] h-[360px] -right-[100px] -bottom-[120px] rounded-full"
-        style={{ background: "radial-gradient(circle at 50% 50%, #E89B6B 0%, rgba(232,155,107,0) 65%)" }} />
+        style={{ background: "var(--orb-6)" }} />
     </div>
   );
 }
@@ -139,8 +139,10 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
     { v: c.d, l: "HARI" }, { v: c.h, l: "JAM" }, { v: c.m, l: "MENIT" }, { v: c.s, l: "DETIK" },
   ];
 
+  const themeClass = konten.template_slug ? `theme-${konten.template_slug}` : "";
+
   return (
-    <div className="min-h-screen relative" style={{ background: "linear-gradient(180deg, #FDF6E8 0%, #F4E6D0 40%, #F8E5D6 70%, #FDF6E8 100%)" }}>
+    <div className={`min-h-screen relative ${themeClass}`} style={{ background: "var(--color-bg-gradient)" }}>
       <div className="max-w-[390px] mx-auto relative overflow-hidden">
         <BgOrbs />
 
@@ -156,39 +158,39 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
               <div className="absolute inset-[-20px] pointer-events-none"
                 style={{ background: "radial-gradient(circle at 50% 0%, rgba(255,210,180,0.5), transparent 60%)" }} />
               <div className="relative">
-                <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "#8B4A2F", marginBottom: 14, opacity: 0.85 }}>
+                <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "var(--color-secondary)", marginBottom: 14, opacity: 0.85 }}>
                   {sekolahNama.toUpperCase()} · INVITATION
                 </p>
-                <p className="font-arabic text-[26px] leading-[1.5]" style={{ color: "#8B4A2F", marginBottom: 18 }}>
+                <p className="font-arabic text-[26px] leading-[1.5]" style={{ color: "var(--color-secondary)", marginBottom: 18 }}>
                   {konten.bismillah}
                 </p>
-                <h1 className="font-serif-display text-[42px] leading-[0.95] font-medium italic" style={{ color: "#2A2520" }}>
+                <h1 className="font-serif-display text-[42px] leading-[0.95] font-medium italic" style={{ color: "var(--color-text)" }}>
                   {konten.judul}
                 </h1>
                 {konten.subtitle && (
-                  <p className="font-serif-display text-[42px] leading-[0.95] font-medium italic" style={{ color: "#C26A4A", marginBottom: 6 }}>
+                  <p className="font-serif-display text-[42px] leading-[0.95] font-medium italic" style={{ color: "var(--color-primary)", marginBottom: 6 }}>
                     {konten.subtitle}
                   </p>
                 )}
                 {konten.hero_desc && (
-                  <p className="text-[13px] leading-[1.6]" style={{ color: "#7a6655", marginTop: 8 }}>
+                  <p className="text-[13px] leading-[1.6]" style={{ color: "var(--color-text-muted)", marginTop: 8 }}>
                     {konten.hero_desc}
                   </p>
                 )}
 
                 <div className="glass-chip inline-flex items-center gap-4 mt-[22px] p-[14px_18px]">
                   <div className="text-center">
-                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F" }}>
+                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)" }}>
                       {(() => {
                         const d = new Date(konten.tanggal);
                         const days = ["MINGGU","SENIN","SELASA","RABU","KAMIS","JUMAT","SABTU"];
                         return isNaN(d.getTime()) ? "" : days[d.getDay()] || "";
                       })()}
                     </p>
-                    <p className="font-serif-display text-[36px] leading-[1] font-medium" style={{ color: "#2A2520" }}>
+                    <p className="font-serif-display text-[36px] leading-[1] font-medium" style={{ color: "var(--color-text)" }}>
                       {(() => { const d = new Date(konten.tanggal); return isNaN(d.getTime()) ? "" : d.getDate(); })()}
                     </p>
-                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F" }}>
+                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)" }}>
                       {(() => {
                         const d = new Date(konten.tanggal);
                         const months = ["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
@@ -196,13 +198,13 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
                       })()} {(() => { const d = new Date(konten.tanggal); return isNaN(d.getTime()) ? "" : d.getFullYear(); })()}
                     </p>
                   </div>
-                  <div className="w-px h-[50px]" style={{ background: "rgba(139,74,47,0.25)" }} />
+                  <div className="w-px h-[50px]" style={{ background: "rgba(var(--color-secondary-rgb), 0.25)" }} />
                   <div className="text-left">
-                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F" }}>WAKTU</p>
-                    <p className="font-serif-display text-[22px] leading-[1.1] font-medium italic" style={{ color: "#2A2520" }}>
+                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)" }}>WAKTU</p>
+                    <p className="font-serif-display text-[22px] leading-[1.1] font-medium italic" style={{ color: "var(--color-text)" }}>
                       {konten.waktu.split(" ")[1] || konten.waktu.split(" ")[0] || "08.00"}
                     </p>
-                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F" }}>
+                    <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)" }}>
                       {konten.waktu.includes("WIB") ? "WIB — SELESAI" : konten.waktu}
                     </p>
                   </div>
@@ -214,27 +216,27 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
           {/* Greeting */}
           <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
             <div className="glass-card p-[26px_24px] text-center">
-              <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "#8B4A2F", marginBottom: 14 }}>
+              <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "var(--color-secondary)", marginBottom: 14 }}>
                 KEPADA YANG TERHORMAT
               </p>
-              <p className="font-serif-display text-[22px] leading-[1.3] italic" style={{ color: "#2A2520" }}>
+              <p className="font-serif-display text-[22px] leading-[1.3] italic" style={{ color: "var(--color-text)" }}>
                 {tamu.nama_ayah ? `Bapak ${tamu.nama_ayah}` : ""}
               </p>
               {tamu.nama_ayah && tamu.nama_ibu && (
-                <p className="font-serif-display text-[14px] leading-[1]" style={{ color: "#C26A4A", margin: "2px 0" }}>&amp;</p>
+                <p className="font-serif-display text-[14px] leading-[1]" style={{ color: "var(--color-primary)", margin: "2px 0" }}>&amp;</p>
               )}
-              <p className="font-serif-display text-[22px] leading-[1.3] italic" style={{ color: "#2A2520", marginBottom: 14 }}>
+              <p className="font-serif-display text-[22px] leading-[1.3] italic" style={{ color: "var(--color-text)", marginBottom: 14 }}>
                 {tamu.nama_ibu ? `Ibu ${tamu.nama_ibu}` : (tamu.nama_ayah ? "dan Ibu" : "")}
               </p>
-              <div className="w-8 h-px mx-auto mb-[14px]" style={{ background: "#C26A4A" }} />
-              <p className="text-[12px] leading-[1.6]" style={{ color: "#7a6655" }}>
+              <div className="w-8 h-px mx-auto mb-[14px]" style={{ background: "var(--color-primary)" }} />
+              <p className="text-[12px] leading-[1.6]" style={{ color: "var(--color-text-muted)" }}>
                 bersama putra/putri tercinta
               </p>
-              <p className="font-serif-display text-[20px] font-semibold" style={{ color: "#C26A4A", marginTop: 4 }}>
+              <p className="font-serif-display text-[20px] font-semibold" style={{ color: "var(--color-primary)", marginTop: 4 }}>
                 {tamu.nama_siswa}
               </p>
               {tamu.jenis_kelamin && (
-                <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#7a6655", marginTop: 6 }}>
+                <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-text-muted)", marginTop: 6 }}>
                   {tamu.jenis_kelamin.toUpperCase()}
                 </p>
               )}
@@ -245,19 +247,19 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
           {targetISO && (
             <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
               <div className="glass-card p-[24px_18px]">
-                <p className="font-mono-label text-[9px] tracking-[0.3em] text-center" style={{ color: "#8B4A2F", marginBottom: 4 }}>
+                <p className="font-mono-label text-[9px] tracking-[0.3em] text-center" style={{ color: "var(--color-secondary)", marginBottom: 4 }}>
                   MENUJU HARI BAHAGIA
                 </p>
-                <p className="font-serif-display text-[18px] italic text-center" style={{ color: "#2A2520", marginBottom: 16 }}>
+                <p className="font-serif-display text-[18px] italic text-center" style={{ color: "var(--color-text)", marginBottom: 16 }}>
                   Hitung mundur
                 </p>
                 <div className="grid grid-cols-4 gap-2">
                   {countdownParts.map((p, i) => (
-                    <div key={i} className="glass-chip text-center p-[12px_4px_10px]" style={{ background: "rgba(255,248,235,0.7)" }}>
-                      <p className="font-serif-display text-[28px] leading-[1] font-medium" style={{ color: "#C26A4A" }}>
+                    <div key={i} className="glass-chip text-center p-[12px_4px_10px]" style={{ background: "var(--color-glass-chip-bg)" }}>
+                      <p className="font-serif-display text-[28px] leading-[1] font-medium" style={{ color: "var(--color-primary)" }}>
                         {String(p.v).padStart(2, "0")}
                       </p>
-                      <p className="font-mono-label text-[8px] tracking-[0.2em]" style={{ color: "#8B4A2F", marginTop: 6 }}>
+                      <p className="font-mono-label text-[8px] tracking-[0.2em]" style={{ color: "var(--color-secondary)", marginTop: 6 }}>
                         {p.l}
                       </p>
                     </div>
@@ -270,10 +272,10 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
           {/* Event Details */}
           <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
             <div className="glass-card p-[24px]">
-              <p className="font-serif-display text-[22px] italic" style={{ color: "#2A2520", marginBottom: 2 }}>
+              <p className="font-serif-display text-[22px] italic" style={{ color: "var(--color-text)", marginBottom: 2 }}>
                 Detail Acara
               </p>
-              <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F", marginBottom: 16 }}>
+              <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)", marginBottom: 16 }}>
                 WAKTU &amp; TEMPAT
               </p>
               <div className="space-y-0">
@@ -285,29 +287,29 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
                 ].map((row, i, arr) => (
                   <div key={i}
                     className="flex gap-[14px] py-[14px]"
-                    style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(139,74,47,0.15)" : "none" }}
+                    style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(var(--color-secondary-rgb), 0.15)" : "none" }}
                   >
                     <div className="w-10 h-10 rounded-[12px] shrink-0 flex items-center justify-center"
-                      style={{ background: "rgba(194,106,74,0.15)", color: "#C26A4A" }}>
+                      style={{ background: "rgba(var(--color-primary-rgb), 0.15)", color: "var(--color-primary)" }}>
                       {row.icon}
                     </div>
                     <div className="flex-1">
-                      <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F", marginBottom: 2 }}>
+                      <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)", marginBottom: 2 }}>
                         {row.label}
                       </p>
                       {"link" in row && row.link ? (
                         <a href={row.link} target="_blank" rel="noopener noreferrer"
                           className="text-[14px] font-semibold leading-[1.3] hover:underline"
-                          style={{ color: "#C26A4A" }}>
+                          style={{ color: "var(--color-primary)" }}>
                           {row.value}
                         </a>
                       ) : (
-                        <p className="text-[14px] font-semibold leading-[1.3]" style={{ color: "#2A2520" }}>
+                        <p className="text-[14px] font-semibold leading-[1.3]" style={{ color: "var(--color-text)" }}>
                           {row.value}
                         </p>
                       )}
                       {"sub" in row && row.sub && (
-                        <p className="text-[11px] leading-[1.5] mt-[2px]" style={{ color: "#7a6655" }}>
+                        <p className="text-[11px] leading-[1.5] mt-[2px]" style={{ color: "var(--color-text-muted)" }}>
                           {row.sub}
                         </p>
                       )}
@@ -319,9 +321,9 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
                 <a href={konten.lokasi_maps} target="_blank" rel="noopener noreferrer"
                   className="w-full mt-4 p-[14px] rounded-[14px] inline-flex items-center justify-center gap-[10px] cursor-pointer"
                   style={{
-                    background: "#C26A4A", color: "#F5EEE0",
+                    background: "var(--color-primary)", color: "var(--color-on-primary)",
                     fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.22em", fontSize: 11,
-                    boxShadow: "0 6px 18px rgba(194,106,74,0.35)",
+                    boxShadow: "0 6px 18px rgba(var(--color-primary-rgb), 0.35)",
                   }}>
                   BUKA GOOGLE MAPS <Navigation size={14} />
                 </a>
@@ -333,27 +335,27 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
           {agenda.length > 0 && (
             <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
               <div className="glass-card p-[24px_22px]">
-                <p className="font-serif-display text-[22px] italic" style={{ color: "#2A2520", marginBottom: 2 }}>
+                <p className="font-serif-display text-[22px] italic" style={{ color: "var(--color-text)", marginBottom: 2 }}>
                   Susunan Acara
                 </p>
-                <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F", marginBottom: 18 }}>
+                <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)", marginBottom: 18 }}>
                   RANGKAIAN ACARA
                 </p>
                 <div className="relative pl-[18px]">
                   <div className="absolute left-[5px] top-[6px] bottom-[6px] w-px"
-                    style={{ background: "linear-gradient(180deg, #C26A4A, rgba(194,106,74,0.1))" }} />
+                    style={{ background: "linear-gradient(180deg, var(--color-primary), rgba(194,106,74,0.1))" }} />
                   {agenda.map((a, i) => (
                     <div key={i} className="relative pb-4">
                       <span className="absolute -left-[18px] top-[6px] w-[11px] h-[11px] rounded-full border-2"
                         style={{
-                          background: "#C26A4A",
-                          borderColor: "#FBF7EE",
-                          boxShadow: "0 0 0 1px #C26A4A",
+                          background: "var(--color-primary)",
+                          borderColor: "var(--color-bg-start)",
+                          boxShadow: "0 0 0 1px var(--color-primary)",
                         }} />
-                      <p className="font-mono-label text-[10px] tracking-[0.22em] font-semibold" style={{ color: "#C26A4A" }}>
+                      <p className="font-mono-label text-[10px] tracking-[0.22em] font-semibold" style={{ color: "var(--color-primary)" }}>
                         {a.waktu}
                       </p>
-                      <p className="text-[14px] font-semibold mt-[2px]" style={{ color: "#2A2520" }}>
+                      <p className="text-[14px] font-semibold mt-[2px]" style={{ color: "var(--color-text)" }}>
                         {a.judul}
                       </p>
                     </div>
@@ -366,30 +368,30 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
           {/* QR Check-in */}
           <motion.div className="px-[22px] py-[10px]" variants={qrVariants}>
             <div className="glass-card p-[26px_22px] text-center">
-              <p className="font-serif-display text-[22px] italic" style={{ color: "#2A2520" }}>
+              <p className="font-serif-display text-[22px] italic" style={{ color: "var(--color-text)" }}>
                 QR Check-in
               </p>
-              <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "#8B4A2F", marginBottom: 18 }}>
+              <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)", marginBottom: 18 }}>
                 PRESENSI DIGITAL
               </p>
               <div className="inline-block p-[14px] glass-chip rounded-[14px]" style={{ background: "rgba(255,255,255,0.85)" }}>
-                <QRCode value={token} size={160} fgColor="#2A2520" bgColor="#FFFFFF" />
+                <QRCode value={token} size={160} fgColor="var(--color-text)" bgColor="#FFFFFF" />
               </div>
               <div className="flex justify-center gap-[10px] mt-[14px]">
                 <span className="font-mono-label text-[9px] tracking-[0.22em] px-[10px] py-[4px] rounded-full inline-flex items-center gap-[6px]"
                   style={{
-                    color: "#5C7058",
-                    background: "rgba(143,166,139,0.18)",
+                    color: "var(--color-success)",
+                    background: "var(--color-success-bg)",
                   }}>
                   <CheckCircle size={12} /> AKTIF
                 </span>
               </div>
-              <p className="text-[11px] leading-[1.6] mt-[12px]" style={{ color: "#7a6655", maxWidth: 280, margin: "12px auto 0" }}>
+              <p className="text-[11px] leading-[1.6] mt-[12px]" style={{ color: "var(--color-text-muted)", maxWidth: 280, margin: "12px auto 0" }}>
                 Tunjukkan kode ini kepada panitia saat hadir di lokasi acara.
               </p>
               {hasCheckin && (
                 <div className="mt-4 glass-chip p-[12px] flex items-center justify-center gap-2"
-                  style={{ background: "rgba(143,166,139,0.18)", color: "#5C7058" }}>
+                  style={{ background: "var(--color-success-bg)", color: "var(--color-success)" }}>
                   <CheckCircle size={16} />
                   <span className="font-mono-label text-[10px] tracking-[0.2em]">SUDAH CHECK-IN</span>
                 </div>
@@ -409,19 +411,19 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
           {/* Footer */}
           <motion.div className="px-[22px] py-[10px_22px_30px]" variants={itemVariants}>
             <div className="glass-card p-[26px_22px] text-center">
-              <p className="font-arabic text-[22px]" style={{ color: "#C26A4A", marginBottom: 6 }}>
+              <p className="font-arabic text-[22px]" style={{ color: "var(--color-primary)", marginBottom: 6 }}>
                 {konten.header_arabic}
               </p>
-              <p className="font-serif-display text-[14px] italic" style={{ color: "#2A2520", marginBottom: 18 }}>
+              <p className="font-serif-display text-[14px] italic" style={{ color: "var(--color-text)", marginBottom: 18 }}>
                 {konten.footer}
               </p>
-              <p className="font-mono-label text-[9px] tracking-[0.28em]" style={{ color: "#8B4A2F", marginBottom: 4 }}>
+              <p className="font-mono-label text-[9px] tracking-[0.28em]" style={{ color: "var(--color-secondary)", marginBottom: 4 }}>
                 HORMAT KAMI,
               </p>
-              <p className="font-serif-display text-[18px] italic" style={{ color: "#2A2520" }}>
+              <p className="font-serif-display text-[18px] italic" style={{ color: "var(--color-text)" }}>
                 Keluarga Besar
               </p>
-              <p className="font-serif-display text-[22px] font-semibold" style={{ color: "#C26A4A" }}>
+              <p className="font-serif-display text-[22px] font-semibold" style={{ color: "var(--color-primary)" }}>
                 {sekolahNama}
               </p>
             </div>

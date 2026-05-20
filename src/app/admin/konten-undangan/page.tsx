@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Save,
@@ -12,8 +12,10 @@ import {
   Video,
   Camera,
   Star,
+  Palette,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { THEMES } from "@/lib/themes";
 
 interface AgendaItem {
   waktu: string;
@@ -36,6 +38,7 @@ interface KontenData {
   agenda: AgendaItem[];
   header_arabic: string;
   footer: string;
+  template_slug: string;
 }
 
 const ICON_OPTIONS = [
@@ -66,6 +69,12 @@ export default function KontenUndanganPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [eventId, setEventId] = useState<string | undefined>(undefined);
+
+  const getEventId = useCallback(() => {
+    const match = document.cookie.match(new RegExp("(^| )active_event_id=([^;]+)"));
+    return match ? match[2] : undefined;
+  }, []);
 
   const [judul, setJudul] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -80,14 +89,18 @@ export default function KontenUndanganPage() {
   const [agenda, setAgenda] = useState<AgendaItem[]>(DEFAULT_AGENDA);
   const [headerArabic, setHeaderArabic] = useState("");
   const [footer, setFooter] = useState("");
+  const [templateSlug, setTemplateSlug] = useState("glass-premium");
 
   useEffect(() => {
-    fetchKonten();
+    const eid = getEventId();
+    setEventId(eid);
+    fetchKonten(eid);
   }, []);
 
-  const fetchKonten = async () => {
+  const fetchKonten = async (eid?: string) => {
     try {
-      const res = await fetch("/api/admin/konten-undangan");
+      const url = eid ? `/api/admin/konten-undangan?event_id=${eid}` : "/api/admin/konten-undangan";
+      const res = await fetch(url);
       const result = await res.json();
       if (res.ok) {
         setData(result);
@@ -108,6 +121,7 @@ export default function KontenUndanganPage() {
         );
         setHeaderArabic(result.header_arabic || "");
         setFooter(result.footer || "");
+        setTemplateSlug(result.template_slug || "glass-premium");
       } else {
         setError(result.error || "Gagal mengambil data konten undangan");
       }
@@ -140,6 +154,8 @@ export default function KontenUndanganPage() {
           agenda,
           header_arabic: headerArabic,
           footer,
+          template_slug: templateSlug,
+          event_id: eventId,
         }),
       });
 
@@ -286,6 +302,40 @@ export default function KontenUndanganPage() {
                   placeholder="Perpisahan Sekolah"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Template Selector */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+              <Palette className="w-4 h-4 inline mr-2" />
+              Template Tema
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {THEMES.map((t) => (
+                <button
+                  key={t.slug}
+                  type="button"
+                  onClick={() => setTemplateSlug(t.slug)}
+                  className={`p-4 rounded-xl text-left border-2 transition-all ${
+                    templateSlug === t.slug
+                      ? "border-primary bg-primary/5"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className={`w-full h-8 rounded-lg mb-2`}
+                    style={{
+                      background: t.slug === "glass-premium"
+                        ? "linear-gradient(135deg, #C26A4A, #8B4A2F)"
+                        : t.slug === "classic-gold"
+                        ? "linear-gradient(135deg, #B8860B, #6B5B00)"
+                        : "linear-gradient(135deg, #5C7058, #3D4F3A)"
+                    }}
+                  />
+                  <p className="text-sm font-semibold text-gray-800">{t.name}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{t.description}</p>
+                </button>
+              ))}
             </div>
           </div>
 

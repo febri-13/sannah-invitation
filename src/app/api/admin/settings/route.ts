@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-// Allowed setting keys that can be modified via API
 const ALLOWED_KEYS = ["wa_template_invitation"];
 
-// Default values for seeding/insert fallback
 const DEFAULTS: Record<string, { label: string; description: string }> = {
   wa_template_invitation: {
     label: "Template Pesan Undangan WhatsApp",
@@ -15,7 +13,6 @@ const DEFAULTS: Record<string, { label: string; description: string }> = {
 
 export async function GET(request: NextRequest) {
   try {
-    // Auth check
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -26,23 +23,39 @@ export async function GET(request: NextRequest) {
     const adminSupabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const key = searchParams.get("key");
+    const eventId = searchParams.get("event_id");
 
-    if (key) {
-      const { data, error } = await adminSupabase
-        .from("pengaturan")
-        .select("*")
-        .eq("key", key)
-        .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000")
-        .single();
-
-      if (error) throw error;
-      return NextResponse.json(data);
-    }
-
-    const { data, error: allError } = await adminSupabase
+    let query = adminSupabase
       .from("pengaturan")
       .select("*")
       .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000");
+
+    if (eventId) {
+      query = query.eq("event_id", eventId);
+    }
+
+    if (key) {
+      const { data, error } = await query.eq("key", key).maybeSingle();
+
+      if (error) throw error;
+
+      // If no row found with event_id, try global (null event_id) for backward compat
+      if (!data && eventId) {
+        const { data: fallback } = await adminSupabase
+          .from("pengaturan")
+          .select("*")
+          .eq("key", key)
+          .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000")
+          .is("event_id", null)
+          .maybeSingle();
+
+        if (fallback) return NextResponse.json(fallback);
+      }
+
+      return NextResponse.json(data ?? null);
+    }
+
+    const { data, error: allError } = await query;
 
     if (allError) throw allError;
 
@@ -58,7 +71,6 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    // Auth check
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -74,9 +86,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { key, value } = body;
+    const { key, value, event_id } = body;
 
-    // Validate required fields
     if (!key || !value) {
       return NextResponse.json(
         { error: "Missing required fields: key, value" },
@@ -84,7 +95,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validate key is allowed
     if (!ALLOWED_KEYS.includes(key)) {
       return NextResponse.json(
         { error: "Invalid setting key" },
@@ -92,7 +102,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validate value length
     if (typeof value !== "string" || value.length > 5000) {
       return NextResponse.json(
         { error: "Value must be a string under 5000 characters" },
@@ -101,26 +110,23 @@ export async function PUT(request: NextRequest) {
     }
 
     const adminSupabase = createAdminClient();
-
     const now = new Date().toISOString();
 
-    // Always insert with sekolah_id — avoids cross-sekolah collisions
     const { data: existing } = await adminSupabase
       .from("pengaturan")
       .select("key")
       .eq("key", key)
       .eq("sekolah_id", sekolahId)
+      .eq("event_id", event_id ?? "00000000-0000-0000-0000-000000000000")
       .maybeSingle();
 
     if (existing) {
       const { data, error } = await adminSupabase
         .from("pengaturan")
-        .update({
-          value,
-          updated_at: now,
-        })
+        .update({ value, updated_at: now })
         .eq("key", key)
         .eq("sekolah_id", sekolahId)
+        .eq("event_id", event_id ?? "00000000-0000-0000-0000-000000000000")
         .select()
         .single();
 
@@ -136,6 +142,7 @@ export async function PUT(request: NextRequest) {
           label: defaults?.label || "Custom Setting",
           description: defaults?.description || "",
           sekolah_id: sekolahId,
+          event_id: event_id || null,
           updated_at: now,
         })
         .select()

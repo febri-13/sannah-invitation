@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import InvitationClient from "./InvitationClient";
 import type { KontenUndangan } from "@/lib/database.types";
 
-const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "created_at" | "updated_at"> = {
+const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "event_id" | "created_at" | "updated_at"> &
+  Partial<Pick<KontenUndangan, "template_slug">> = {
   judul: "Akhirusannah",
   subtitle: "Perpisahan Sekolah",
   bismillah: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم",
@@ -23,6 +24,7 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "created_at" |
   ],
   header_arabic: "© 2025",
   footer: "Akhirusannah. Semua hak dilindungi.",
+  template_slug: "glass-premium",
 };
 
 export default async function UndanganPage({
@@ -47,39 +49,35 @@ export default async function UndanganPage({
     let konten: KontenUndangan;
     let sekolahNama = "SDIT Al-Hikmah";
 
+    const kontenQuery = supabase.from("konten_undangan").select("*");
+    if (tamu.event_id) {
+      kontenQuery.eq("event_id", tamu.event_id);
+    } else if (tamu.sekolah_id) {
+      kontenQuery.eq("sekolah_id", tamu.sekolah_id);
+    }
+
+    const { data: kontenData } = await kontenQuery.single();
+
+    if (kontenData) {
+      konten = kontenData;
+    } else {
+      konten = {
+        ...FALLBACK_KONTEN,
+        id: "",
+        sekolah_id: tamu.sekolah_id || "",
+        event_id: "",
+        created_at: null,
+        updated_at: null,
+      };
+    }
+
     if (tamu.sekolah_id) {
-      const { data } = await supabase
-        .from("konten_undangan")
-        .select("*")
-        .eq("sekolah_id", tamu.sekolah_id)
-        .single();
-
-      if (data) {
-        konten = data;
-      } else {
-        konten = {
-          ...FALLBACK_KONTEN,
-          id: "",
-          sekolah_id: tamu.sekolah_id,
-          created_at: null,
-          updated_at: null,
-        };
-      }
-
       const { data: sekolah } = await supabase
         .from("sekolah")
         .select("nama")
         .eq("id", tamu.sekolah_id)
         .single();
       if (sekolah) sekolahNama = sekolah.nama;
-    } else {
-      konten = {
-        ...FALLBACK_KONTEN,
-        id: "",
-        sekolah_id: "",
-        created_at: null,
-        updated_at: null,
-      };
     }
 
     return (

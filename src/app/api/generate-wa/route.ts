@@ -24,24 +24,34 @@ export async function POST(request: NextRequest) {
 
     const supabaseAdmin = createAdminClient();
 
-    // Fetch template from pengaturan, scoped to this admin's sekolah
+    // Fetch template from pengaturan, scoped to this admin's sekolah + event
+    let templateEventId: string | undefined;
+
+    // If the tamu has an event_id, use it; otherwise fall back to body.event_id
+    if (token) {
+      const { data: tamu } = await supabaseAdmin
+        .from("tamu")
+        .select("event_id")
+        .eq("token", token)
+        .maybeSingle();
+      templateEventId = tamu?.event_id || body.event_id;
+    } else {
+      templateEventId = body.event_id;
+    }
+
     let settingQuery = supabaseAdmin
       .from("pengaturan")
       .select("value")
       .eq("key", "wa_template_invitation")
-      .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000")
-      .single();
+      .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000");
 
-    if (!sekolahId) {
-      settingQuery = supabaseAdmin
-        .from("pengaturan")
-        .select("value")
-        .eq("key", "wa_template_invitation")
-        .limit(1)
-        .single();
+    if (templateEventId) {
+      settingQuery = settingQuery.eq("event_id", templateEventId);
+    } else if (sekolahId) {
+      settingQuery = settingQuery.is("event_id", null);
     }
 
-    const { data: setting, error } = await settingQuery;
+    const { data: setting, error } = await settingQuery.limit(1).maybeSingle();
 
     if (error) throw error;
 

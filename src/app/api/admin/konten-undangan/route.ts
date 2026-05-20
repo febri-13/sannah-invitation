@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -18,12 +18,21 @@ export async function GET() {
       );
     }
 
+    const { searchParams } = new URL(request.url);
+    const eventId = searchParams.get("event_id");
+
     const adminSupabase = createAdminClient();
-    const { data, error } = await adminSupabase
+    const query = adminSupabase
       .from("konten_undangan")
-      .select("*")
-      .eq("sekolah_id", sekolahId)
-      .single();
+      .select("*");
+
+    if (eventId) {
+      query.eq("event_id", eventId);
+    } else {
+      query.eq("sekolah_id", sekolahId);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) {
       if (error.code === "PGRST116") {
@@ -76,6 +85,8 @@ export async function PUT(request: NextRequest) {
       agenda,
       header_arabic,
       footer,
+      template_slug,
+      event_id,
     } = body;
 
     if (!judul || !tanggal || !waktu || !lokasi_nama) {
@@ -95,7 +106,7 @@ export async function PUT(request: NextRequest) {
     const adminSupabase = createAdminClient();
     const now = new Date().toISOString();
 
-    const payload = {
+    const basePayload = {
       judul,
       subtitle: subtitle || "",
       bismillah: bismillah || "",
@@ -109,14 +120,20 @@ export async function PUT(request: NextRequest) {
       agenda: agenda || [],
       header_arabic: header_arabic || "",
       footer: footer || "",
+      template_slug: template_slug || "glass-premium",
       updated_at: now,
     };
 
-    const { data: existing } = await adminSupabase
-      .from("konten_undangan")
-      .select("id")
-      .eq("sekolah_id", sekolahId)
-      .maybeSingle();
+    const payload = event_id ? { ...basePayload, event_id } : basePayload;
+
+    const lookupQuery = adminSupabase.from("konten_undangan").select("id");
+    if (event_id) {
+      lookupQuery.eq("event_id", event_id);
+    } else {
+      lookupQuery.eq("sekolah_id", sekolahId);
+    }
+
+    const { data: existing } = await lookupQuery.maybeSingle();
 
     let result;
     if (existing) {
@@ -130,12 +147,21 @@ export async function PUT(request: NextRequest) {
       if (error) throw error;
       result = data;
     } else {
+      let resolvedEventId = event_id;
+      if (!resolvedEventId) {
+        const { data: defaultEvent } = await adminSupabase
+          .from("events")
+          .select("id")
+          .eq("sekolah_id", sekolahId)
+          .eq("slug", "akhirusannah")
+          .single();
+        resolvedEventId = defaultEvent?.id || event_id;
+      }
       const { data, error } = await adminSupabase
         .from("konten_undangan")
-        .insert({ ...payload, sekolah_id: sekolahId })
+        .insert({ ...basePayload, sekolah_id: sekolahId, event_id: resolvedEventId! })
         .select()
         .single();
-
       if (error) throw error;
       result = data;
     }

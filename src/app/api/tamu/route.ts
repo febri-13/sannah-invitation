@@ -4,7 +4,7 @@ import { tamuInputSchema } from "@/lib/schemas";
 import { generateToken } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -13,6 +13,8 @@ export async function GET() {
     }
 
     const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
+    const { searchParams } = new URL(request.url);
+    const eventId = searchParams.get("event_id");
 
     const supabaseAdmin = createAdminClient();
     const query = supabaseAdmin
@@ -24,8 +26,9 @@ export async function GET() {
       `)
       .order("created_at", { ascending: false });
 
-    // Filter by sekolah_id when the admin has one linked
-    if (sekolahId) {
+    if (eventId) {
+      query.eq("event_id", eventId);
+    } else if (sekolahId) {
       query.eq("sekolah_id", sekolahId);
     }
 
@@ -66,10 +69,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { nama_siswa, jenis_kelamin, nama_ayah, nama_ibu, no_wa_ayah, no_wa_ibu } = validation.data;
+    const { nama_siswa, jenis_kelamin, nama_ayah, nama_ibu, no_wa_ayah, no_wa_ibu, event_id } = validation.data;
     const token = generateToken();
 
     const supabaseAdmin = createAdminClient();
+
+    let resolvedEventId = event_id;
+    if (!resolvedEventId) {
+      const { data: defaultEvent } = await supabaseAdmin
+        .from("events")
+        .select("id")
+        .eq("sekolah_id", sekolahId)
+        .eq("slug", "akhirusannah")
+        .single();
+      if (defaultEvent) resolvedEventId = defaultEvent.id;
+    }
+
     const { data: tamu, error } = await supabaseAdmin
       .from("tamu")
       .insert({
@@ -81,6 +96,7 @@ export async function POST(request: NextRequest) {
         no_wa_ibu: no_wa_ibu || null,
         jenis_kelamin,
         sekolah_id: sekolahId,
+        event_id: resolvedEventId,
       })
       .select()
       .single();

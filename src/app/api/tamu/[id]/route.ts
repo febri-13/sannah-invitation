@@ -20,7 +20,7 @@ export async function DELETE(
     // Verify the tamu belongs to this admin's sekolah before deleting
     const { data: tamu, error: tamuError } = await supabaseAdmin
       .from("tamu")
-      .select("sekolah_id")
+      .select("sekolah_id, event_id")
       .eq("id", id)
       .single();
 
