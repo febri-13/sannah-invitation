@@ -229,18 +229,8 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
               <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "var(--color-secondary)", marginBottom: 14 }}>
                 KEPADA YANG TERHORMAT
               </p>
-              <p className="font-serif-display text-[22px] leading-[1.3] italic" style={{ color: "var(--color-text)" }}>
-                {tamu.nama_ayah ? `Bapak ${tamu.nama_ayah}` : ""}
-              </p>
-              {tamu.nama_ayah && tamu.nama_ibu && (
-                <p className="font-serif-display text-[14px] leading-[1]" style={{ color: "var(--color-primary)", margin: "2px 0" }}>&amp;</p>
-              )}
-              <p className="font-serif-display text-[22px] leading-[1.3] italic" style={{ color: "var(--color-text)", marginBottom: 14 }}>
-                {tamu.nama_ibu ? `Ibu ${tamu.nama_ibu}` : (tamu.nama_ayah ? "dan Ibu" : "")}
-              </p>
-              <div className="w-8 h-px mx-auto mb-[14px]" style={{ background: "var(--color-primary)" }} />
               <p className="text-[12px] leading-[1.6]" style={{ color: "var(--color-text-muted)" }}>
-                bersama putra/putri tercinta
+                Ayah/Bunda dari ananda
               </p>
               <p className="font-serif-display text-[20px] font-semibold" style={{ color: "var(--color-primary)", marginTop: 4 }}>
                 {tamu.nama_siswa}
@@ -396,7 +386,7 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
                   <CheckCircle size={12} /> AKTIF
                 </span>
               </div>
-              <p className="text-[11px] leading-[1.6] mt-[12px]" style={{ color: "var(--color-text-muted)", maxWidth: 280, margin: "12px auto 0" }}>
+              <p className="text-[14px] font-semibold leading-[1.6] mt-[12px]" style={{ color: "var(--color-text-muted)", maxWidth: 280, margin: "12px auto 0" }}>
                 Tunjukkan kode ini kepada panitia saat hadir di lokasi acara.
               </p>
               {hasCheckin && (
