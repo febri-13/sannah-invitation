@@ -39,6 +39,7 @@ interface KontenData {
   header_arabic: string;
   footer: string;
   template_slug: string;
+  logo_url: string;
 }
 
 const ICON_OPTIONS = [
@@ -90,6 +91,7 @@ export default function KontenUndanganPage() {
   const [headerArabic, setHeaderArabic] = useState("");
   const [footer, setFooter] = useState("");
   const [templateSlug, setTemplateSlug] = useState("glass-premium");
+  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
     const eid = getEventId();
@@ -122,6 +124,7 @@ export default function KontenUndanganPage() {
         setHeaderArabic(result.header_arabic || "");
         setFooter(result.footer || "");
         setTemplateSlug(result.template_slug || "glass-premium");
+        setLogoUrl(result.logo_url || "");
       } else {
         setError(result.error || "Gagal mengambil data konten undangan");
       }
@@ -155,6 +158,7 @@ export default function KontenUndanganPage() {
           header_arabic: headerArabic,
           footer,
           template_slug: templateSlug,
+          logo_url: logoUrl,
           event_id: eventId,
         }),
       });
@@ -302,6 +306,30 @@ export default function KontenUndanganPage() {
                   placeholder="Perpisahan Sekolah"
                 />
               </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Logo URL <span className="text-gray-400 font-normal">(URL gambar logo sekolah)</span>
+              </label>
+              <input
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                placeholder="https://example.com/logo.png"
+              />
+              {logoUrl && (
+                <div className="mt-2 flex items-center gap-3">
+                  <img
+                    src={logoUrl}
+                    alt="Preview logo"
+                    className="w-12 h-12 object-contain rounded-lg border border-gray-200"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                  <span className="text-xs text-gray-400">Preview</span>
+                </div>
+              )}
             </div>
           </div>
 

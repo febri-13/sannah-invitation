@@ -44,7 +44,13 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    return NextResponse.json(data);
+    const { data: sekolah } = await adminSupabase
+      .from("sekolah")
+      .select("logo_url")
+      .eq("id", sekolahId)
+      .single();
+
+    return NextResponse.json({ ...data, logo_url: sekolah?.logo_url || "" });
   } catch (error) {
     console.error("Error fetching konten undangan:", error);
     return NextResponse.json(
@@ -86,6 +92,7 @@ export async function PUT(request: NextRequest) {
       header_arabic,
       footer,
       template_slug,
+      logo_url,
       event_id,
     } = body;
 
@@ -164,6 +171,13 @@ export async function PUT(request: NextRequest) {
         .single();
       if (error) throw error;
       result = data;
+    }
+
+    if (logo_url !== undefined) {
+      await adminSupabase
+        .from("sekolah")
+        .update({ logo_url })
+        .eq("id", sekolahId);
     }
 
     return NextResponse.json(result);
