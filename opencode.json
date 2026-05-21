@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=djotfszjcnmjhcwhtxbe&features=docs%2Caccount%2Cdatabase%2Cdevelopment%2Cfunctions%2Cdebugging",
+      "enabled": true
+    }
+  },
+  "command": {
+    "memory": {
+      "description": "Mencatat perubahan terbaru ke docs/MEMORY.md lalu commit",
+      "template": "Baca docs/MEMORY.md untuk lihat format entry terakhir, lalu tambahkan entry baru dengan format yang sama (diawali ## YYYY-MM-DD -- <judul>). Catat perubahan yang baru saja dilakukan. Setelah selesai, commit dengan pesan 'docs: update MEMORY.md'.",
+    }
+  }
+}

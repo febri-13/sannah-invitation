@@ -112,23 +112,34 @@ export async function PUT(request: NextRequest) {
     const adminSupabase = createAdminClient();
     const now = new Date().toISOString();
 
-    const { data: existing } = await adminSupabase
+    let existingQuery = adminSupabase
       .from("pengaturan")
       .select("key")
       .eq("key", key)
-      .eq("sekolah_id", sekolahId)
-      .eq("event_id", event_id ?? "00000000-0000-0000-0000-000000000000")
-      .maybeSingle();
+      .eq("sekolah_id", sekolahId);
+
+    if (event_id) {
+      existingQuery = existingQuery.eq("event_id", event_id);
+    } else {
+      existingQuery = existingQuery.is("event_id", null);
+    }
+
+    const { data: existing } = await existingQuery.maybeSingle();
 
     if (existing) {
-      const { data, error } = await adminSupabase
+      let updateQuery = adminSupabase
         .from("pengaturan")
         .update({ value, updated_at: now })
         .eq("key", key)
-        .eq("sekolah_id", sekolahId)
-        .eq("event_id", event_id ?? "00000000-0000-0000-0000-000000000000")
-        .select()
-        .single();
+        .eq("sekolah_id", sekolahId);
+
+      if (event_id) {
+        updateQuery = updateQuery.eq("event_id", event_id);
+      } else {
+        updateQuery = updateQuery.is("event_id", null);
+      }
+
+      const { data, error } = await updateQuery.select().single();
 
       if (error) throw error;
       return NextResponse.json(data);

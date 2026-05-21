@@ -12,6 +12,7 @@ interface Setting {
   label: string;
   description: string;
   updated_at: string;
+  event_id: string | null;
 }
 
 export default function PengaturanPage() {
@@ -66,11 +67,10 @@ export default function PengaturanPage() {
     setError("");
 
     try {
-      const eventId = getActiveEvent();
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: setting.key, value, event_id: eventId || null }),
+        body: JSON.stringify({ key: setting.key, value, event_id: setting.event_id }),
       });
 
       const data = await res.json();
