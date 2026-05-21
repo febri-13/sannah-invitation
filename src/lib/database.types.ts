@@ -274,18 +274,21 @@ export type Database = {
           alamat: string | null
           created_at: string | null
           id: string
+          logo_url: string
           nama: string
         }
         Insert: {
           alamat?: string | null
           created_at?: string | null
           id?: string
+          logo_url?: string
           nama: string
         }
         Update: {
           alamat?: string | null
           created_at?: string | null
           id?: string
+          logo_url?: string
           nama?: string
         }
         Relationships: []
@@ -482,9 +485,6 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
-export type KontenUndangan = Tables<"konten_undangan">;
-export type Pengaturan = Tables<"pengaturan">;
 
 export const Constants = {
   public: {

@@ -52,6 +52,7 @@ interface InvitationClientProps {
   token: string;
   konten: Tables<"konten_undangan">;
   sekolahNama?: string;
+  sekolahLogo?: string;
 }
 
 function useCountdown(targetISO: string) {
@@ -125,7 +126,7 @@ const qrVariants = {
   },
 } as const;
 
-export default function InvitationClient({ tamu, token, konten, sekolahNama = "SDIT Al-Hikmah" }: InvitationClientProps) {
+export default function InvitationClient({ tamu, token, konten, sekolahNama = "SDIT Al-Hikmah", sekolahLogo = "" }: InvitationClientProps) {
   const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
   const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
   const latestRsvp = hasRsvp ? tamu.rsvp[0]! : null;
@@ -171,6 +172,15 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
                   <p className="font-serif-display text-[42px] leading-[0.95] font-medium italic" style={{ color: "var(--color-primary)", marginBottom: 6 }}>
                     {konten.subtitle}
                   </p>
+                )}
+                {sekolahLogo && (
+                  <div className="flex justify-center mt-5">
+                    <img
+                      src={sekolahLogo}
+                      alt="Logo Sekolah"
+                      className="w-20 h-20 object-contain"
+                    />
+                  </div>
                 )}
                 {konten.hero_desc && (
                   <p className="text-[13px] leading-[1.6]" style={{ color: "var(--color-text-muted)", marginTop: 8 }}>
