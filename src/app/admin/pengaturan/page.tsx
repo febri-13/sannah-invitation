@@ -46,15 +46,18 @@ export default function PengaturanPage() {
       if (eventId) params.set("event_id", eventId);
 
       const res = await fetch(`/api/admin/settings?${params}`);
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error(`Server returned non-JSON: ${text.slice(0, 200)}`); }
       if (res.ok) {
         setSetting(data);
-        setValue(data.value);
+        if (data && typeof data.value === "string") setValue(data.value);
       } else {
-        setError(data.error || "Gagal mengambil pengaturan");
+        setError(data?.error || `Gagal mengambil pengaturan (${res.status})`);
       }
-    } catch {
-      setError("Gagal terhubung ke server");
+    } catch (err) {
+      console.error("fetchSetting error:", err);
+      setError(err instanceof Error ? err.message : "Gagal terhubung ke server");
     } finally {
       setLoading(false);
     }
@@ -73,20 +76,20 @@ export default function PengaturanPage() {
         body: JSON.stringify({ key: setting.key, value, event_id: setting.event_id }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error(`Server returned non-JSON: ${text.slice(0, 200)}`); }
 
       if (res.ok) {
         setSetting(data);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
-
-        // Clear cache by forcing a refetch next time getWATemplate is called
-        // Invalidate via cache-busting? For now TTL will handle
       } else {
-        setError(data.error || "Gagal menyimpan pengaturan");
+        setError(data?.error || `Gagal menyimpan pengaturan (${res.status})`);
       }
-    } catch {
-      setError("Gagal terhubung ke server");
+    } catch (err) {
+      console.error("handleSave error:", err);
+      setError(err instanceof Error ? err.message : "Gagal terhubung ke server");
     }
 
     setSaving(false);

@@ -52,6 +52,43 @@ export async function GET(request: NextRequest) {
         if (fallback) return NextResponse.json(fallback);
       }
 
+      // Auto-create default setting if none exists
+      if (!data && sekolahId) {
+        const { data: firstEvent } = await adminSupabase
+          .from("events")
+          .select("id")
+          .eq("sekolah_id", sekolahId)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        const resolvedEventId = eventId || firstEvent?.id;
+        if (!resolvedEventId) {
+          return NextResponse.json(
+            { error: "Buat event terlebih dahulu sebelum mengakses pengaturan" },
+            { status: 400 }
+          );
+        }
+
+        const defaults = DEFAULTS[key];
+        const { data: created, error: createError } = await adminSupabase
+          .from("pengaturan")
+          .insert({
+            key,
+            value: "Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu {namaOrtu},\n\nSilakan klik link berikut:\n{link}\n\nTerima kasih.",
+            label: defaults?.label || "Custom Setting",
+            description: defaults?.description || "",
+            sekolah_id: sekolahId,
+            event_id: resolvedEventId,
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        return NextResponse.json(created);
+      }
+
       return NextResponse.json(data ?? null);
     }
 
