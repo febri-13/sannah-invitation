@@ -491,3 +491,10 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
+export type KontenUndangan = Tables<"konten_undangan">;
+export type Tamu = Tables<"tamu">;
+export type Rsvp = Tables<"rsvp">;
+export type Checkin = Tables<"checkin">;
+export type Pengaturan = Tables<"pengaturan">;
+export type Sekolah = Tables<"sekolah">;
