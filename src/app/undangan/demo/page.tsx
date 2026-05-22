@@ -26,6 +26,7 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "event_id" | "
   header_arabic: "© 2025",
   footer: "Akhirusannah. Semua hak dilindungi.",
   template_slug: "glass-premium",
+  music_url: "",
 };
 
 const SAMPLE_TAMU = {
@@ -113,7 +114,7 @@ export default async function DemoPage() {
         </span>
       </div>
       <div className="pt-12">
-        <InvitationClient tamu={SAMPLE_TAMU} token="demo-token" konten={konten} sekolahNama={sekolahNama} />
+        <InvitationClient tamu={SAMPLE_TAMU} token="demo-token" konten={konten} sekolahNama={sekolahNama} musicUrl={konten.music_url} />
       </div>
     </div>
   );

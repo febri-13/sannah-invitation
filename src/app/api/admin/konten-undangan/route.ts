@@ -94,6 +94,7 @@ export async function PUT(request: NextRequest) {
       template_slug,
       logo_url,
       event_id,
+      music_url,
     } = body;
 
     if (!judul || !tanggal || !waktu || !lokasi_nama) {
@@ -128,6 +129,7 @@ export async function PUT(request: NextRequest) {
       header_arabic: header_arabic || "",
       footer: footer || "",
       template_slug: template_slug || "glass-premium",
+      music_url: music_url || "",
       updated_at: now,
     };
 

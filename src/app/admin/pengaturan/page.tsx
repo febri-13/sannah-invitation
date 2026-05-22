@@ -24,10 +24,6 @@ export default function PengaturanPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [musicUrlSetting, setMusicUrlSetting] = useState<Setting | null>(null);
-  const [musicUrlValue, setMusicUrlValue] = useState("");
-  const [musicLoading, setMusicLoading] = useState(true);
-  const [musicSaving, setMusicSaving] = useState(false);
 
   // Dummy data for preview
   const previewData = {
@@ -41,7 +37,6 @@ export default function PengaturanPage() {
 
   useEffect(() => {
     fetchSetting();
-    fetchMusicSetting();
   }, []);
 
   const fetchSetting = async () => {
@@ -65,27 +60,6 @@ export default function PengaturanPage() {
       setError(err instanceof Error ? err.message : "Gagal terhubung ke server");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchMusicSetting = async () => {
-    try {
-      const eventId = getActiveEvent();
-      const params = new URLSearchParams({ key: "music_url" });
-      if (eventId) params.set("event_id", eventId);
-
-      const res = await fetch(`/api/admin/settings?${params}`);
-      const text = await res.text();
-      let data;
-      try { data = JSON.parse(text); } catch { throw new Error(`Server returned non-JSON: ${text.slice(0, 200)}`); }
-      if (res.ok) {
-        setMusicUrlSetting(data);
-        if (data && typeof data.value === "string") setMusicUrlValue(data.value);
-      }
-    } catch (err) {
-      console.error("fetchMusicSetting error:", err);
-    } finally {
-      setMusicLoading(false);
     }
   };
 
@@ -261,94 +235,6 @@ export default function PengaturanPage() {
               Preview
             </button>
           </div>
-        </div>
-
-        {/* Music URL Setting */}
-        <div className="glass-card p-6 mt-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="glass p-2">
-              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-secondary">Musik Latar</h2>
-              <p className="text-sm text-gray-500">URL file MP3 untuk diputar di halaman undangan</p>
-            </div>
-          </div>
-
-          {musicLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL Musik (MP3)
-                </label>
-                <input
-                  value={musicUrlValue}
-                  onChange={(e) => setMusicUrlValue(e.target.value)}
-                  className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="https://example.com/musik.mp3"
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  Kosongkan jika tidak ingin musik latar. Format MP3, WAV, atau link streaming.
-                </p>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={async () => {
-                    if (!musicUrlSetting) return;
-                    setMusicSaving(true);
-                    try {
-                      const res = await fetch("/api/admin/settings", {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ key: "music_url", value: musicUrlValue, event_id: musicUrlSetting.event_id }),
-                      });
-                      if (res.ok) {
-                        setSuccess(true);
-                        setTimeout(() => setSuccess(false), 3000);
-                      }
-                    } catch {
-                      setError("Gagal menyimpan musik");
-                    }
-                    setMusicSaving(false);
-                  }}
-                  disabled={musicSaving}
-                  className="glass-button flex items-center gap-2 px-6 py-3 text-white font-medium disabled:opacity-50"
-                >
-                  {musicSaving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Menyimpan...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      Simpan Musik
-                    </>
-                  )}
-                </button>
-
-                {musicUrlValue && (
-                  <button
-                    onClick={() => window.open(musicUrlValue, "_blank")}
-                    className="glass flex items-center gap-2 px-6 py-3 text-secondary font-medium hover:bg-primary/10 transition-all"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Test Play
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Info box */}

@@ -94,6 +94,7 @@ export type Database = {
           lokasi_alamat: string
           lokasi_maps: string
           lokasi_nama: string
+          music_url: string
           sekolah_id: string
           subtitle: string
           tanggal: string
@@ -115,6 +116,7 @@ export type Database = {
           lokasi_alamat?: string
           lokasi_maps?: string
           lokasi_nama?: string
+          music_url?: string
           sekolah_id: string
           subtitle?: string
           tanggal?: string
@@ -136,6 +138,7 @@ export type Database = {
           lokasi_alamat?: string
           lokasi_maps?: string
           lokasi_nama?: string
+          music_url?: string
           sekolah_id?: string
           subtitle?: string
           tanggal?: string

@@ -25,6 +25,7 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "event_id" | "
   header_arabic: "© 2025",
   footer: "Akhirusannah. Semua hak dilindungi.",
   template_slug: "glass-premium",
+  music_url: "",
 };
 
 export default async function UndanganPage({
@@ -83,16 +84,10 @@ export default async function UndanganPage({
         sekolahNama = sekolah.nama;
         sekolahLogo = sekolah.logo_url || "";
       }
+    }
 
-      const { data: musicSetting } = await supabase
-        .from("pengaturan")
-        .select("value")
-        .eq("key", "music_url")
-        .eq("sekolah_id", tamu.sekolah_id)
-        .maybeSingle();
-      if (musicSetting?.value) {
-        musicUrl = musicSetting.value;
-      }
+    if (kontenData?.music_url) {
+      musicUrl = kontenData.music_url;
     }
 
     return (

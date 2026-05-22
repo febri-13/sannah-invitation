@@ -13,6 +13,7 @@ import {
   Camera,
   Star,
   Palette,
+  Music,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { THEMES } from "@/lib/themes";
@@ -40,6 +41,7 @@ interface KontenData {
   footer: string;
   template_slug: string;
   logo_url: string;
+  music_url: string;
 }
 
 const ICON_OPTIONS = [
@@ -93,6 +95,7 @@ export default function KontenUndanganPage() {
   const [templateSlug, setTemplateSlug] = useState("glass-premium");
   const [logoUrl, setLogoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [musicUrl, setMusicUrl] = useState("");
 
   useEffect(() => {
     const eid = getEventId();
@@ -126,6 +129,7 @@ export default function KontenUndanganPage() {
         setFooter(result.footer || "");
         setTemplateSlug(result.template_slug || "glass-premium");
         setLogoUrl(result.logo_url || "");
+        setMusicUrl(result.music_url || "");
       } else {
         setError(result.error || "Gagal mengambil data konten undangan");
       }
@@ -187,6 +191,7 @@ export default function KontenUndanganPage() {
           footer,
           template_slug: templateSlug,
           logo_url: logoUrl,
+          music_url: musicUrl,
           event_id: eventId,
         }),
       });
@@ -511,6 +516,28 @@ export default function KontenUndanganPage() {
                 className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
                 placeholder="https://maps.google.com/?q=..."
               />
+            </div>
+          </div>
+
+          {/* Music URL */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+              <Music className="w-4 h-4 inline mr-2" />
+              Musik Latar
+            </h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                URL Musik (MP3)
+              </label>
+              <input
+                value={musicUrl}
+                onChange={(e) => setMusicUrl(e.target.value)}
+                className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                placeholder="https://example.com/musik.mp3"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Kosongkan jika tidak ingin musik. Musik akan diputar otomatis di halaman undangan saat pengguna pertama kali tap.
+              </p>
             </div>
           </div>
 
