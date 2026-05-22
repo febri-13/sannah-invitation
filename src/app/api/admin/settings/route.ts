@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-const ALLOWED_KEYS = ["wa_template_invitation"];
+const ALLOWED_KEYS = ["wa_template_invitation", "music_url"];
 
 const DEFAULTS: Record<string, { label: string; description: string }> = {
   wa_template_invitation: {
     label: "Template Pesan Undangan WhatsApp",
     description: "Pesan default untuk undangan WhatsApp. Placeholders: {namaOrtu}, {namaSiswa}, {tanggalAcara}, {waktuAcara}, {lokasiAcara}, {link}",
+  },
+  music_url: {
+    label: "URL Musik Undangan",
+    description: "Link file MP3 untuk musik latar di halaman undangan (contoh: https://example.com/musik.mp3)",
   },
 };
 

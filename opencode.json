@@ -4,6 +4,9 @@
     "supabase": {
       "type": "remote",
       "url": "https://mcp.supabase.com/mcp?project_ref=djotfszjcnmjhcwhtxbe&features=docs%2Caccount%2Cdatabase%2Cdevelopment%2Cfunctions%2Cdebugging",
+      "headers": {
+        "Authorization": "Bearer ${SUPABASE_ACCESS_TOKEN}"
+      },
       "enabled": true
     }
   },

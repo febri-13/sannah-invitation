@@ -72,6 +72,7 @@ export default async function UndanganPage({
       };
     }
 
+    let musicUrl = "";
     if (tamu.sekolah_id) {
       const { data: sekolah } = await supabase
         .from("sekolah")
@@ -82,10 +83,20 @@ export default async function UndanganPage({
         sekolahNama = sekolah.nama;
         sekolahLogo = sekolah.logo_url || "";
       }
+
+      const { data: musicSetting } = await supabase
+        .from("pengaturan")
+        .select("value")
+        .eq("key", "music_url")
+        .eq("sekolah_id", tamu.sekolah_id)
+        .maybeSingle();
+      if (musicSetting?.value) {
+        musicUrl = musicSetting.value;
+      }
     }
 
     return (
-      <InvitationClient tamu={tamu} token={token} konten={konten} sekolahNama={sekolahNama} sekolahLogo={sekolahLogo} />
+      <InvitationClient tamu={tamu} token={token} konten={konten} sekolahNama={sekolahNama} sekolahLogo={sekolahLogo} musicUrl={musicUrl} />
     );
   } catch (error) {
     console.error("Gagal memuat undangan:", error);

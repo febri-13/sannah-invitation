@@ -12,6 +12,7 @@ import {
   Navigation,
 } from "lucide-react";
 import RSVPForm from "./RSVPForm";
+import MusicPlayer from "./MusicPlayer";
 import type { Tables } from "@/lib/database.types";
 
 interface AgendaItem {
@@ -53,6 +54,7 @@ interface InvitationClientProps {
   konten: Tables<"konten_undangan">;
   sekolahNama?: string;
   sekolahLogo?: string;
+  musicUrl?: string;
 }
 
 function useCountdown(targetISO: string) {
@@ -126,7 +128,7 @@ const qrVariants = {
   },
 } as const;
 
-export default function InvitationClient({ tamu, token, konten, sekolahNama = "SDIT Al-Hikmah", sekolahLogo = "" }: InvitationClientProps) {
+export default function InvitationClient({ tamu, token, konten, sekolahNama = "SDIT Al-Hikmah", sekolahLogo = "", musicUrl = "" }: InvitationClientProps) {
   const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
   const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
   const latestRsvp = hasRsvp ? tamu.rsvp[0]! : null;
@@ -143,7 +145,7 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
   const themeClass = konten.template_slug ? `theme-${konten.template_slug}` : "";
 
   return (
-    <div className={`min-h-screen relative ${themeClass}`} style={{ background: "var(--color-bg-gradient)" }}>
+    <div className={`min-h-screen relative ${themeClass} pb-20`} style={{ background: "var(--color-bg-gradient)" }}>
       <div className="max-w-[390px] mx-auto relative overflow-hidden">
         <BgOrbs />
 
@@ -430,6 +432,8 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
           </motion.div>
         </div>
       </div>
+
+      {musicUrl && <MusicPlayer src={musicUrl} />}
     </div>
   );
 }
