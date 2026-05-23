@@ -26,6 +26,7 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "event_id" | "
   footer: "Akhirusannah. Semua hak dilindungi.",
   template_slug: "glass-premium",
   music_url: "",
+  music_auto_play: false,
 };
 
 export default async function UndanganPage({
@@ -74,6 +75,7 @@ export default async function UndanganPage({
     }
 
     let musicUrl = "";
+    let musicAutoPlay = false;
     if (tamu.sekolah_id) {
       const { data: sekolah } = await supabase
         .from("sekolah")
@@ -88,10 +90,11 @@ export default async function UndanganPage({
 
     if (kontenData?.music_url) {
       musicUrl = kontenData.music_url;
+      musicAutoPlay = kontenData.music_auto_play ?? false;
     }
 
     return (
-      <InvitationClient tamu={tamu} token={token} konten={konten} sekolahNama={sekolahNama} sekolahLogo={sekolahLogo} musicUrl={musicUrl} />
+      <InvitationClient tamu={tamu} token={token} konten={konten} sekolahNama={sekolahNama} sekolahLogo={sekolahLogo} musicUrl={musicUrl} musicAutoPlay={musicAutoPlay} />
     );
   } catch (error) {
     console.error("Gagal memuat undangan:", error);

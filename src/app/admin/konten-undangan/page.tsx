@@ -96,6 +96,7 @@ export default function KontenUndanganPage() {
   const [logoUrl, setLogoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [musicUrl, setMusicUrl] = useState("");
+  const [uploadMusicLoading, setUploadMusicLoading] = useState(false);
 
   useEffect(() => {
     const eid = getEventId();
@@ -165,6 +166,33 @@ export default function KontenUndanganPage() {
     }
 
     setUploading(false);
+  };
+
+  const handleUploadMusic = async (file: File) => {
+    setUploadMusicLoading(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload-music", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        setMusicUrl(result.music_url);
+      } else {
+        setError(result.error || "Gagal upload musik");
+      }
+    } catch {
+      setError("Gagal terhubung ke server");
+    }
+
+    setUploadMusicLoading(false);
   };
 
   const handleSave = async () => {
@@ -527,16 +555,59 @@ export default function KontenUndanganPage() {
             </h3>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL Musik (MP3)
+                File Musik
               </label>
-              <input
-                value={musicUrl}
-                onChange={(e) => setMusicUrl(e.target.value)}
-                className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
-                placeholder="https://example.com/musik.mp3"
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Kosongkan jika tidak ingin musik. Musik akan diputar otomatis di halaman undangan saat pengguna pertama kali tap.
+              <div className="flex items-start gap-4">
+                <div className="flex-1">
+                  <label className="cursor-pointer inline-block">
+                    <input
+                      type="file"
+                      accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/aac,audio/flac,audio/x-m4a,.mp3,.wav,.ogg,.aac,.flac,.m4a"
+                      className="hidden"
+                      disabled={uploadMusicLoading}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleUploadMusic(file);
+                        e.target.value = "";
+                      }}
+                    />
+                    <span className="glass px-4 py-2.5 inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-primary/10 cursor-pointer transition-colors rounded-xl">
+                      {uploadMusicLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                          Mengupload...
+                        </>
+                      ) : (
+                        <>
+                          <Music className="w-4 h-4" />
+                          {musicUrl ? "Ganti Musik" : "Pilih File Musik"}
+                        </>
+                      )}
+                    </span>
+                  </label>
+                  <p className="text-xs text-gray-400 mt-2">
+                    MP3, WAV, OGG, AAC, FLAC, atau M4A. Maks 10MB.
+                    File lama akan otomatis dihapus saat diganti.
+                  </p>
+                </div>
+              </div>
+              {musicUrl && (
+                <div className="mt-3 flex items-center gap-3 p-3 glass rounded-xl">
+                  <Music className="w-5 h-5 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-700 truncate">{musicUrl}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setMusicUrl("")}
+                    className="text-xs text-danger hover:text-danger/80 font-medium shrink-0"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              )}
+              <p className="text-xs text-gray-400 mt-2">
+                Musik akan diputar otomatis di halaman undangan saat pengguna pertama kali tap.
               </p>
             </div>
           </div>

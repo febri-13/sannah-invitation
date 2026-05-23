@@ -5,13 +5,37 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface MusicPlayerProps {
   src: string;
+  autoPlay?: boolean;
 }
 
-export default function MusicPlayer({ src }: MusicPlayerProps) {
+export default function MusicPlayer({ src, autoPlay = false }: MusicPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [visible, setVisible] = useState(true);
   const lastScroll = useRef(0);
+  const interacted = useRef(false);
+
+  useEffect(() => {
+    if (!autoPlay || interacted.current) return;
+
+    const handler = () => {
+      if (interacted.current) return;
+      interacted.current = true;
+      const audio = audioRef.current;
+      if (audio) {
+        audio.play().then(() => setPlaying(true)).catch(() => {});
+      }
+      document.removeEventListener("click", handler);
+      document.removeEventListener("touchstart", handler);
+    };
+
+    document.addEventListener("click", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("click", handler);
+      document.removeEventListener("touchstart", handler);
+    };
+  }, [autoPlay]);
 
   useEffect(() => {
     const onScroll = () => {

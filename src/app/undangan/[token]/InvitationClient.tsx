@@ -55,6 +55,7 @@ interface InvitationClientProps {
   sekolahNama?: string;
   sekolahLogo?: string;
   musicUrl?: string;
+  musicAutoPlay?: boolean;
 }
 
 function useCountdown(targetISO: string) {
@@ -68,8 +69,9 @@ function useCountdown(targetISO: string) {
       s: Math.floor((diff / 1000) % 60),
     };
   }, [targetISO]);
-  const [c, setC] = useState(calc);
+  const [c, setC] = useState({ d: 0, h: 0, m: 0, s: 0 });
   useEffect(() => {
+    setC(calc());
     const id = setInterval(() => setC(calc()), 1000);
     return () => clearInterval(id);
   }, [calc]);
@@ -128,7 +130,7 @@ const qrVariants = {
   },
 } as const;
 
-export default function InvitationClient({ tamu, token, konten, sekolahNama = "SDIT Al-Hikmah", sekolahLogo = "", musicUrl = "" }: InvitationClientProps) {
+export default function InvitationClient({ tamu, token, konten, sekolahNama = "SDIT Al-Hikmah", sekolahLogo = "", musicUrl = "", musicAutoPlay = false }: InvitationClientProps) {
   const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
   const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
   const latestRsvp = hasRsvp ? tamu.rsvp[0]! : null;
@@ -433,7 +435,7 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
         </div>
       </div>
 
-      {musicUrl && <MusicPlayer src={musicUrl} />}
+      {musicUrl && <MusicPlayer src={musicUrl} autoPlay={musicAutoPlay} />}
     </div>
   );
 }
