@@ -111,10 +111,9 @@ src/
 
 ## ⚠️ Pending / Known Issues
 
-1. **WA Broadcast** — Belum ada fitur kirim WA massal
-2. **Export Data** — Belum ada export tamu/RSVP ke CSV
-3. **Multi-language** — Belum ada i18n (saat ini hanya Bahasa Indonesia)
-4. **Edit Tamu** — Belum ada halaman/modal edit data tamu, hanya tambah + hapus
+- **Export Data** — Belum ada export tamu/RSVP ke CSV
+- **Multi-language** — Belum ada i18n (saat ini hanya Bahasa Indonesia)
+- **WA Broadcast** — Belum ada fitur kirim WA massal
 
 ---
 
