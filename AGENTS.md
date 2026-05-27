@@ -91,6 +91,7 @@ src/
 - **Selesai:** Mapping otomatis: Nama→nama_siswa, Keterangan→kelas, NO.HP→no_wa_ayah
 - **Selesai:** Auto-detect jenis kelamin dari nama depan (121 nama di-cover) + preview tabel dengan toggle L/P per baris
 - **Selesai:** Tombol bulk "Semua Laki-laki" / "Semua Perempuan" untuk gender belum terdeteksi
+- **Selesai:** Fix: upload CSV sekarang kirim `event_id` dari cookie — tamu muncul di event yang benar, bukan cuma event default
 - **Belum selesai:** —
 
 ---
