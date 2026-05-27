@@ -65,7 +65,7 @@ src/
 | Fitur | Selesai |
 |-------|---------|
 | Auth admin (email/password + proxy guard) | ✅ |
-| CRUD tamu (manual + CSV upload) | ✅ |
+| CRUD tamu (tambah manual + CSV upload + hapus) | ✅ |
 | Halaman undangan guest (glassmorphism, 3 tema) | ✅ |
 | RSVP dual-selection (ortu: Offline/Online/Tidak Hadir, anak: sama) | ✅ |
 | QR check-in scanner | ✅ |
@@ -86,11 +86,11 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 17) — Inline column toggle chips instead of dropdown**
-- **Selesai:** Ubah dropdown "Kolom" menjadi inline toggle chips horizontal di bawah search bar — langsung kelihatan tanpa klik dropdown
-- **Selesai:** Search bar diperkecil (padding/font lebih ramping)
-- **Selesai:** Column visibility toggle (pilih kolom tabel tamu) — dari sesi 16
-- **Selesai:** Tabel jadi dinamis — render kolom berdasarkan visibility, bukan hardcoded — dari sesi 16
+**Sesi: 2026-05-27 (sesi 18) — CSV upload support format rekap siswa + auto-detect gender**
+- **Selesai:** Upload CSV kini auto-detect 2 format (standar `;` delimiter + rekap siswa `,` delimiter)
+- **Selesai:** Mapping otomatis: Nama→nama_siswa, Keterangan→kelas, NO.HP→no_wa_ayah
+- **Selesai:** Auto-detect jenis kelamin dari nama depan (121 nama di-cover) + preview tabel dengan toggle L/P per baris
+- **Selesai:** Tombol bulk "Semua Laki-laki" / "Semua Perempuan" untuk gender belum terdeteksi
 - **Belum selesai:** —
 
 ---
@@ -113,7 +113,8 @@ src/
 1. **WA Broadcast** — Belum ada fitur kirim WA massal
 2. **Export Data** — Belum ada export tamu/RSVP ke CSV
 3. **Multi-language** — Belum ada i18n (saat ini hanya Bahasa Indonesia)
+4. **Edit Tamu** — Belum ada halaman/modal edit data tamu, hanya tambah + hapus
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 17)*
+*Terakhir diupdate: 2026-05-27 (sesi 18)*
