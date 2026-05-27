@@ -5,7 +5,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const ALLOWED_ADMIN_EMAILS = [
   "admin.abbs@undangan.sch.id",
   "admin.alabidin@undangan.sch.id",
+  "admin.smpi@undangan.sch.id",
 ];
+
+const EMAIL_TO_SCHOOL: Record<string, string> = {
+  "admin.abbs@undangan.sch.id": "SMP ABBS Surakarta",
+  "admin.alabidin@undangan.sch.id": "SMP I Alabidin Surakarta",
+  "admin.smpi@undangan.sch.id": "SMP I Alabidin Surakarta",
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +39,7 @@ export async function POST(request: NextRequest) {
       const { data: sekolahData, error: sekolahError } = await supabaseAdmin
         .from("sekolah")
         .select("id")
-        .eq("nama", email.includes("abbs") ? "SMP ABBS Surakarta" : "SMP I Alabidin Surakarta")
+        .eq("nama", EMAIL_TO_SCHOOL[email] || "SMP I Alabidin Surakarta")
         .single();
       resolvedSekolahId = sekolahData?.id || null;
       if (sekolahError) {
