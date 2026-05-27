@@ -82,18 +82,17 @@ src/
 | Halaman Daftar Tamu terpisah (dengan statistik) | ✅ |
 | Column visibility toggle (pilih kolom tabel tamu) | ✅ |
 | Edit tamu (inline modal + PUT API) | ✅ |
+| Batch delete tamu (multi-select + konfirmasi) | ✅ |
 
 ---
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 19) — Edit tamu modal + portal ke body + fix event selector**
-- **Selesai:** PUT endpoint `/api/tamu/[id]` untuk update data tamu
-- **Selesai:** Edit modal inline di TamuTable (Nama, JK, Kelas, Ortu, WA)
-- **Selesai:** Modal dirender via `createPortal` ke `document.body` — selalu muncul di tengah viewport tanpa terpotong ancestor `overflow-hidden`/`backdrop-filter`
-- **Selesai:** EditModal & DeleteModal dipisah jadi komponen terisolasi
-- **Selesai:** Kolom "Kelas" selalu tampil di kedua tab (tidak lagi digate `isAkhirusannah`)
-- **Selesai:** Halaman `/admin/tamu` sekarang baca cookie `active_event_id` — konsisten dengan dashboard
+**Sesi: 2026-05-28 (sesi 20) — Batch delete tamu (multi-select)**
+- **Selesai:** API endpoint `POST /api/tamu/batch-delete` — hapus massal dengan verifikasi sekolah
+- **Selesai:** Multi-select UI di TamuTable — checkbox per baris, select-all di header
+- **Selesai:** Toolbar "N tamu terpilih" dengan tombol batal pilih dan hapus
+- **Selesai:** Konfirmasi modal dengan loading state untuk batch delete
 - **Belum selesai:** —
 
 ---
@@ -119,4 +118,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 19)*
+*Terakhir diupdate: 2026-05-28 (sesi 20)*
