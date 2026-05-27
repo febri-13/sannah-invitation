@@ -79,15 +79,16 @@ src/
 | Guest activity log (tracking interaksi tamu) | ✅ |
 | Guest memories (key-value preferences per tamu) | ✅ |
 | Admin memories (preferensi admin lintas sesi) | ✅ |
+| Halaman Daftar Tamu terpisah (dengan statistik) | ✅ |
 
 ---
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 — Halaman Daftar Tamu Terpisah + Navigasi Sidebar**
-- **Selesai:** Buat halaman `/admin/tamu` baru dengan TamuTable, tombol "Tambah Tamu" dan "Upload CSV"
-- **Selesai:** Perbaiki sidebar "Daftar Tamu" href dari `/admin/tamu/baru` → `/admin/tamu`
-- **Selesai:** Update persistent memory (AGENTS.md + MEMORY.md)
+**Sesi: 2026-05-27 — Statistik Tamu di Halaman Daftar Tamu**
+- **Selesai:** Tambah 4 stat card di halaman `/admin/tamu` (Total Tamu, Sudah RSVP, Laki-laki, Perempuan)
+- **Selesai:** Fungsi `getGenderStats` dan `getRsvpStats` + StatCard component
+- **Selesai:** Update persistent memory
 - **Belum selesai:** —
 
 ---
@@ -111,4 +112,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 3)*
+*Terakhir diupdate: 2026-05-27 (sesi 4)*
