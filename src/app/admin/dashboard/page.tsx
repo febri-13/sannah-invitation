@@ -7,6 +7,7 @@ import DashboardClient from "./DashboardClient";
 const defaultStats = { totalTamu: 0, hadir: 0, tidakHadir: 0, totalCheckin: 0 };
 const defaultGenderStats = { total: 0, laki: 0, perempuan: 0, belum: 0 };
 const defaultAttendanceStats = { total: 0, offline: 0, online: 0, tidakHadir: 0, belum: 0 };
+const defaultViewStats = { totalViews: 0, avgViews: 0, viewedCount: 0 };
 
 async function getStats(eventId?: string, sekolahId?: string) {
   try {
@@ -116,6 +117,61 @@ async function getAttendanceStats(eventId?: string, sekolahId?: string) {
   }
 }
 
+async function getViewStats(eventId?: string) {
+  try {
+    const supabase = createAdminClient();
+    if (!eventId) return defaultViewStats;
+
+    const { data: tamuIds } = await supabase
+      .from("tamu")
+      .select("id")
+      .eq("event_id", eventId);
+
+    if (!tamuIds || tamuIds.length === 0) return defaultViewStats;
+
+    const ids = tamuIds.map(t => t.id);
+
+    const { data: memories } = await supabase
+      .from("guest_memories")
+      .select("value")
+      .eq("key", "invitation_view_count")
+      .in("tamu_id", ids);
+
+    if (!memories || memories.length === 0) return defaultViewStats;
+
+    let totalViews = 0;
+    for (const m of memories) {
+      const v = m.value as { count?: number };
+      totalViews += v.count || 0;
+    }
+
+    return {
+      totalViews,
+      avgViews: Math.round(totalViews / tamuIds.length),
+      viewedCount: memories.length,
+    };
+  } catch (error) {
+    console.error("Gagal mengambil statistik view:", error);
+    return defaultViewStats;
+  }
+}
+
+async function getAdminMemory(adminId: string, sekolahId: string, key: string) {
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase
+      .from("admin_memories")
+      .select("value")
+      .eq("admin_id", adminId)
+      .eq("sekolah_id", sekolahId)
+      .eq("key", key)
+      .maybeSingle();
+    return data?.value as Record<string, unknown> | null;
+  } catch {
+    return null;
+  }
+}
+
 async function getTamu(eventId?: string, sekolahId?: string) {
   try {
     const supabase = createAdminClient();
@@ -150,11 +206,13 @@ export default async function DashboardPage() {
   let stats = defaultStats;
   let genderStats = defaultGenderStats;
   let attendanceStats = defaultAttendanceStats;
+  let viewStats = defaultViewStats;
   let tamuList: Awaited<ReturnType<typeof getTamu>> = [];
   let sekolahNama = "Sekolah";
   let konten: KontenUndangan | null = null;
   let eventsList: { id: string; nama: string; slug: string; is_active: boolean | null }[] = [];
   let activeEventId: string | undefined;
+  let initialTab: string | undefined;
 
   try {
     const adminSupabase = createAdminClient();
@@ -192,7 +250,13 @@ export default async function DashboardPage() {
       stats = await getStats(activeEventId, sekolahId);
       genderStats = await getGenderStats(activeEventId, sekolahId);
       attendanceStats = await getAttendanceStats(activeEventId, sekolahId);
+      viewStats = await getViewStats(activeEventId);
       tamuList = await getTamu(activeEventId, sekolahId);
+
+      if (user && sekolahId) {
+        const tabMemory = await getAdminMemory(user.id, sekolahId, "dashboard_tamu_tab");
+        initialTab = tabMemory?.tab as string | undefined;
+      }
     }
   } catch (error) {
     console.error("Gagal memuat dashboard:", error);
@@ -204,6 +268,7 @@ export default async function DashboardPage() {
       hadir={stats.hadir}
       tidakHadir={stats.tidakHadir}
       totalCheckin={stats.totalCheckin}
+      viewStats={viewStats}
       genderStats={genderStats}
       attendanceStats={attendanceStats}
       tamuList={tamuList}
@@ -211,6 +276,7 @@ export default async function DashboardPage() {
       konten={konten}
       eventsList={eventsList}
       activeEventId={activeEventId}
+      initialTab={initialTab}
     />
   );
 }

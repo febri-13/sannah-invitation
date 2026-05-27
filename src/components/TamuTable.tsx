@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Trash2, MessageCircle, Users, QrCode, Send } from "lucide-react";
 import { generateWhatsAppLink } from "@/lib/utils";
@@ -22,16 +22,32 @@ interface TamuData {
 interface TamuTableProps {
   data: TamuData[];
   eventSlug?: string;
+  initialTab?: "tamu" | "undangan";
 }
 
 type Tab = "tamu" | "undangan";
 
-export default function TamuTable({ data, eventSlug }: TamuTableProps) {
+export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<Tab>("tamu");
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tamu");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const isAkhirusannah = eventSlug === "akhirusannah";
+
+  useEffect(() => {
+    if (initialTab && initialTab !== activeTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  const saveTab = (tab: Tab) => {
+    setActiveTab(tab);
+    fetch("/api/admin/admin-memories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: "dashboard_tamu_tab", value: { tab } }),
+    }).catch(() => {});
+  };
 
   const { filteredData, counts } = useMemo(() => {
     let filtered = data;
@@ -89,7 +105,7 @@ export default function TamuTable({ data, eventSlug }: TamuTableProps) {
       <div className="p-4 border-b border-gray-200">
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2">
           <button
-            onClick={() => setActiveTab("tamu")}
+            onClick={() => saveTab("tamu")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               activeTab === "tamu"
                 ? "bg-primary text-white"
@@ -100,7 +116,7 @@ export default function TamuTable({ data, eventSlug }: TamuTableProps) {
             Daftar Tamu ({counts.tamu})
           </button>
           <button
-            onClick={() => setActiveTab("undangan")}
+            onClick={() => saveTab("undangan")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               activeTab === "undangan"
                 ? "bg-secondary text-white"

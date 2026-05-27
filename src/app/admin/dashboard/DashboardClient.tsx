@@ -698,6 +698,7 @@ interface DashboardClientProps {
   hadir: number;
   tidakHadir: number;
   totalCheckin: number;
+  viewStats: { totalViews: number; avgViews: number; viewedCount: number };
   genderStats: { total: number; laki: number; perempuan: number; belum: number };
   attendanceStats: { total: number; offline: number; online: number; tidakHadir: number; belum: number };
   tamuList: unknown[];
@@ -705,9 +706,10 @@ interface DashboardClientProps {
   konten?: KontenUndangan | null;
   eventsList?: { id: string; nama: string; slug: string; is_active: boolean | null }[];
   activeEventId?: string;
+  initialTab?: string;
 }
 
-export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, genderStats, attendanceStats, tamuList, sekolahNama, konten, eventsList, activeEventId }: DashboardClientProps) {
+export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, viewStats, genderStats, attendanceStats, tamuList, sekolahNama, konten, eventsList, activeEventId, initialTab }: DashboardClientProps) {
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const totalRsvp = hadir + tidakHadir;
   const rsvpPct = totalTamu > 0 ? Math.round((totalRsvp / totalTamu) * 100) : 0;
@@ -736,6 +738,13 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
               <StatCard label="RSVP KONFIRMASI" value={String(totalRsvp)} delta={`${rsvpPct}%`} caption={`${rsvpPct}% sudah mengisi konfirmasi kehadiran.`} accent="#5C7058" />
               <StatCard label="AKAN HADIR" value={String(akanHadir)} delta={`+${akanHadir > 0 ? Math.round(akanHadir * 0.06) : 0}`} caption={`Termasuk online via livestream.`} accent="#C9A35E" />
               <StatCard label="SUDAH CHECK-IN" value={String(totalCheckin)} caption={totalCheckin === 0 ? "Belum hari H — check-in dibuka 08:00 WIB." : "Sudah melakukan check-in."} accent="#7a6655" />
+            </div>
+
+            {/* View stats row */}
+            <div className="flex gap-4">
+              <StatCard label="TOTAL DILIHAT" value={String(viewStats.totalViews)} caption={`${viewStats.viewedCount} dari ${totalTamu} tamu pernah buka undangan.`} accent="#C9A35E" />
+              <StatCard label="RATA-RATA" value={String(viewStats.avgViews)} caption={`Kali per tamu.`} accent="#5C7058" />
+              <StatCard label="BELUM DILIHAT" value={String(totalTamu - viewStats.viewedCount)} caption="Belum pernah buka link undangan." accent="#7a6655" />
             </div>
 
             {/* Charts row */}
@@ -784,7 +793,7 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
                   </div>
                 </div>
               </div>
-              <TamuTable data={tamuList as any[]} eventSlug={activeEventSlug} />
+              <TamuTable data={tamuList as any[]} eventSlug={activeEventSlug} initialTab={initialTab as any} />
             </div>
           </div>
         </div>

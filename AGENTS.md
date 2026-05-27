@@ -92,6 +92,8 @@ src/
 - **Selesai:** Implementasi tabel `guest_memories` + API routes + auto-track view count
 - **Selesai:** Implementasi tabel `admin_memories` + API routes
 - **Selesai:** Activity Feed di dashboard admin (live dari guest_activity_log)
+- **Selesai:** View Count Stats di dashboard (total views, rata-rata, belum dilihat)
+- **Selesai:** Admin Memories — remember TamuTable tab setelah refresh
 - **Belum selesai:** —
 
 ---
