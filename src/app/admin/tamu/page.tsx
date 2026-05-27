@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import TamuTable from "@/components/TamuTable";
 
@@ -133,7 +134,10 @@ export default async function TamuPage() {
         .eq("sekolah_id", sekolahId)
         .order("created_at", { ascending: true });
       eventsList = events || [];
-      activeEventId = eventsList.find(e => e.is_active)?.id || eventsList[0]?.id;
+      const cookieEventId = (await cookies()).get("active_event_id")?.value;
+      activeEventId = cookieEventId && eventsList.some(e => e.id === cookieEventId)
+        ? cookieEventId
+        : eventsList.find(e => e.is_active)?.id || eventsList[0]?.id;
       tamuList = await getTamu(activeEventId, sekolahId);
       totalTamu = tamuList.length;
       genderStats = await getGenderStats(activeEventId, sekolahId);
