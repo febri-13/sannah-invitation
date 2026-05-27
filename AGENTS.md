@@ -81,17 +81,19 @@ src/
 | Admin memories (preferensi admin lintas sesi) | ✅ |
 | Halaman Daftar Tamu terpisah (dengan statistik) | ✅ |
 | Column visibility toggle (pilih kolom tabel tamu) | ✅ |
+| Edit tamu (inline modal + PUT API) | ✅ |
 
 ---
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 18) — CSV upload support format rekap siswa + auto-detect gender**
-- **Selesai:** Upload CSV kini auto-detect 2 format (standar `;` delimiter + rekap siswa `,` delimiter)
-- **Selesai:** Mapping otomatis: Nama→nama_siswa, Keterangan→kelas, NO.HP→no_wa_ayah
-- **Selesai:** Auto-detect jenis kelamin dari nama depan (121 nama di-cover) + preview tabel dengan toggle L/P per baris
-- **Selesai:** Tombol bulk "Semua Laki-laki" / "Semua Perempuan" untuk gender belum terdeteksi
-- **Selesai:** Fix: upload CSV sekarang kirim `event_id` dari cookie — tamu muncul di event yang benar, bukan cuma event default
+**Sesi: 2026-05-27 (sesi 19) — Edit tamu modal + portal ke body + fix event selector**
+- **Selesai:** PUT endpoint `/api/tamu/[id]` untuk update data tamu
+- **Selesai:** Edit modal inline di TamuTable (Nama, JK, Kelas, Ortu, WA)
+- **Selesai:** Modal dirender via `createPortal` ke `document.body` — selalu muncul di tengah viewport tanpa terpotong ancestor `overflow-hidden`/`backdrop-filter`
+- **Selesai:** EditModal & DeleteModal dipisah jadi komponen terisolasi
+- **Selesai:** Kolom "Kelas" selalu tampil di kedua tab (tidak lagi digate `isAkhirusannah`)
+- **Selesai:** Halaman `/admin/tamu` sekarang baca cookie `active_event_id` — konsisten dengan dashboard
 - **Belum selesai:** —
 
 ---
@@ -117,4 +119,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 18)*
+*Terakhir diupdate: 2026-05-27 (sesi 19)*
