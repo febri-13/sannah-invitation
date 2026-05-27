@@ -84,13 +84,14 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 — Implementasi Guest Activity Log + Guest Memories**
+**Sesi: 2026-05-27 — Implementasi Guest Activity Log + Guest Memories + Activity Feed UI**
 - Mempelajari Hermes Agent dari NousResearch (persistent memory system)
 - Membuat AGENTS.md sebagai persistent memory lintas sesi
 - Upgrade command `memory` di opencode.json (update AGENTS.md + MEMORY.md)
 - **Selesai:** Implementasi tabel `guest_activity_log` + API routes + integrasi di halaman undangan dan RSVP
 - **Selesai:** Implementasi tabel `guest_memories` + API routes + auto-track view count
 - **Selesai:** Implementasi tabel `admin_memories` + API routes
+- **Selesai:** Activity Feed di dashboard admin (live dari guest_activity_log)
 - **Belum selesai:** —
 
 ---

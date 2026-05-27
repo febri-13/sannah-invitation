@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import DonutChart from "./DonutChart";
@@ -478,15 +478,51 @@ function CreateEventModal({ show, onClose }: { show: boolean; onClose: () => voi
 }
 
 /* ─── Activity feed ─── */
-function ActivityCard() {
-  const events = [
-    { t: "10:42", a: "RSVP", v: "Ahmad Suryadi", d: "konfirmasi hadir + 1 anak", color: "#5C7058" },
-    { t: "10:38", a: "WA", v: "Broadcast", d: "12 undangan terkirim", color: "#C9A35E" },
-    { t: "10:15", a: "RSVP", v: "Bambang Sutejo", d: "tidak hadir, kirim doa", color: "#7a6655" },
-    { t: "09:58", a: "ADD", v: "Tamu baru", d: "Indra Permana ditambahkan", color: "#C26A4A" },
-    { t: "09:42", a: "RSVP", v: "Siti Nurjannah", d: "konfirmasi online", color: "#8B4A2F" },
-    { t: "09:30", a: "CSV", v: "Upload", d: "8 tamu di-import", color: "#C26A4A" },
-  ];
+const ACTIVITY_LABELS: Record<string, { label: string; color: string }> = {
+  invitation_viewed: { label: "VIEW", color: "#C9A35E" },
+  rsvp_submitted: { label: "RSVP", color: "#5C7058" },
+  rsvp_updated: { label: "RSVP", color: "#5C7058" },
+  music_played: { label: "MUSIC", color: "#8B4A2F" },
+  music_toggled: { label: "MUSIC", color: "#8B4A2F" },
+  map_clicked: { label: "MAP", color: "#C26A4A" },
+  youtube_clicked: { label: "YOUTUBE", color: "#B5403B" },
+  checkin_scanned: { label: "CHECKIN", color: "#C9A35E" },
+};
+
+function formatActivityTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatActivityDesc(type: string, metadata: Record<string, unknown>): string {
+  if (type === "invitation_viewed") return "Membuka undangan";
+  if (type === "rsvp_submitted") {
+    const o = metadata.kehadiran_ortu || "";
+    const a = metadata.kehadiran_anak || "";
+    return `Ortu: ${o}, Anak: ${a}`;
+  }
+  if (type === "rsvp_updated") return "Memperbarui RSVP";
+  if (type === "music_played") return "Memutar musik";
+  if (type === "music_toggled") return (metadata.action as string) === "pause" ? "Menjeda musik" : "Memutar musik";
+  if (type === "map_clicked") return "Membuka peta lokasi";
+  if (type === "youtube_clicked") return "Membuka link YouTube";
+  if (type === "checkin_scanned") return "Check-in di lokasi";
+  return type;
+}
+
+function ActivityCard({ eventId }: { eventId?: string }) {
+  const [activities, setActivities] = useState<{ id: string; activity_type: string; metadata: Record<string, unknown>; created_at: string; tamu: { nama_siswa: string } | null }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!eventId) { setLoading(false); return; }
+    fetch(`/api/admin/activity?event_id=${eventId}&limit=10`)
+      .then(r => r.json())
+      .then(d => setActivities(d.activities || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [eventId]);
+
   return (
     <div className="w-[360px] shrink-0 flex flex-col relative overflow-hidden p-[26px_26px_22px]"
       style={{
@@ -503,28 +539,27 @@ function ActivityCard() {
       </div>
       <div className="flex-1 relative pl-[14px]">
         <div className="absolute left-1 top-[6px] bottom-[6px] w-px" style={{ background: "rgba(245,238,224,0.18)" }} />
-        {events.map((e, i) => (
-          <div key={i} style={{ position: "relative", padding: "11px 0", borderBottom: i < events.length - 1 ? "1px solid rgba(245,238,224,0.08)" : "none" }}>
-            <span className="absolute -left-[14px] top-[18px] w-[9px] h-[9px] rounded-full"
-              style={{ background: e.color, boxShadow: `0 0 0 3px rgba(58,36,20,0.85), 0 0 10px ${e.color}` }} />
-            <div className="flex items-baseline gap-2 mb-[3px]">
-              <span className="font-mono-label text-[9px] tracking-[0.18em]" style={{ color: "#C9A35E" }}>{e.t}</span>
-              <span style={{ opacity: 0.5, fontSize: 9 }}>·</span>
-              <span className="font-mono-label text-[8px] tracking-[0.22em]" style={{ color: e.color }}>{e.a}</span>
+        {loading ? (
+          <div className="text-[12px] pt-4" style={{ color: "rgba(245,238,224,0.5)" }}>Memuat aktivitas...</div>
+        ) : activities.length === 0 ? (
+          <div className="text-[12px] pt-4" style={{ color: "rgba(245,238,224,0.5)" }}>Belum ada aktivitas.</div>
+        ) : activities.map((e, i) => {
+          const info = ACTIVITY_LABELS[e.activity_type] || { label: "?", color: "#7a6655" };
+          return (
+            <div key={e.id} style={{ position: "relative", padding: "11px 0", borderBottom: i < activities.length - 1 ? "1px solid rgba(245,238,224,0.08)" : "none" }}>
+              <span className="absolute -left-[14px] top-[18px] w-[9px] h-[9px] rounded-full"
+                style={{ background: info.color, boxShadow: `0 0 0 3px rgba(58,36,20,0.85), 0 0 10px ${info.color}` }} />
+              <div className="flex items-baseline gap-2 mb-[3px]">
+                <span className="font-mono-label text-[9px] tracking-[0.18em]" style={{ color: "#C9A35E" }}>{formatActivityTime(e.created_at)}</span>
+                <span style={{ opacity: 0.5, fontSize: 9 }}>·</span>
+                <span className="font-mono-label text-[8px] tracking-[0.22em]" style={{ color: info.color }}>{info.label}</span>
+              </div>
+              <div className="text-[13px] font-medium" style={{ color: "#F5EEE0" }}>{e.tamu?.nama_siswa || "Tamu"}</div>
+              <div className="text-[11px] leading-[1.5]" style={{ color: "rgba(245,238,224,0.65)" }}>{formatActivityDesc(e.activity_type, e.metadata)}</div>
             </div>
-            <div className="text-[13px] font-medium" style={{ color: "#F5EEE0" }}>{e.v}</div>
-            <div className="text-[11px] leading-[1.5]" style={{ color: "rgba(245,238,224,0.65)" }}>{e.d}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <button className="mt-[14px] p-[11px] rounded-[12px] inline-flex items-center justify-center gap-[10px] cursor-pointer"
-        style={{
-          background: "rgba(245,238,224,0.08)", border: "1px solid rgba(245,238,224,0.18)",
-          color: "#C9A35E", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.24em",
-          backdropFilter: "blur(10px)",
-        }}>
-        LIHAT SEMUA AKTIVITAS {icons.arrow}
-      </button>
     </div>
   );
 }
@@ -726,7 +761,7 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
                 ]}
                 footnote={`Total ${totalRsvp} konfirmasi dari ${totalTamu} undangan terkirim`}
               />
-              <ActivityCard />
+              <ActivityCard eventId={activeEventId} />
             </div>
 
             {/* Quick actions */}
