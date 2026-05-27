@@ -80,17 +80,17 @@ src/
 | Guest memories (key-value preferences per tamu) | ✅ |
 | Admin memories (preferensi admin lintas sesi) | ✅ |
 | Halaman Daftar Tamu terpisah (dengan statistik) | ✅ |
+| Column visibility toggle (pilih kolom tabel tamu) | ✅ |
 
 ---
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 15) — Fix settings API 500 (PGRST116 multiple rows)**
-- **Selesai:** Fix PostgREST schema lookup — tambah `global.headers` dengan `Content-Profile: undangan` & `Accept-Profile: undangan` di semua supabase client (admin.ts, server.ts, client.ts, proxy.ts)
-- **Selesai:** Debug error PGRST116 — `.maybeSingle()` gagal karena query return multiple rows (no event_id filter)
-- **Selesai:** Fix: resolve event pertama sebagai fallback event_id jika tidak dikirim dari cookie
-- **Selesai:** Tambah debug detail error ke response untuk troubleshooting
-- **Selesai:** Settings API sudah normal di production
+**Sesi: 2026-05-27 (sesi 16) — Column visibility toggle on TamuTable**
+- **Selesai:** Tambah tombol "Kolom" di samping search bar TamuTable — dropdown checkbox untuk pilih/sembunyikan kolom
+- **Selesai:** Tabel jadi dinamis — render kolom berdasarkan visibility, bukan hardcoded (3 branches: akhirusannah/tamu/undangan)
+- **Selesai:** Kolom No. WA dipisah dari kolom Aksi (Aksi hanya tombol hapus)
+- **Selesai:** State visibility per-tab (tamu vs undangan) independen
 - **Belum selesai:** —
 
 ---
@@ -116,4 +116,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 15)*
+*Terakhir diupdate: 2026-05-27 (sesi 16)*
