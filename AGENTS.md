@@ -4,6 +4,14 @@
 
 ---
 
+## 🚨 ATURAN WAJIB (TIDAK BISA DIGANGGU GUGAT)
+
+1. **Schema database HANYA `undangan`** — schema `public` dan lainnya tidak boleh disentuh dalam kondisi apapun.
+2. **Sebelum setiap akses/ubah database**, saya WAJIB menjelaskan dampaknya terlebih dahulu dan menunggu persetujuan eksplisit dari user sebelum mengeksekusi.
+3. Aturan ini tidak memiliki kelonggaran dan tidak bisa dilanggar.
+
+---
+
 ## 📋 Ringkasan Proyek
 
 **Aplikasi:** Undangan Online Akhirusannah (perpisahan sekolah)
@@ -88,11 +96,12 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-28 (sesi 20) — Batch delete tamu (multi-select)**
-- **Selesai:** API endpoint `POST /api/tamu/batch-delete` — hapus massal dengan verifikasi sekolah
-- **Selesai:** Multi-select UI di TamuTable — checkbox per baris, select-all di header
-- **Selesai:** Toolbar "N tamu terpilih" dengan tombol batal pilih dan hapus
-- **Selesai:** Konfirmasi modal dengan loading state untuk batch delete
+**Sesi: 2026-05-28 (sesi 21) — Admin baru + aturan database & MCP config**
+- **Selesai:** Menambahkan admin `admin.smpi@undangan.sch.id` (email + password)
+- **Selesai:** Update `src/app/api/signup/route.ts` — email + mapping sekolah `admin.smpi` → "SMP I Alabidin Surakarta"
+- **Selesai:** Insert "SMP I Alabidin Surakarta" ke `undangan.sekolah` (sebelumnya cuma ada "SMP ABBS Surakarta")
+- **Selesai:** Aturan wajib database — schema HANYA `undangan`, wajib jelaskan dampak sebelum akses
+- **Selesai:** Update MCP global config ke project ref `drlsnhnqxkcgcuskswwx`
 - **Belum selesai:** —
 
 ---
@@ -118,4 +127,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-28 (sesi 20)*
+*Terakhir diupdate: 2026-05-28 (sesi 21)*
