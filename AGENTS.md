@@ -85,13 +85,10 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 12) — Migrasi ke project Supabase asli (drlsnhnqxkcgcuskswwx)**
-- **Selesai:** Unlink dari project trial (`ruaoxztsbhjupattolrs`)
-- **Selesai:** Link ke project asli (`drlsnhnqxkcgcuskswwx`)
-- **Selesai:** Push semua 19 migration ke project asli
-- **Selesai:** Expose schema `undangan` via PostgREST API
-- **Selesai:** Grant permissions ke anon/authenticated/service_role
-- **Selesai:** Seed data: Sekolah "SMP ABBS Surakarta", Event "Akhirussannah", Admin `admin.abbs@undangan.sch.id`
+**Sesi: 2026-05-27 (sesi 13) — Fix Vercel env vars & redeploy ke project asli**
+- **Selesai:** Update Vercel env vars (NEXT_PUBLIC_SUPABASE_URL, PUBLISHABLE_KEY, SERVICE_ROLE_KEY, BASE_URL) ke project asli `drlsnhnqxkcgcuskswwx`
+- **Selesai:** Redeploy production — login admin.abbs@undangan.sch.id berhasil tampilkan SMP ABBS Surakarta
+- **Selesai:** Perbaiki .env.local — ganti NEXT_PUBLIC_SUPABASE_ANON_KEY → NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 - **Belum selesai:** —
 
 ---
@@ -117,4 +114,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 12)*
+*Terakhir diupdate: 2026-05-27 (sesi 13)*
