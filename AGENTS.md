@@ -51,6 +51,7 @@ src/
 | `checkin` | Check-in QR scan |
 | `pengaturan` | Key-value settings (WA template) per sekolah+event |
 | `guest_activity_log` | Riwayat aktivitas tamu (lihat undangan, RSVP, play musik, dll) |
+| `guest_memories` | Key-value preferences per tamu |
 
 ### Storage Buckets
 - `school-logos` — Logo sekolah (max 2MB)
@@ -75,17 +76,19 @@ src/
 | Musik latar (upload storage + auto-play) | ✅ |
 | 3 themes (glass-premium, classic-gold, modern-sage) | ✅ |
 | Guest activity log (tracking interaksi tamu) | ✅ |
+| Guest memories (key-value preferences per tamu) | ✅ |
 
 ---
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 — Implementasi Guest Activity Log**
+**Sesi: 2026-05-27 — Implementasi Guest Activity Log + Guest Memories**
 - Mempelajari Hermes Agent dari NousResearch (persistent memory system)
 - Membuat AGENTS.md sebagai persistent memory lintas sesi
 - Upgrade command `memory` di opencode.json (update AGENTS.md + MEMORY.md)
 - **Selesai:** Implementasi tabel `guest_activity_log` + API routes + integrasi di halaman undangan dan RSVP
-- **Belum selesai:** `guest_memories`, `admin_memories`
+- **Selesai:** Implementasi tabel `guest_memories` + API routes + auto-track view count
+- **Belum selesai:** `admin_memories`
 
 ---
 
@@ -102,7 +105,7 @@ src/
 
 ## ⚠️ Pending / Known Issues
 
-1. **Persistent Memory** — Belum diimplementasi (guest_memories, admin_memories)
+1. **Persistent Memory** — Belum diimplementasi (admin_memories)
 2. **WA Broadcast** — Belum ada fitur kirim WA massal
 3. **Export Data** — Belum ada export tamu/RSVP ke CSV
 4. **Multi-language** — Belum ada i18n (saat ini hanya Bahasa Indonesia)

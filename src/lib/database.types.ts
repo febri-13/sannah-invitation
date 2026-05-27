@@ -148,6 +148,41 @@ export type Database = {
           },
         ]
       }
+      guest_memories: {
+        Row: {
+          created_at: string | null
+          id: string
+          key: string
+          tamu_id: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key: string
+          tamu_id: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key?: string
+          tamu_id?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_memories_tamu_id_fkey"
+            columns: ["tamu_id"]
+            isOneToOne: false
+            referencedRelation: "tamu"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       konten_undangan: {
         Row: {
           agenda: Json

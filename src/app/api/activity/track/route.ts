@@ -54,6 +54,35 @@ export async function POST(request: NextRequest) {
 
     if (insertError) throw insertError;
 
+    if (activity_type === "invitation_viewed") {
+      const now = new Date().toISOString();
+
+      const { data: existing } = await supabaseAdmin
+        .from("guest_memories")
+        .select("id, value")
+        .eq("tamu_id", tamu.id)
+        .eq("key", "invitation_view_count")
+        .maybeSingle();
+
+      if (existing) {
+        const prev = existing.value as { count?: number; first_viewed_at?: string } || {};
+        const count = (prev.count || 0) + 1;
+        await supabaseAdmin
+          .from("guest_memories")
+          .update({ value: { count, first_viewed_at: prev.first_viewed_at || now, last_viewed_at: now }, updated_at: now })
+          .eq("id", existing.id);
+      } else {
+        await supabaseAdmin
+          .from("guest_memories")
+          .insert({
+            tamu_id: tamu.id,
+            key: "invitation_view_count",
+            value: { count: 1, first_viewed_at: now, last_viewed_at: now },
+            updated_at: now,
+          });
+      }
+    }
+
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
     console.error("Error tracking activity:", error);
