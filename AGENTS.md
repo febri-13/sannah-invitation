@@ -85,14 +85,11 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 10) — Migrasi Schema public → undangan + Pindah Project Supabase**
-- **Selesai:** Rewrite 18 migration files (public → undangan schema) — semua CREATE/ALTER/INDEX/POLICY pakai prefix `undangan.`
-- **Selesai:** Update config.toml, database.types.ts, client init (4 files) — schema `undangan` + generic `<Database, "undangan">`
-- **Selesai:** Migrasi ke project Supabase baru (`ruaoxztsbhjupattolrs` — LMS Backup)
-- **Selesai:** Seed data awal (sekolah, event, konten_undangan, wa_template, admin user)
-- **Selesai:** PostgREST schema config & GRANT permissions untuk schema `undangan`
-- **Selesai:** Hapus trigger `trg_on_auth_user_created` + fungsi `handle_new_user()` (error karena refer ke `profiles` yang tidak ada) — backup di `migrations/backup-removed-auth-trigger.sql`
-- **Selesai:** Update persistent memory
+**Sesi: 2026-05-27 (sesi 11) — Trial migrasi + Fix missing columns & stale cookie**
+- **Selesai:** Trial migrasi ke project Supabase baru (`ruaoxztsbhjupattolrs`)
+- **Selesai:** Buat skill `supabase-project-migration` di `.agents/skills/`
+- **Selesai:** Tambah migration `add_missing_columns` — kolom `kelas` (tamu), `lokasi_maps` & `music_auto_play` (konten_undangan)
+- **Selesai:** Fix API tamu route — validasi event_id dari cookie sebelum dipakai, fallback ke event default jika stale
 - **Belum selesai:** —
 
 ---
@@ -118,4 +115,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 10)*
+*Terakhir diupdate: 2026-05-27 (sesi 11)*
