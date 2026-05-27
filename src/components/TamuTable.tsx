@@ -191,6 +191,9 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
   const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tamu");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editingTamu, setEditingTamu] = useState<TamuData | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchDeleteConfirm, setBatchDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [tamuVisible, setTamuVisible] = useState<Set<string>>(new Set(["status", "token", "nama_siswa", "kelas", "nama_ortu", "no_wa", "aksi"]));
   const [undanganVisible, setUndanganVisible] = useState<Set<string>>(new Set(["nama_siswa", "kelas", "jenis_kelamin", "rsvp", "checkin", "aksi"]));
@@ -256,6 +259,43 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
 
     return { filteredData: filtered, counts: { tamu: countTamu, undangan: countUndangan } };
   }, [data, search, activeTab]);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredData.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredData.map((t) => t.id)));
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/tamu/batch-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selectedIds) }),
+      });
+      if (res.ok) {
+        setSelectedIds(new Set());
+        setBatchDeleteConfirm(false);
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Gagal menghapus tamu:", error);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -369,10 +409,40 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
         </div>
       </div>
 
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2.5 border-b"
+          style={{ background: "rgba(194,106,74,0.08)", borderColor: "rgba(194,106,74,0.2)" }}>
+          <span className="text-sm font-medium" style={{ color: "#2A2520" }}>
+            {selectedIds.size} tamu terpilih
+          </span>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="text-xs px-2.5 py-1 rounded-full"
+            style={{ background: "rgba(122,102,85,0.12)", color: "#5b4b3e" }}>
+            Batal pilih
+          </button>
+          <button
+            onClick={() => setBatchDeleteConfirm(true)}
+            className="text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 ml-auto"
+            style={{ background: "#B5403B", color: "white" }}>
+            <Trash2 className="w-3 h-3" /> Hapus {selectedIds.size} tamu
+          </button>
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-3 py-2 w-10">
+                <input
+                  type="checkbox"
+                  checked={filteredData.length > 0 && selectedIds.size === filteredData.length}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded cursor-pointer"
+                  style={{ accentColor: "#C26A4A" }}
+                />
+              </th>
               {currentColumns
                 .filter((c) => currentVisible.has(c.key))
                 .map((col) => (
@@ -392,6 +462,15 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
 
               return (
                 <tr key={tamu.id} className="hover:bg-gray-50">
+                  <td className="px-3 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(tamu.id)}
+                      onChange={() => toggleSelect(tamu.id)}
+                      className="w-4 h-4 rounded cursor-pointer"
+                      style={{ accentColor: "#C26A4A" }}
+                    />
+                  </td>
                   {visibleCols.map((col) => {
                     if (col.key === "status") {
                       return (
@@ -580,6 +659,29 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
     {deleteId && <DeleteModal id={deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} />}
 
     {editingTamu && <EditModal tamu={editingTamu} onClose={() => setEditingTamu(null)} onRefresh={() => router.refresh()} />}
+
+    {batchDeleteConfirm && (
+      <ClientPortal>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="glass-card p-6 max-w-sm mx-4">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Hapus {selectedIds.size} tamu?</h3>
+            <p className="text-gray-600 mb-4">Data yang dihapus tidak dapat dikembalikan.</p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setBatchDeleteConfirm(false)}
+                disabled={deleting}
+                className="glass flex-1 py-2 text-gray-700 rounded-lg font-medium disabled:opacity-50">Batal</button>
+              <button
+                onClick={handleBatchDelete}
+                disabled={deleting}
+                className="glass-button flex-1 py-2 text-white rounded-lg font-medium disabled:opacity-50 flex items-center justify-center gap-2">
+                {deleting ? <><Loader2 className="w-4 h-4 animate-spin" /> Menghapus...</> : "Hapus"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </ClientPortal>
+    )}
     </>
   );
 }
