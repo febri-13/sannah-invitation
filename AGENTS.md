@@ -85,13 +85,13 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 14) — Debug schema header issue di settings API (Failed to fetch settings)**
+**Sesi: 2026-05-27 (sesi 15) — Fix settings API 500 (PGRST116 multiple rows)**
 - **Selesai:** Fix PostgREST schema lookup — tambah `global.headers` dengan `Content-Profile: undangan` & `Accept-Profile: undangan` di semua supabase client (admin.ts, server.ts, client.ts, proxy.ts)
-- **Selesai:** Verifikasi `sb_secret_` format key works dengan schema headers via local Node.js test
-- **Selesai:** Tambah debug detail error ke response settings API untuk troubleshooting
-- **Selesai:** Multiple redeploy + force deploy ke Vercel untuk clear build cache
-- **Selesai:** Update Catatan Penting tentang `sb_secret_` key format & schema headers
-- **Belum selesai:** Settings API masih error 500 di production — penyebab belum ketemu, masih butuh response body dari user
+- **Selesai:** Debug error PGRST116 — `.maybeSingle()` gagal karena query return multiple rows (no event_id filter)
+- **Selesai:** Fix: resolve event pertama sebagai fallback event_id jika tidak dikirim dari cookie
+- **Selesai:** Tambah debug detail error ke response untuk troubleshooting
+- **Selesai:** Settings API sudah normal di production
+- **Belum selesai:** —
 
 ---
 
@@ -116,4 +116,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 14)*
+*Terakhir diupdate: 2026-05-27 (sesi 15)*
