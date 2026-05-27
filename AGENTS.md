@@ -101,7 +101,7 @@ src/
 - Build: `pnpm build`
 - Generate types: `pnpm gen:types`
 - Ganti font: di `src/app/layout.tsx` (Plus Jakarta Sans, Cormorant Garamond, Amiri, JetBrains Mono)
-- **JANGAN** commit file/folder yang ada di `.gitignore` (termasuk `docs/`) — gunakan `git add` biasa tanpa `-f`
+- **JANGAN** commit file/folder yang ada di `.gitignore` (termasuk `docs/`) — gunakan `git add` biasa tanpa `-f` kecuali jika user secara eksplisit meminta commit file tersebut.
 
 ---
 
