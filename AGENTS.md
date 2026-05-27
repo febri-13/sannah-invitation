@@ -86,11 +86,11 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 16) — Column visibility toggle on TamuTable**
-- **Selesai:** Tambah tombol "Kolom" di samping search bar TamuTable — dropdown checkbox untuk pilih/sembunyikan kolom
-- **Selesai:** Tabel jadi dinamis — render kolom berdasarkan visibility, bukan hardcoded (3 branches: akhirusannah/tamu/undangan)
-- **Selesai:** Kolom No. WA dipisah dari kolom Aksi (Aksi hanya tombol hapus)
-- **Selesai:** State visibility per-tab (tamu vs undangan) independen
+**Sesi: 2026-05-27 (sesi 17) — Inline column toggle chips instead of dropdown**
+- **Selesai:** Ubah dropdown "Kolom" menjadi inline toggle chips horizontal di bawah search bar — langsung kelihatan tanpa klik dropdown
+- **Selesai:** Search bar diperkecil (padding/font lebih ramping)
+- **Selesai:** Column visibility toggle (pilih kolom tabel tamu) — dari sesi 16
+- **Selesai:** Tabel jadi dinamis — render kolom berdasarkan visibility, bukan hardcoded — dari sesi 16
 - **Belum selesai:** —
 
 ---
@@ -116,4 +116,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 16)*
+*Terakhir diupdate: 2026-05-27 (sesi 17)*
