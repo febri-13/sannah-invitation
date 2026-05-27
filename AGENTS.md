@@ -85,8 +85,13 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 9) — Auto-polling Real-time Status**
-- **Selesai:** Tambah `useEffect` polling (router.refresh tiap 15 detik) di TamuTable — status & statistik auto-update tanpa refresh manual
+**Sesi: 2026-05-27 (sesi 10) — Migrasi Schema public → undangan + Pindah Project Supabase**
+- **Selesai:** Rewrite 18 migration files (public → undangan schema) — semua CREATE/ALTER/INDEX/POLICY pakai prefix `undangan.`
+- **Selesai:** Update config.toml, database.types.ts, client init (4 files) — schema `undangan` + generic `<Database, "undangan">`
+- **Selesai:** Migrasi ke project Supabase baru (`ruaoxztsbhjupattolrs` — LMS Backup)
+- **Selesai:** Seed data awal (sekolah, event, konten_undangan, wa_template, admin user)
+- **Selesai:** PostgREST schema config & GRANT permissions untuk schema `undangan`
+- **Selesai:** Hapus trigger `trg_on_auth_user_created` + fungsi `handle_new_user()` (error karena refer ke `profiles` yang tidak ada) — backup di `migrations/backup-removed-auth-trigger.sql`
 - **Selesai:** Update persistent memory
 - **Belum selesai:** —
 
@@ -94,22 +99,23 @@ src/
 
 ## 📝 Catatan Penting
 
-- Supabase MCP sudah terkonfigurasi di opencode.json (project ref: `djotfszjcnmjhcwhtxbe`)
+- **Schema:** Semua tabel di schema `undangan` (bukan `public`). Client init pakai `db: { schema: "undangan" }` + generic `<Database, "undangan">`
 - Migration files ada di `supabase/migrations/`
 - Gunakan `pnpm dev` untuk development server
 - Build: `pnpm build`
 - Generate types: `pnpm gen:types`
 - Ganti font: di `src/app/layout.tsx` (Plus Jakarta Sans, Cormorant Garamond, Amiri, JetBrains Mono)
 - **JANGAN** commit file/folder yang ada di `.gitignore` (termasuk `docs/`) — gunakan `git add` biasa tanpa `-f` kecuali jika user secara eksplisit meminta commit file tersebut.
+- **Backup:** Setiap trigger/fungsi yang dihapus di-backup di `supabase/migrations/backup-*.sql`
 
 ---
 
 ## ⚠️ Pending / Known Issues
 
 1. **WA Broadcast** — Belum ada fitur kirim WA massal
-3. **Export Data** — Belum ada export tamu/RSVP ke CSV
-4. **Multi-language** — Belum ada i18n (saat ini hanya Bahasa Indonesia)
+2. **Export Data** — Belum ada export tamu/RSVP ke CSV
+3. **Multi-language** — Belum ada i18n (saat ini hanya Bahasa Indonesia)
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 9)*
+*Terakhir diupdate: 2026-05-27 (sesi 10)*
