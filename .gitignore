@@ -19,7 +19,8 @@
 
 # production
 /build
-docs
+docs/*
+!docs/MEMORY.md
 
 # misc
 .DS_Store
