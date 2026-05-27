@@ -35,6 +35,16 @@ export const loginSchema = z.object({
   password: z.string().min(6),
 });
 
+export const tamuUpdateSchema = z.object({
+  nama_siswa: z.string().min(2).max(100).regex(/^[a-zA-Z\s.']+$/, "Hanya huruf & spasi").optional(),
+  jenis_kelamin: z.enum(["Laki-laki", "Perempuan"]).optional(),
+  kelas: z.string().max(20).optional(),
+  nama_ayah: z.string().max(100).optional(),
+  nama_ibu: z.string().max(100).optional(),
+  no_wa_ayah: z.string().max(20).optional(),
+  no_wa_ibu: z.string().max(20).optional(),
+});
+
 export type TamuInput = z.infer<typeof tamuInputSchema>;
 export type RsvpInput = z.infer<typeof rsvpSchema>;
 export type CheckinInput = z.infer<typeof checkinSchema>;

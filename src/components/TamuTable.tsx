@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Trash2, Users, QrCode, Send } from "lucide-react";
+import { Search, Trash2, Users, QrCode, Send, Pencil, Loader2 } from "lucide-react";
 import { generateWhatsAppLink } from "@/lib/utils";
 
 interface TamuData {
@@ -56,6 +56,16 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tamu");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editingTamu, setEditingTamu] = useState<TamuData | null>(null);
+  const [editNamaSiswa, setEditNamaSiswa] = useState("");
+  const [editJenisKelamin, setEditJenisKelamin] = useState("");
+  const [editKelas, setEditKelas] = useState("");
+  const [editNamaAyah, setEditNamaAyah] = useState("");
+  const [editNamaIbu, setEditNamaIbu] = useState("");
+  const [editNoWaAyah, setEditNoWaAyah] = useState("");
+  const [editNoWaIbu, setEditNoWaIbu] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState("");
   const [tamuVisible, setTamuVisible] = useState<Set<string>>(new Set(["status", "token", "nama_siswa", "kelas", "nama_ortu", "no_wa", "aksi"]));
   const [undanganVisible, setUndanganVisible] = useState<Set<string>>(new Set(["nama_siswa", "jenis_kelamin", "rsvp", "checkin", "aksi"]));
   const isAkhirusannah = eventSlug === "akhirusannah";
@@ -121,6 +131,53 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
 
     return { filteredData: filtered, counts: { tamu: countTamu, undangan: countUndangan } };
   }, [data, search, activeTab]);
+
+  const openEditModal = (tamu: TamuData) => {
+    setEditingTamu(tamu);
+    setEditNamaSiswa(tamu.nama_siswa);
+    setEditJenisKelamin(tamu.jenis_kelamin || "");
+    setEditKelas(tamu.kelas || "");
+    setEditNamaAyah(tamu.nama_ayah || "");
+    setEditNamaIbu(tamu.nama_ibu || "");
+    setEditNoWaAyah(tamu.no_wa_ayah || "");
+    setEditNoWaIbu(tamu.no_wa_ibu || "");
+    setEditError("");
+  };
+
+  const handleEdit = async () => {
+    if (!editingTamu) return;
+    if (!editNamaSiswa || !editJenisKelamin) {
+      setEditError("Nama siswa dan jenis kelamin harus diisi");
+      return;
+    }
+    setEditLoading(true);
+    try {
+      const res = await fetch(`/api/tamu/${editingTamu.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nama_siswa: editNamaSiswa,
+          jenis_kelamin: editJenisKelamin,
+          kelas: editKelas || undefined,
+          nama_ayah: editNamaAyah || undefined,
+          nama_ibu: editNamaIbu || undefined,
+          no_wa_ayah: editNoWaAyah || undefined,
+          no_wa_ibu: editNoWaIbu || undefined,
+        }),
+      });
+      if (res.ok) {
+        setEditingTamu(null);
+        router.refresh();
+      } else {
+        const err = await res.json();
+        setEditError(err.error || "Gagal menyimpan");
+      }
+    } catch {
+      setEditError("Gagal terhubung ke server");
+    } finally {
+      setEditLoading(false);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -403,13 +460,22 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
                     if (col.key === "aksi") {
                       return (
                         <td key={col.key} className="px-3 py-3">
-                          <button
-                            onClick={() => setDeleteId(tamu.id)}
-                            className="p-1 text-gray-400 hover:text-danger"
-                            title="Hapus"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => openEditModal(tamu)}
+                              className="p-1 text-gray-400 hover:text-primary"
+                              title="Edit"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteId(tamu.id)}
+                              className="p-1 text-gray-400 hover:text-danger"
+                              title="Hapus"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       );
                     }
@@ -440,6 +506,205 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
               >
                 Hapus
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editingTamu && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(20,12,4,0.6)", backdropFilter: "blur(8px)" }}>
+          <div className="w-full max-w-md p-6 rounded-[20px]"
+            style={{
+              background: "rgba(255,248,235,0.97)",
+              backdropFilter: "blur(22px)",
+              border: "1px solid rgba(255,255,255,0.6)",
+              boxShadow: "0 20px 60px rgba(20,12,4,0.3)",
+            }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-serif-display text-[20px] italic font-medium" style={{ color: "#2A2520" }}>
+                Edit Tamu
+              </h3>
+              <button onClick={() => setEditingTamu(null)} className="p-1 text-gray-400 hover:text-gray-600">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M6 6l12 12M18 6l-12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Nama Siswa <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editNamaSiswa}
+                  onChange={e => setEditNamaSiswa(e.target.value)}
+                  className="w-full px-3 py-2.5 text-sm outline-none rounded-[10px]"
+                  style={{
+                    background: "rgba(255,248,235,0.6)",
+                    border: "1px solid rgba(122,102,85,0.25)",
+                    color: "#2A2520",
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Jenis Kelamin <span className="text-danger">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditJenisKelamin("Laki-laki")}
+                    className={`flex-1 py-2.5 rounded-[10px] text-sm font-medium transition-colors ${
+                      editJenisKelamin === "Laki-laki"
+                        ? "bg-primary text-white"
+                        : "text-gray-600"
+                    }`}
+                    style={{
+                      background: editJenisKelamin === "Laki-laki" ? undefined : "rgba(122,102,85,0.1)",
+                      border: editJenisKelamin === "Laki-laki" ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(122,102,85,0.18)",
+                    }}
+                  >
+                    Laki-laki
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditJenisKelamin("Perempuan")}
+                    className={`flex-1 py-2.5 rounded-[10px] text-sm font-medium transition-colors ${
+                      editJenisKelamin === "Perempuan"
+                        ? "bg-pink-500 text-white"
+                        : "text-gray-600"
+                    }`}
+                    style={{
+                      background: editJenisKelamin === "Perempuan" ? undefined : "rgba(122,102,85,0.1)",
+                      border: editJenisKelamin === "Perempuan" ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(122,102,85,0.18)",
+                    }}
+                  >
+                    Perempuan
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Kelas</label>
+                <input
+                  type="text"
+                  value={editKelas}
+                  onChange={e => setEditKelas(e.target.value)}
+                  className="w-full px-3 py-2.5 text-sm outline-none rounded-[10px]"
+                  style={{
+                    background: "rgba(255,248,235,0.6)",
+                    border: "1px solid rgba(122,102,85,0.25)",
+                    color: "#2A2520",
+                  }}
+                  placeholder="Opsional"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Nama Ayah</label>
+                  <input
+                    type="text"
+                    value={editNamaAyah}
+                    onChange={e => setEditNamaAyah(e.target.value)}
+                    className="w-full px-3 py-2.5 text-sm outline-none rounded-[10px]"
+                    style={{
+                      background: "rgba(255,248,235,0.6)",
+                      border: "1px solid rgba(122,102,85,0.25)",
+                      color: "#2A2520",
+                    }}
+                    placeholder="Opsional"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Nama Ibu</label>
+                  <input
+                    type="text"
+                    value={editNamaIbu}
+                    onChange={e => setEditNamaIbu(e.target.value)}
+                    className="w-full px-3 py-2.5 text-sm outline-none rounded-[10px]"
+                    style={{
+                      background: "rgba(255,248,235,0.6)",
+                      border: "1px solid rgba(122,102,85,0.25)",
+                      color: "#2A2520",
+                    }}
+                    placeholder="Opsional"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">No. WA Ayah</label>
+                  <input
+                    type="tel"
+                    value={editNoWaAyah}
+                    onChange={e => setEditNoWaAyah(e.target.value)}
+                    className="w-full px-3 py-2.5 text-sm outline-none rounded-[10px]"
+                    style={{
+                      background: "rgba(255,248,235,0.6)",
+                      border: "1px solid rgba(122,102,85,0.25)",
+                      color: "#2A2520",
+                    }}
+                    placeholder="081234567890"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">No. WA Ibu</label>
+                  <input
+                    type="tel"
+                    value={editNoWaIbu}
+                    onChange={e => setEditNoWaIbu(e.target.value)}
+                    className="w-full px-3 py-2.5 text-sm outline-none rounded-[10px]"
+                    style={{
+                      background: "rgba(255,248,235,0.6)",
+                      border: "1px solid rgba(122,102,85,0.25)",
+                      color: "#2A2520",
+                    }}
+                    placeholder="Opsional"
+                  />
+                </div>
+              </div>
+
+              {editError && (
+                <div className="p-2.5 text-sm rounded-[10px]"
+                  style={{ background: "rgba(181,64,59,0.1)", color: "#B5403B", border: "1px solid rgba(181,64,59,0.2)" }}>
+                  {editError}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  onClick={() => setEditingTamu(null)}
+                  className="flex-1 py-2.5 rounded-[12px] text-sm font-medium cursor-pointer"
+                  style={{
+                    background: "rgba(122,102,85,0.12)", color: "#5b4b3e",
+                    border: "1px solid rgba(122,102,85,0.2)",
+                  }}
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleEdit}
+                  disabled={editLoading || !editNamaSiswa || !editJenisKelamin}
+                  className="flex-1 py-2.5 rounded-[12px] text-sm font-medium cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  style={{
+                    background: "linear-gradient(135deg, #C26A4A, #8B4A2F)", color: "#F5EEE0",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    boxShadow: "0 6px 18px rgba(194,106,74,0.35)",
+                  }}
+                >
+                  {editLoading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...</>
+                  ) : (
+                    "Simpan"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
