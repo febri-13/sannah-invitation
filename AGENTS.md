@@ -85,10 +85,8 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 8) — Status Kolom Multi-level**
-- **Selesai:** Update kolom Status di TamuTable — prioritas: RSVP (Hadir/Tidak Hadir) → undangan dilihat (Terkirim) → belum ada aktivitas (Belum)
-- **Selesai:** Tambah join `guest_activity_log` di query `getTamu` (dashboard & tamu pages) untuk deteksi "Terkirim"
-- **Selesai:** Hapus ikon MessageCircle dari kolom Status (diganti badge teks), hapus fungsi `hasWhatsApp`
+**Sesi: 2026-05-27 (sesi 9) — Auto-polling Real-time Status**
+- **Selesai:** Tambah `useEffect` polling (router.refresh tiap 15 detik) di TamuTable — status & statistik auto-update tanpa refresh manual
 - **Selesai:** Update persistent memory
 - **Belum selesai:** —
 
@@ -114,4 +112,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 8)*
+*Terakhir diupdate: 2026-05-27 (sesi 9)*
