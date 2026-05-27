@@ -46,6 +46,7 @@ const TAMU_COLUMNS: ColumnDef[] = [
 
 const UNDANGAN_COLUMNS: ColumnDef[] = [
   { key: "nama_siswa", label: "Nama Siswa" },
+  { key: "kelas", label: "Kelas" },
   { key: "jenis_kelamin", label: "JK" },
   { key: "rsvp", label: "RSVP" },
   { key: "checkin", label: "Check-in" },
@@ -192,8 +193,7 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
   const [editingTamu, setEditingTamu] = useState<TamuData | null>(null);
 
   const [tamuVisible, setTamuVisible] = useState<Set<string>>(new Set(["status", "token", "nama_siswa", "kelas", "nama_ortu", "no_wa", "aksi"]));
-  const [undanganVisible, setUndanganVisible] = useState<Set<string>>(new Set(["nama_siswa", "jenis_kelamin", "rsvp", "checkin", "aksi"]));
-  const isAkhirusannah = eventSlug === "akhirusannah";
+  const [undanganVisible, setUndanganVisible] = useState<Set<string>>(new Set(["nama_siswa", "kelas", "jenis_kelamin", "rsvp", "checkin", "aksi"]));
 
   useEffect(() => {
     if (initialTab && initialTab !== activeTab) {
@@ -346,7 +346,6 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
         </div>
         <div className="flex flex-wrap gap-1.5">
           {currentColumns
-            .filter((c) => c.key !== "kelas" || isAkhirusannah)
             .map((col) => {
               const on = currentVisible.has(col.key);
               return (
@@ -376,7 +375,6 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
             <tr>
               {currentColumns
                 .filter((c) => currentVisible.has(c.key))
-                .filter((c) => c.key !== "kelas" || isAkhirusannah)
                 .map((col) => (
                   <th key={col.key} className="px-3 py-2 text-left text-xs font-medium text-gray-500">
                     {col.label}
@@ -390,7 +388,7 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
               const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
               const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
               const hasWa = tamu.no_wa_ayah || tamu.no_wa_ibu;
-              const visibleCols = currentColumns.filter((c) => currentVisible.has(c.key)).filter((c) => c.key !== "kelas" || isAkhirusannah);
+              const visibleCols = currentColumns.filter((c) => currentVisible.has(c.key));
 
               return (
                 <tr key={tamu.id} className="hover:bg-gray-50">
