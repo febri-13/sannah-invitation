@@ -85,11 +85,13 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 11) — Trial migrasi + Fix missing columns & stale cookie**
-- **Selesai:** Trial migrasi ke project Supabase baru (`ruaoxztsbhjupattolrs`)
-- **Selesai:** Buat skill `supabase-project-migration` di `.agents/skills/`
-- **Selesai:** Tambah migration `add_missing_columns` — kolom `kelas` (tamu), `lokasi_maps` & `music_auto_play` (konten_undangan)
-- **Selesai:** Fix API tamu route — validasi event_id dari cookie sebelum dipakai, fallback ke event default jika stale
+**Sesi: 2026-05-27 (sesi 12) — Migrasi ke project Supabase asli (drlsnhnqxkcgcuskswwx)**
+- **Selesai:** Unlink dari project trial (`ruaoxztsbhjupattolrs`)
+- **Selesai:** Link ke project asli (`drlsnhnqxkcgcuskswwx`)
+- **Selesai:** Push semua 19 migration ke project asli
+- **Selesai:** Expose schema `undangan` via PostgREST API
+- **Selesai:** Grant permissions ke anon/authenticated/service_role
+- **Selesai:** Seed data: Sekolah "SMP ABBS Surakarta", Event "Akhirussannah", Admin `admin.abbs@undangan.sch.id`
 - **Belum selesai:** —
 
 ---
@@ -115,4 +117,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 11)*
+*Terakhir diupdate: 2026-05-27 (sesi 12)*
