@@ -85,9 +85,9 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 — Statistik Tamu di Halaman Daftar Tamu**
-- **Selesai:** Tambah 4 stat card di halaman `/admin/tamu` (Total Tamu, Sudah RSVP, Laki-laki, Perempuan)
-- **Selesai:** Fungsi `getGenderStats` dan `getRsvpStats` + StatCard component
+**Sesi: 2026-05-27 — Fix Scanner QR (Waterfox bug)**
+- **Selesai:** Fix scanner ganda di Waterfox (Firefox) — root cause: `Html5QrcodeScanner.clear()` async tidak di-await, menyebabkan React Strict Mode bikin 2 scanner
+- **Selesai:** Refactor `scan/page.tsx` — `mountedRef`, `destroyScanner()` async, `#qr-reader` selalu di DOM (hidden class), guard double scanner
 - **Selesai:** Update persistent memory
 - **Belum selesai:** —
 
@@ -113,4 +113,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 4)*
+*Terakhir diupdate: 2026-05-27 (sesi 5)*
