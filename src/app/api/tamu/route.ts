@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { nama_siswa, jenis_kelamin, nama_ayah, nama_ibu, no_wa_ayah, no_wa_ibu, event_id } = validation.data;
+    const { nama_siswa, jenis_kelamin, kelas, nama_ayah, nama_ibu, no_wa_ayah, no_wa_ibu, event_id } = validation.data;
     const token = generateToken();
 
     const supabaseAdmin = createAdminClient();
@@ -90,6 +90,7 @@ export async function POST(request: NextRequest) {
       .insert({
         token,
         nama_siswa,
+        kelas: kelas || null,
         nama_ayah: nama_ayah || null,
         nama_ibu: nama_ibu || null,
         no_wa_ayah: no_wa_ayah || null,

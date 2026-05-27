@@ -8,6 +8,7 @@ export default function TambahTamuPage() {
   const router = useRouter();
   const [namaSiswa, setNamaSiswa] = useState("");
   const [jenisKelamin, setJenisKelamin] = useState("");
+  const [kelas, setKelas] = useState("");
   const [namaAyah, setNamaAyah] = useState("");
   const [namaIbu, setNamaIbu] = useState("");
   const [noWaAyah, setNoWaAyah] = useState("");
@@ -38,6 +39,7 @@ export default function TambahTamuPage() {
         body: JSON.stringify({
           nama_siswa: namaSiswa,
           jenis_kelamin: jenisKelamin,
+          kelas: kelas || undefined,
           nama_ayah: namaAyah || undefined,
           nama_ibu: namaIbu || undefined,
           no_wa_ayah: noWaAyah || undefined,
@@ -54,6 +56,7 @@ export default function TambahTamuPage() {
         
         setNamaSiswa("");
         setJenisKelamin("");
+        setKelas("");
         setNamaAyah("");
         setNamaIbu("");
         setNoWaAyah("");
@@ -138,6 +141,19 @@ export default function TambahTamuPage() {
                   Perempuan
                 </button>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kelas
+              </label>
+              <input
+                type="text"
+                value={kelas}
+                onChange={(e) => setKelas(e.target.value)}
+                className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Contoh: VI A"
+              />
             </div>
 
             <div>

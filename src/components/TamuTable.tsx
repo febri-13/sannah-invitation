@@ -8,6 +8,7 @@ import { generateWhatsAppLink } from "@/lib/utils";
 interface TamuData {
   id: string;
   nama_siswa: string;
+  kelas?: string | null;
   nama_ayah: string | null;
   nama_ibu: string | null;
   no_wa_ayah: string | null;
@@ -20,15 +21,17 @@ interface TamuData {
 
 interface TamuTableProps {
   data: TamuData[];
+  eventSlug?: string;
 }
 
 type Tab = "tamu" | "undangan";
 
-export default function TamuTable({ data }: TamuTableProps) {
+export default function TamuTable({ data, eventSlug }: TamuTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("tamu");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const isAkhirusannah = eventSlug === "akhirusannah";
 
   const { filteredData, counts } = useMemo(() => {
     let filtered = data;
@@ -38,6 +41,7 @@ export default function TamuTable({ data }: TamuTableProps) {
       filtered = filtered.filter(
         (tamu) =>
           tamu.nama_siswa.toLowerCase().includes(lower) ||
+          (tamu.kelas?.toLowerCase().includes(lower)) ||
           (tamu.nama_ayah?.toLowerCase().includes(lower)) ||
           (tamu.nama_ibu?.toLowerCase().includes(lower)) ||
           tamu.token.toLowerCase().includes(lower)
@@ -125,7 +129,15 @@ export default function TamuTable({ data }: TamuTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
-            {activeTab === "tamu" ? (
+            {isAkhirusannah && activeTab === "tamu" ? (
+              <tr>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Status</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Token</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Nama Siswa</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Kelas</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Aksi</th>
+              </tr>
+            ) : activeTab === "tamu" ? (
               <tr>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Status</th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Token</th>
@@ -144,7 +156,82 @@ export default function TamuTable({ data }: TamuTableProps) {
             )}
           </thead>
           <tbody className="divide-y">
-            {filteredData.map((tamu) => {
+            {isAkhirusannah && activeTab === "tamu" ? (
+              filteredData.map((tamu) => {
+                const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
+                const hasWa = tamu.no_wa_ayah || tamu.no_wa_ibu;
+                return (
+                  <tr key={tamu.id} className="hover:bg-gray-50">
+                    <td className="px-3 py-3">
+                      {hasRsvp && tamu.rsvp?.[0] ? (
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${
+                          tamu.rsvp[0].kehadiran === "Hadir"
+                            ? "bg-success/10 text-success"
+                            : "bg-danger/10 text-danger"
+                        }`}>
+                          {tamu.rsvp[0].kehadiran}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">-</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="text-xs font-mono text-gray-500">{tamu.token}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="text-sm font-medium text-gray-800">{tamu.nama_siswa}</div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="text-sm text-gray-600">{tamu.kelas || "-"}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex gap-1">
+                        {hasWa && (
+                          <>
+                            {tamu.no_wa_ayah && (
+                              <button
+                                onClick={async () => {
+                                  const url = await getWhatsAppLink(tamu, "ayah");
+                                  window.open(url, "_blank");
+                                }}
+                                className="glass px-2 py-1 text-xs text-success rounded flex items-center gap-1"
+                                title="Kirim WA ke Ayah"
+                              >
+                                <Send className="w-3 h-3" />
+                                Ayah
+                              </button>
+                            )}
+                            {tamu.no_wa_ibu && (
+                              <button
+                                onClick={async () => {
+                                  const url = await getWhatsAppLink(tamu, "ibu");
+                                  window.open(url, "_blank");
+                                }}
+                                className="glass px-2 py-1 text-xs text-success rounded flex items-center gap-1"
+                                title="Kirim WA ke Ibu"
+                              >
+                                <Send className="w-3 h-3" />
+                                Ibu
+                              </button>
+                            )}
+                          </>
+                        )}
+                        {!hasWa && (
+                          <span className="text-xs text-gray-400 italic">No WA</span>
+                        )}
+                        <button
+                          onClick={() => setDeleteId(tamu.id)}
+                          className="p-1 text-gray-400 hover:text-danger"
+                          title="Hapus"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              }))
+            : (filteredData.map((tamu) => {
               const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
               const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
 
@@ -272,7 +359,7 @@ export default function TamuTable({ data }: TamuTableProps) {
                   </td>
                 </tr>
               );
-            })}
+            }))}
           </tbody>
         </table>
       </div>

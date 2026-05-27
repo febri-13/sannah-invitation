@@ -3,6 +3,7 @@ import { z } from "zod";
 export const tamuInputSchema = z.object({
   nama_siswa: z.string().min(2).max(100).regex(/^[a-zA-Z\s.']+$/, "Hanya huruf & spasi"),
   jenis_kelamin: z.enum(["Laki-laki", "Perempuan"]),
+  kelas: z.string().max(20).optional(),
   nama_ayah: z.string().max(100).optional(),
   nama_ibu: z.string().max(100).optional(),
   no_wa_ayah: z.string().max(20).optional(),

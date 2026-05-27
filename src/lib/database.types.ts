@@ -305,6 +305,7 @@ export type Database = {
           event_id: string | null
           id: string
           jenis_kelamin: string | null
+          kelas: string | null
           nama_ayah: string | null
           nama_ibu: string | null
           nama_ortu: string | null
@@ -319,6 +320,7 @@ export type Database = {
           event_id?: string | null
           id?: string
           jenis_kelamin?: string | null
+          kelas?: string | null
           nama_ayah?: string | null
           nama_ibu?: string | null
           nama_ortu?: string | null
@@ -333,6 +335,7 @@ export type Database = {
           event_id?: string | null
           id?: string
           jenis_kelamin?: string | null
+          kelas?: string | null
           nama_ayah?: string | null
           nama_ibu?: string | null
           nama_ortu?: string | null

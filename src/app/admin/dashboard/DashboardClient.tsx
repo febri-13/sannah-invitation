@@ -678,6 +678,7 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
   const rsvpPct = totalTamu > 0 ? Math.round((totalRsvp / totalTamu) * 100) : 0;
   const akanHadir = hadir;
   const akanHadirPct = totalTamu > 0 ? Math.round((akanHadir / totalTamu) * 100) : 0;
+  const activeEventSlug = eventsList?.find(e => e.id === activeEventId)?.slug;
 
   return (
     <div className="min-h-screen flex relative overflow-hidden"
@@ -748,7 +749,7 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
                   </div>
                 </div>
               </div>
-              <TamuTable data={tamuList as any[]} />
+              <TamuTable data={tamuList as any[]} eventSlug={activeEventSlug} />
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { ArrowLeft, Upload, Loader2, CheckCircle, FileSpreadsheet } from "lucide
 interface ParsedRow {
   nama_siswa: string;
   jenis_kelamin: string;
+  kelas?: string;
   nama_ayah?: string;
   nama_ibu?: string;
   no_wa_ayah?: string;
@@ -47,15 +48,17 @@ export default function UploadPage() {
         if (parts.length >= 2) {
           const nama_siswa = parts[0].trim();
           const jenis_kelamin = parts[1].trim();
-          const nama_ayah = parts[2]?.trim() || undefined;
-          const nama_ibu = parts[3]?.trim() || undefined;
-          const no_wa_ayah = parts[4]?.trim() || undefined;
-          const no_wa_ibu = parts[5]?.trim() || undefined;
+          const kelas = parts[2]?.trim() || undefined;
+          const nama_ayah = parts[3]?.trim() || undefined;
+          const nama_ibu = parts[4]?.trim() || undefined;
+          const no_wa_ayah = parts[5]?.trim() || undefined;
+          const no_wa_ibu = parts[6]?.trim() || undefined;
           
           if (nama_siswa && jenis_kelamin) {
             data.push({ 
               nama_siswa, 
               jenis_kelamin,
+              kelas: kelas || undefined,
               nama_ayah: nama_ayah || undefined,
               nama_ibu: nama_ibu || undefined,
               no_wa_ayah: no_wa_ayah || undefined,
@@ -133,10 +136,10 @@ export default function UploadPage() {
                 Gunakan delimiter <code className="bg-white/60 px-1.5 py-0.5 rounded text-xs font-mono">;</code> (titik koma)
               </p>
               <div className="bg-white/60 rounded-xl p-3 mt-3 font-mono text-xs text-on-surface-variant leading-relaxed break-all">
-                nama_siswa;jenis_kelamin;nama_ayah;nama_ibu;no_wa_ayah;no_wa_ibu
+                nama_siswa;jenis_kelamin;kelas;nama_ayah;nama_ibu;no_wa_ayah;no_wa_ibu
               </div>
               <p className="text-xs text-on-surface-variant mt-3">
-                Contoh: <span className="font-mono">Fatimah;Perempuan;Ahmad Wijaya;Siti Aminah;081234567890;</span>
+                Contoh: <span className="font-mono">Fatimah;Perempuan;VI A;Ahmad Wijaya;Siti Aminah;081234567890;</span>
               </p>
               <p className="text-xs text-on-surface-variant mt-2">
                 *) <span className="font-medium">jenis_kelamin</span> wajib: &quot;Laki-laki&quot; atau &quot;Perempuan&quot;
