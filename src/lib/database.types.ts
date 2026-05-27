@@ -39,6 +39,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_memories: {
+        Row: {
+          admin_id: string
+          created_at: string | null
+          id: string
+          key: string
+          sekolah_id: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string | null
+          id?: string
+          key: string
+          sekolah_id: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string | null
+          id?: string
+          key?: string
+          sekolah_id?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_memories_sekolah_id_fkey"
+            columns: ["sekolah_id"]
+            isOneToOne: false
+            referencedRelation: "sekolah"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       checkin: {
         Row: {
           id: string
