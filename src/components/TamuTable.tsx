@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Trash2, Users, QrCode, Send, Columns } from "lucide-react";
+import { Search, Trash2, Users, QrCode, Send } from "lucide-react";
 import { generateWhatsAppLink } from "@/lib/utils";
 
 interface TamuData {
@@ -51,67 +51,11 @@ const UNDANGAN_COLUMNS: ColumnDef[] = [
   { key: "aksi", label: "Aksi" },
 ];
 
-function ColumnSelector({
-  columns,
-  visible,
-  onChange,
-  onClose,
-}: {
-  columns: ColumnDef[];
-  visible: Set<string>;
-  onChange: (key: string, show: boolean) => void;
-  onClose: () => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [onClose]);
-
-  return (
-    <div
-      ref={ref}
-      className="absolute right-0 top-full mt-1 z-50 w-48 rounded-xl overflow-hidden shadow-xl"
-      style={{
-        background: "rgba(255, 248, 235, 0.97)",
-        backdropFilter: "blur(22px)",
-        border: "1px solid rgba(122,102,85,0.2)",
-      }}
-    >
-      <div className="px-3 py-2 font-mono-label text-[9px] tracking-[0.2em]" style={{ color: "#7a6655", borderBottom: "1px solid rgba(122,102,85,0.12)" }}>
-        PILIH KOLOM
-      </div>
-      {columns.map((col) => (
-        <label
-          key={col.key}
-          className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-black/5 text-sm"
-          style={{ color: "#2A2520" }}
-        >
-          <input
-            type="checkbox"
-            checked={visible.has(col.key)}
-            onChange={(e) => onChange(col.key, e.target.checked)}
-            className="accent-[#C26A4A]"
-          />
-          {col.label}
-        </label>
-      ))}
-    </div>
-  );
-}
-
 export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tamu");
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [showColumns, setShowColumns] = useState(false);
   const [tamuVisible, setTamuVisible] = useState<Set<string>>(new Set(["status", "token", "nama_siswa", "kelas", "nama_ortu", "no_wa", "aksi"]));
   const [undanganVisible, setUndanganVisible] = useState<Set<string>>(new Set(["nama_siswa", "jenis_kelamin", "rsvp", "checkin", "aksi"]));
   const isAkhirusannah = eventSlug === "akhirusannah";
@@ -253,40 +197,40 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
         </div>
       </div>
 
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari nama siswa atau token..."
-              className="glass-input w-full pl-10 pr-4 py-2 outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div className="relative">
-            <button
-              onClick={() => setShowColumns(!showColumns)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium"
-              style={{
-                background: "rgba(194,106,74,0.12)",
-                color: "#C26A4A",
-                border: "1px solid rgba(194,106,74,0.25)",
-              }}
-            >
-              <Columns className="w-4 h-4" />
-              Kolom
-            </button>
-            {showColumns && (
-              <ColumnSelector
-                columns={currentColumns}
-                visible={currentVisible}
-                onChange={toggleColumn}
-                onClose={() => setShowColumns(false)}
-              />
-            )}
-          </div>
+      <div className="p-4 border-b border-gray-200 flex flex-col gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cari nama siswa atau token..."
+            className="glass-input w-full pl-9 pr-4 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {currentColumns
+            .filter((c) => c.key !== "kelas" || isAkhirusannah)
+            .map((col) => {
+              const on = currentVisible.has(col.key);
+              return (
+                <button
+                  key={col.key}
+                  onClick={() => toggleColumn(col.key, !on)}
+                  className={`text-[11px] px-2.5 py-1 rounded-full font-medium transition-all ${
+                    on
+                      ? "text-white"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                  style={{
+                    background: on ? "#C26A4A" : "rgba(122,102,85,0.12)",
+                    border: on ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(122,102,85,0.18)",
+                  }}
+                >
+                  {col.label}
+                </button>
+              );
+            })}
         </div>
       </div>
 
