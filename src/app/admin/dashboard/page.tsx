@@ -181,7 +181,8 @@ async function getTamu(eventId?: string, sekolahId?: string) {
       .select(`
         *,
         rsvp (kehadiran, jumlah),
-        checkin (waktu)
+        checkin (waktu),
+        guest_activity_log (activity_type)
       `)
       .order("created_at", { ascending: false });
     if (eventId) {

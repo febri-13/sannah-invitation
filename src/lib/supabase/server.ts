@@ -12,7 +12,14 @@ export async function createClient() {
     throw new Error("Missing Supabase environment variables");
   }
 
-  return createServerClient<Database>(supabaseUrl, supabaseKey, {
+  return createServerClient<Database, "undangan">(supabaseUrl, supabaseKey, {
+    db: { schema: "undangan" },
+    global: {
+      headers: {
+        "Content-Profile": "undangan",
+        "Accept-Profile": "undangan",
+      },
+    },
     cookies: {
       getAll() {
         return cookieStore.getAll();

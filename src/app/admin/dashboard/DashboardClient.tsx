@@ -143,7 +143,7 @@ function EventSwitcher({ events, activeEventId, onCreate }: { events: { id: stri
 function Sidebar({ activeKey = "dashboard", sekolahNama = "Sekolah", eventsList, activeEventId, onCreateEvent }: { activeKey?: string; sekolahNama?: string; eventsList?: { id: string; nama: string; slug: string }[]; activeEventId?: string; onCreateEvent?: () => void }) {
   const items = [
     { key: "dashboard", label: "Dashboard", icon: icons.dash },
-    { key: "tamu", label: "Daftar Tamu", icon: icons.users, href: "/admin/tamu/baru" },
+    { key: "tamu", label: "Daftar Tamu", icon: icons.users, href: "/admin/tamu" },
     { key: "scan", label: "Scanner Check-in", icon: icons.scan, href: "/scan" },
     { key: "konten", label: "Konten Undangan", icon: icons.file, href: "/admin/konten-undangan" },
     { key: "pengaturan", label: "Pengaturan", icon: icons.cog, href: "/admin/pengaturan" },

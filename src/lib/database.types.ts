@@ -37,7 +37,7 @@ export type Database = {
       [_ in never]: never
     }
   }
-  public: {
+  undangan: {
     Tables: {
       admin_memories: {
         Row: {
@@ -522,7 +522,7 @@ export type Database = {
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "undangan">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
@@ -641,7 +641,7 @@ export const Constants = {
   graphql_public: {
     Enums: {},
   },
-  public: {
+  undangan: {
     Enums: {},
   },
 } as const

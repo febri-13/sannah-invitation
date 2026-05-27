@@ -23,24 +23,37 @@ export async function GET(request: NextRequest) {
     const adminSupabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const key = searchParams.get("key");
-    const eventId = searchParams.get("event_id");
+    let eventId = searchParams.get("event_id");
 
-    let query = adminSupabase
-      .from("pengaturan")
-      .select("*")
-      .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000");
-
-    if (eventId) {
-      query = query.eq("event_id", eventId);
+    // If no event_id provided, resolve to first event for this sekolah
+    if (!eventId && sekolahId) {
+      const { data: firstEvent } = await adminSupabase
+        .from("events")
+        .select("id")
+        .eq("sekolah_id", sekolahId)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (firstEvent) {
+        eventId = firstEvent.id;
+      }
     }
 
     if (key) {
-      const { data, error } = await query.eq("key", key).maybeSingle();
+      // Try with event_id first
+      if (eventId) {
+        const { data, error } = await adminSupabase
+          .from("pengaturan")
+          .select("*")
+          .eq("key", key)
+          .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000")
+          .eq("event_id", eventId)
+          .maybeSingle();
 
-      if (error) throw error;
+        if (error) throw error;
+        if (data) return NextResponse.json(data);
 
-      // If no row found with event_id, try global (null event_id) for backward compat
-      if (!data && eventId) {
+        // Fallback: try global (null event_id)
         const { data: fallback } = await adminSupabase
           .from("pengaturan")
           .select("*")
@@ -53,7 +66,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Auto-create default setting if none exists
-      if (!data && sekolahId) {
+      if (sekolahId) {
         const { data: firstEvent } = await adminSupabase
           .from("events")
           .select("id")
@@ -63,6 +76,7 @@ export async function GET(request: NextRequest) {
           .maybeSingle();
 
         const resolvedEventId = eventId || firstEvent?.id;
+
         if (!resolvedEventId) {
           return NextResponse.json(
             { error: "Buat event terlebih dahulu sebelum mengakses pengaturan" },
@@ -89,18 +103,36 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(created);
       }
 
-      return NextResponse.json(data ?? null);
+      return NextResponse.json(null);
     }
 
-    const { data, error: allError } = await query;
+    // No specific key requested — return all settings for this event
+    let allQuery = adminSupabase
+      .from("pengaturan")
+      .select("*")
+      .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000");
+
+    if (eventId) {
+      allQuery = allQuery.eq("event_id", eventId);
+    }
+
+    const { data, error: allError } = await allQuery;
 
     if (allError) throw allError;
 
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching settings:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    const detail =
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      "message" in error
+        ? { code: (error as any).code, message: (error as any).message, hint: (error as any).hint }
+        : {};
     return NextResponse.json(
-      { error: "Failed to fetch settings" },
+      { error: "Failed to fetch settings", message, ...detail },
       { status: 500 }
     );
   }

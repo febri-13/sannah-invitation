@@ -2,68 +2,68 @@
 -- Service role (key) bypasses RLS automatically — no policy changes needed there.
 
 -- ── tamu ───────────────────────────────────────────────────────────────────
-DROP POLICY IF EXISTS "Service read tamu" ON tamu;
+DROP POLICY IF EXISTS "Service read tamu" ON undangan.tamu;
 CREATE POLICY "Admin read own sekolah tamu"
-  ON tamu FOR SELECT
+  ON undangan.tamu FOR SELECT
   USING (
-    get_user_sekolah_id() IS NULL
-    OR sekolah_id = get_user_sekolah_id()
+    undangan.get_user_sekolah_id() IS NULL
+    OR sekolah_id = undangan.get_user_sekolah_id()
   );
 
-DROP POLICY IF EXISTS "Service insert tamu" ON tamu;
+DROP POLICY IF EXISTS "Service insert tamu" ON undangan.tamu;
 CREATE POLICY "Admin insert own sekolah tamu"
-  ON tamu FOR INSERT
+  ON undangan.tamu FOR INSERT
   WITH CHECK (
-    sekolah_id = get_user_sekolah_id()
+    sekolah_id = undangan.get_user_sekolah_id()
   );
 
-DROP POLICY IF EXISTS "Service update tamu" ON tamu;
+DROP POLICY IF EXISTS "Service update tamu" ON undangan.tamu;
 CREATE POLICY "Admin update own sekolah tamu"
-  ON tamu FOR UPDATE
+  ON undangan.tamu FOR UPDATE
   USING (
-    sekolah_id = get_user_sekolah_id()
+    sekolah_id = undangan.get_user_sekolah_id()
   );
 
-DROP POLICY IF EXISTS "Service delete tamu" ON tamu;
+DROP POLICY IF EXISTS "Service delete tamu" ON undangan.tamu;
 CREATE POLICY "Admin delete own sekolah tamu"
-  ON tamu FOR DELETE
+  ON undangan.tamu FOR DELETE
   USING (
-    sekolah_id = get_user_sekolah_id()
+    sekolah_id = undangan.get_user_sekolah_id()
   );
 
 -- ── rsvp ───────────────────────────────────────────────────────────────────
-DROP POLICY IF EXISTS "Public read rsvp" ON rsvp;
+DROP POLICY IF EXISTS "Public read rsvp" ON undangan.rsvp;
 CREATE POLICY "Admin read own sekolah rsvp"
-  ON rsvp FOR SELECT
+  ON undangan.rsvp FOR SELECT
   USING (
-    get_user_sekolah_id() IS NULL
-    OR sekolah_id = get_user_sekolah_id()
+    undangan.get_user_sekolah_id() IS NULL
+    OR sekolah_id = undangan.get_user_sekolah_id()
   );
 
-DROP POLICY IF EXISTS "Public insert rsvp" ON rsvp;
-CREATE POLICY "Public insert rsvp" ON rsvp FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Public insert rsvp" ON undangan.rsvp;
+CREATE POLICY "Public insert rsvp" ON undangan.rsvp FOR INSERT WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Service update rsvp" ON rsvp;
+DROP POLICY IF EXISTS "Service update rsvp" ON undangan.rsvp;
 CREATE POLICY "Admin update own sekolah rsvp"
-  ON rsvp FOR UPDATE
+  ON undangan.rsvp FOR UPDATE
   USING (
-    sekolah_id = get_user_sekolah_id()
+    sekolah_id = undangan.get_user_sekolah_id()
   );
 
-DROP POLICY IF EXISTS "Service delete rsvp" ON rsvp;
+DROP POLICY IF EXISTS "Service delete rsvp" ON undangan.rsvp;
 CREATE POLICY "Admin delete own sekolah rsvp"
-  ON rsvp FOR DELETE
+  ON undangan.rsvp FOR DELETE
   USING (
-    sekolah_id = get_user_sekolah_id()
+    sekolah_id = undangan.get_user_sekolah_id()
   );
 
 -- ── pengaturan ─────────────────────────────────────────────────────────────
-DROP POLICY IF EXISTS "Public read pengaturan" ON pengaturan;
+DROP POLICY IF EXISTS "Public read pengaturan" ON undangan.pengaturan;
 CREATE POLICY "Public read own sekolah pengaturan"
-  ON pengaturan FOR SELECT
+  ON undangan.pengaturan FOR SELECT
   USING (
-    get_user_sekolah_id() IS NULL
-    OR sekolah_id = get_user_sekolah_id()
+    undangan.get_user_sekolah_id() IS NULL
+    OR sekolah_id = undangan.get_user_sekolah_id()
   );
 
 -- Service role still has full INSERT/UPDATE/DELETE via RLS bypass — no policy needed.

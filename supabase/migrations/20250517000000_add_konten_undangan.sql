@@ -1,9 +1,9 @@
 -- Konten undangan: one row per sekolah
 -- All invitation text/dates/agenda made editable by admin
 
-CREATE TABLE konten_undangan (
+CREATE TABLE undangan.konten_undangan (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sekolah_id UUID REFERENCES sekolah(id) UNIQUE NOT NULL,
+  sekolah_id UUID REFERENCES undangan.sekolah(id) UNIQUE NOT NULL,
   judul TEXT NOT NULL DEFAULT 'Akhirusannah',
   subtitle TEXT NOT NULL DEFAULT 'Perpisahan Sekolah',
   bismillah TEXT NOT NULL DEFAULT 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم',
@@ -20,17 +20,17 @@ CREATE TABLE konten_undangan (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_konten_undangan_sekolah_id ON konten_undangan(sekolah_id);
+CREATE INDEX IF NOT EXISTS idx_konten_undangan_sekolah_id ON undangan.konten_undangan(sekolah_id);
 
-ALTER TABLE konten_undangan ENABLE ROW LEVEL SECURITY;
+ALTER TABLE undangan.konten_undangan ENABLE ROW LEVEL SECURITY;
 
 -- Public read (invitation page — no auth needed)
 CREATE POLICY "Public read konten_undangan"
-  ON konten_undangan FOR SELECT
+  ON undangan.konten_undangan FOR SELECT
   USING (true);
 
 -- Seed default konten for every existing sekolah
-INSERT INTO konten_undangan (sekolah_id, judul, subtitle, tanggal, waktu, lokasi_nama, lokasi_alamat, agenda)
+INSERT INTO undangan.konten_undangan (sekolah_id, judul, subtitle, tanggal, waktu, lokasi_nama, lokasi_alamat, agenda)
 SELECT
   id,
   'Akhirusannah',
@@ -46,5 +46,5 @@ SELECT
     {"waktu": "10.30 - 11.30", "icon": "Camera", "judul": "Salam & Foto Bersama"},
     {"waktu": "11.30 - 12.00", "icon": "Star", "judul": "Penutupan"}
   ]'::jsonb
-FROM sekolah
+FROM undangan.sekolah
 ON CONFLICT (sekolah_id) DO NOTHING;

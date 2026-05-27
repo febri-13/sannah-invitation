@@ -9,5 +9,13 @@ export function createAdminClient() {
     throw new Error("Missing Supabase environment variables");
   }
 
-  return createClient<Database>(supabaseUrl, supabaseKey);
+  return createClient<Database, "undangan">(supabaseUrl, supabaseKey, {
+    db: { schema: "undangan" },
+    global: {
+      headers: {
+        "Content-Profile": "undangan",
+        "Accept-Profile": "undangan",
+      },
+    },
+  });
 }

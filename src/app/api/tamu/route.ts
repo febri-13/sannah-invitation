@@ -75,6 +75,15 @@ export async function POST(request: NextRequest) {
     const supabaseAdmin = createAdminClient();
 
     let resolvedEventId = event_id;
+    if (resolvedEventId) {
+      const { data: validEvent } = await supabaseAdmin
+        .from("events")
+        .select("id")
+        .eq("id", resolvedEventId)
+        .eq("sekolah_id", sekolahId)
+        .single();
+      if (!validEvent) resolvedEventId = undefined;
+    }
     if (!resolvedEventId) {
       const { data: defaultEvent } = await supabaseAdmin
         .from("events")

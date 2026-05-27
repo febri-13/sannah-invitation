@@ -1,19 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "supabase": {
-      "type": "remote",
-      "url": "https://mcp.supabase.com/mcp?project_ref=djotfszjcnmjhcwhtxbe&features=docs%2Caccount%2Cdatabase%2Cdevelopment%2Cfunctions%2Cdebugging",
-      "headers": {
-        "Authorization": "Bearer ${SUPABASE_ACCESS_TOKEN}"
-      },
-      "enabled": true
-    }
-  },
   "command": {
     "memory": {
-      "description": "Update persistent memory (AGENTS.md + docs/MEMORY.md) lalu commit",
-      "template": "Baca AGENTS.md untuk lihat status terakhir. Baca docs/MEMORY.md untuk lihat format entry. Lalu:\n\n1. Update AGENTS.md:\n   - Update bagian \"🔄 Sesi Terakhir\" dengan sesi hari ini dan apa yang dikerjakan\n   - Update bagian \"⚠️ Pending / Known Issues\" jika ada yang berubah\n   - Update bagian \"✅ Fitur yang Sudah Dibangun\" jika ada fitur baru\n   - Update timestamp \"Terakhir diupdate\"\n\n2. Tambah entry baru ke docs/MEMORY.md dengan format:\n   ## YYYY-MM-DD — <judul>\n   (detail perubahan)\n\n3. Commit kedua file dengan pesan 'docs: update persistent memory'",
+      "description": "Update persistent memory (AGENTS.md) lalu commit",
+      "template": "Baca AGENTS.md untuk lihat status terakhir. Lalu:\n\n1. Update AGENTS.md:\n   - Update bagian \"🔄 Sesi Terakhir\" dengan sesi hari ini dan apa yang dikerjakan\n   - Update bagian \"⚠️ Pending / Known Issues\" jika ada yang berubah\n   - Update bagian \"✅ Fitur yang Sudah Dibangun\" jika ada fitur baru\n   - Update timestamp \"Terakhir diupdate\"\n\n2. Commit AGENTS.md dengan pesan 'docs: update persistent memory'",
     }
   }
 }

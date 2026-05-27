@@ -1,4 +1,4 @@
-ALTER TABLE konten_undangan
+ALTER TABLE undangan.konten_undangan
   ADD COLUMN IF NOT EXISTS template_slug VARCHAR(50) NOT NULL DEFAULT 'glass-premium';
 
-CREATE INDEX IF NOT EXISTS idx_konten_template_slug ON konten_undangan(template_slug);
+CREATE INDEX IF NOT EXISTS idx_konten_template_slug ON undangan.konten_undangan(template_slug);

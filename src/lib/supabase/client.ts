@@ -11,5 +11,13 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export function createClient() {
-  return createBrowserClient<Database>(supabaseUrl, supabaseKey);
+  return createBrowserClient<Database, "undangan">(supabaseUrl, supabaseKey, {
+    db: { schema: "undangan" },
+    global: {
+      headers: {
+        "Content-Profile": "undangan",
+        "Accept-Profile": "undangan",
+      },
+    },
+  });
 }

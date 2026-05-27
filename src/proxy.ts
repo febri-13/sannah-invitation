@@ -12,10 +12,17 @@ export async function proxy(request: NextRequest) {
 
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient<Database>(
+  const supabase = createServerClient<Database, "undangan">(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
+      db: { schema: "undangan" },
+      global: {
+        headers: {
+          "Content-Profile": "undangan",
+          "Accept-Profile": "undangan",
+        },
+      },
       cookies: {
         getAll() {
           return request.cookies.getAll();
