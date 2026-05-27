@@ -1425,3 +1425,21 @@ Migrasi penuh dari tema biru/ungu ke **Editorial Islamic — Premium Glassmorphi
 | `.gitignore` | **Edit** — `docs` → `docs/*` + `!docs/MEMORY.md` |
 
 *Diupdate pada: 27 Mei 2026*
+
+---
+
+## 2026-05-27 — Remove WhatsApp Button Labels (Ayah/Ibu)
+
+### Perubahan
+- **`src/components/TamuTable.tsx`**: Hapus teks "Ayah" dan "Ibu" dari tombol WhatsApp di kedua tab (akhirusannah & non-akhirusannah)
+- Tombol WA sekarang hanya menampilkan icon `Send` tanpa label teks
+- Jumlah tombol = jumlah nomor WA yang terisi:
+  - 1 tombol jika hanya `no_wa_ayah` atau `no_wa_ibu` saja yang diisi
+  - 2 tombol jika kedua nomor WA (ayah + ibu) diisi
+
+### Files
+| File | Status |
+|------|--------|
+| `src/components/TamuTable.tsx` | **Edit** (hapus label "Ayah"/"Ibu" dari WA buttons) |
+
+*Diupdate pada: 27 Mei 2026*

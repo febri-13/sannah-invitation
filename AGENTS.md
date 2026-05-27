@@ -85,11 +85,9 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 — Fix Camera LED + Double Scanner on Re-mount**
-- **Selesai:** Fix kamera tetap nyala setelah navigasi back — `stopCameraTracks()` sync di cleanup + `pendingClearRef` untuk await clear() selesai sebelum startScanner()
-- **Selesai:** Fix scanner muncul 2 saat balik ke halaman scan — `pendingClearRef` nunggu `clear()` sebelumnya selesai total sebelum bikin scanner baru
-- **Selesai:** `destroyScanner()` sync — null ref dulu baru fire `scanner.clear()` async
-- **Selesai:** Fix `.gitignore` dan AGENTS.md untuk `docs/MEMORY.md` supaya bisa commit tanpa `-f`
+**Sesi: 2026-05-27 (sesi 7) — Remove WhatsApp Button Labels**
+- **Selesai:** Hapus teks "Ayah"/"Ibu" dari tombol WA di TamuTable — tombol hanya tampilkan icon Send
+- **Selesai:** Jumlah tombol WA = jumlah nomor WA yang terisi (1 jika salah satu, 2 jika keduanya)
 - **Selesai:** Update persistent memory
 - **Belum selesai:** —
 
@@ -115,4 +113,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 6)*
+*Terakhir diupdate: 2026-05-27 (sesi 7)*
