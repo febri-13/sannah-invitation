@@ -1394,3 +1394,34 @@ Migrasi penuh dari tema biru/ungu ke **Editorial Islamic — Premium Glassmorphi
 | `src/app/scan/page.tsx` | **Rewrite** — lifecycle async proper, `mountedRef`, `destroyScanner()`, no conditional DOM removal |
 
 *Diupdate pada: 27 Mei 2026*
+
+---
+
+## 2026-05-27 — Fix Camera LED + Double Scanner on Re-mount
+
+### Bug 1: Kamera LED Tetap Nyala Setelah Back
+- **Root cause**: `destroyScanner()` dulu async — cleanup panggil tanpa `await`, jadi `scanner.clear()` jalan async. Tapi React hapus DOM sebelum `clear()` selesai → error silent → track kamera gak ke-stop.
+- **Fix**: `stopCameraTracks()` synchronous di cleanup — stop semua video tracks langsung (`srcObject.getTracks().forEach(t => t.stop())`), tanpa nunggu `clear()`.
+
+### Bug 2: Scanner Muncul 2 Saat Balik ke Halaman Scan
+- **Root cause**: Saat navigasi balik, cleanup dari kunjungan sebelumnya mulai `scanner.clear()` async. Mount baru bikin scanner baru. `clear()` yang masih jalan akhirnya hapus DOM milik scanner baru.
+- **Fix**: `pendingClearRef` — Promise dari `scanner.clear()` disimpan di ref. `startScanner()` **await** promise ini sebelum buat scanner baru, memastikan `clear()` lama selesai total.
+
+### Bug 3: Setelah Double Scanner, Stop/Start Error + Kamera Gak Bisa Mati
+- **Root cause**: Akibat bug 2, DOM scanner baru dirusak oleh `clear()` lama. State internal scanner dan DOM mismatch → error. Kamera tetap nyala karena cleanup selanjutnya juga gagal.
+- **Fix**: Sama dengan bug 2 — `pendingClearRef` mencegah tabrakan antar scanner instance.
+
+### Perubahan Arsitektur
+| Sebelum | Sesudah |
+|---------|---------|
+| `destroyScanner()` async — await `clear()` lalu null ref | `destroyScanner()` sync — null ref dulu, fire `clear()` async via `pendingClearRef` |
+| `startScanner()` langsung render | `startScanner()` await `pendingClearRef.current` dulu |
+| `resetScanner()` sync, fire-and-forget | `resetScanner()` async, await `startScanner()` |
+
+### Files
+| File | Status |
+|------|--------|
+| `src/app/scan/page.tsx` | **Edit** — `pendingClearRef`, `stopCameraTracks`, sync `destroyScanner` |
+| `.gitignore` | **Edit** — `docs` → `docs/*` + `!docs/MEMORY.md` |
+
+*Diupdate pada: 27 Mei 2026*

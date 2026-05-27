@@ -85,9 +85,11 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 — Fix Scanner QR (Waterfox bug)**
-- **Selesai:** Fix scanner ganda di Waterfox (Firefox) — root cause: `Html5QrcodeScanner.clear()` async tidak di-await, menyebabkan React Strict Mode bikin 2 scanner
-- **Selesai:** Refactor `scan/page.tsx` — `mountedRef`, `destroyScanner()` async, `#qr-reader` selalu di DOM (hidden class), guard double scanner
+**Sesi: 2026-05-27 — Fix Camera LED + Double Scanner on Re-mount**
+- **Selesai:** Fix kamera tetap nyala setelah navigasi back — `stopCameraTracks()` sync di cleanup + `pendingClearRef` untuk await clear() selesai sebelum startScanner()
+- **Selesai:** Fix scanner muncul 2 saat balik ke halaman scan — `pendingClearRef` nunggu `clear()` sebelumnya selesai total sebelum bikin scanner baru
+- **Selesai:** `destroyScanner()` sync — null ref dulu baru fire `scanner.clear()` async
+- **Selesai:** Fix `.gitignore` dan AGENTS.md untuk `docs/MEMORY.md` supaya bisa commit tanpa `-f`
 - **Selesai:** Update persistent memory
 - **Belum selesai:** —
 
@@ -113,4 +115,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 5)*
+*Terakhir diupdate: 2026-05-27 (sesi 6)*
