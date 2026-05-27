@@ -7,8 +7,35 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -75,6 +102,48 @@ export type Database = {
             columns: ["sekolah_id"]
             isOneToOne: false
             referencedRelation: "sekolah"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guest_activity_log: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          event_id: string | null
+          id: string
+          metadata: Json | null
+          tamu_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          metadata?: Json | null
+          tamu_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          metadata?: Json | null
+          tamu_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_activity_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_activity_log_tamu_id_fkey"
+            columns: ["tamu_id"]
+            isOneToOne: false
+            referencedRelation: "tamu"
             referencedColumns: ["id"]
           },
         ]
@@ -496,6 +565,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

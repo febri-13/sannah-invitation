@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     // Look up tamu along with its sekolah_id
     const { data: tamu, error: tamuError } = await supabaseAdmin
       .from("tamu")
-      .select("id, sekolah_id")
+      .select("id, sekolah_id, event_id")
       .eq("token", token)
       .single();
 
@@ -36,23 +36,62 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Token tidak valid" }, { status: 404 });
     }
 
-    const { data: rsvp, error: rsvpError } = await supabaseAdmin
+    const { data: existingRsvp } = await supabaseAdmin
       .from("rsvp")
-      .insert({
-        tamu_id: tamu.id,
-        sekolah_id: tamu.sekolah_id,
+      .select("id")
+      .eq("tamu_id", tamu.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const isUpdate = !!existingRsvp;
+
+    let rsvpResult;
+    if (isUpdate) {
+      const { data, error } = await supabaseAdmin
+        .from("rsvp")
+        .update({
+          kehadiran_ortu,
+          kehadiran_anak,
+          kehadiran,
+          jumlah,
+          pesan: pesan || null,
+        })
+        .eq("id", existingRsvp.id)
+        .select()
+        .single();
+      if (error) throw error;
+      rsvpResult = data;
+    } else {
+      const { data, error } = await supabaseAdmin
+        .from("rsvp")
+        .insert({
+          tamu_id: tamu.id,
+          sekolah_id: tamu.sekolah_id,
+          kehadiran_ortu,
+          kehadiran_anak,
+          kehadiran,
+          jumlah,
+          pesan: pesan || null,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      rsvpResult = data;
+    }
+
+    await supabaseAdmin.from("guest_activity_log").insert({
+      tamu_id: tamu.id,
+      event_id: tamu.event_id,
+      activity_type: isUpdate ? "rsvp_updated" : "rsvp_submitted",
+      metadata: {
         kehadiran_ortu,
         kehadiran_anak,
-        kehadiran,
         jumlah,
-        pesan: pesan || null,
-      })
-      .select()
-      .single();
+      },
+    });
 
-    if (rsvpError) throw rsvpError;
-
-    return NextResponse.json(rsvp, { status: 201 });
+    return NextResponse.json(rsvpResult, { status: isUpdate ? 200 : 201 });
   } catch (error) {
     console.error("Error creating RSVP:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

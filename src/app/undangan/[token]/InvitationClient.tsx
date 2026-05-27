@@ -146,6 +146,14 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
 
   const themeClass = konten.template_slug ? `theme-${konten.template_slug}` : "";
 
+  useEffect(() => {
+    fetch("/api/activity/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, activity_type: "invitation_viewed" }),
+    }).catch(() => {});
+  }, [token]);
+
   return (
     <div className={`min-h-screen relative ${themeClass} pb-20`} style={{ background: "var(--color-bg-gradient)" }}>
       <div className="max-w-[390px] mx-auto relative overflow-hidden">
