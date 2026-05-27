@@ -85,11 +85,13 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-27 (sesi 13) — Fix Vercel env vars & redeploy ke project asli**
-- **Selesai:** Update Vercel env vars (NEXT_PUBLIC_SUPABASE_URL, PUBLISHABLE_KEY, SERVICE_ROLE_KEY, BASE_URL) ke project asli `drlsnhnqxkcgcuskswwx`
-- **Selesai:** Redeploy production — login admin.abbs@undangan.sch.id berhasil tampilkan SMP ABBS Surakarta
-- **Selesai:** Perbaiki .env.local — ganti NEXT_PUBLIC_SUPABASE_ANON_KEY → NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-- **Belum selesai:** —
+**Sesi: 2026-05-27 (sesi 14) — Debug schema header issue di settings API (Failed to fetch settings)**
+- **Selesai:** Fix PostgREST schema lookup — tambah `global.headers` dengan `Content-Profile: undangan` & `Accept-Profile: undangan` di semua supabase client (admin.ts, server.ts, client.ts, proxy.ts)
+- **Selesai:** Verifikasi `sb_secret_` format key works dengan schema headers via local Node.js test
+- **Selesai:** Tambah debug detail error ke response settings API untuk troubleshooting
+- **Selesai:** Multiple redeploy + force deploy ke Vercel untuk clear build cache
+- **Selesai:** Update Catatan Penting tentang `sb_secret_` key format & schema headers
+- **Belum selesai:** Settings API masih error 500 di production — penyebab belum ketemu, masih butuh response body dari user
 
 ---
 
@@ -114,4 +116,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-27 (sesi 13)*
+*Terakhir diupdate: 2026-05-27 (sesi 14)*
