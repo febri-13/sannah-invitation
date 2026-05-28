@@ -91,14 +91,17 @@ src/
 | Column visibility toggle (pilih kolom tabel tamu) | ✅ |
 | Edit tamu (inline modal + PUT API) | ✅ |
 | Batch delete tamu (multi-select + konfirmasi) | ✅ |
+| Layout config (admin UI: visibility, urutan, label, warna; dynamic render) | ✅ |
 
 ---
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-28 (sesi 22) — Landing page + demo page cleanup**
-- **Selesai:** Landing page baru `src/app/page.tsx` — platform landing (Undangan Digital, bukan spesifik Akhirusannah)
-- **Selesai:** Demo page di-sederhanakan — static fallback, tanpa query DB, nama sekolah jadi "Undangan Digital"
+**Sesi: 2026-05-28 (sesi 23) — Layout config feature**
+- **Selesai:** Layout config — migration tambah kolom `layout_config` (JSONB) di `undangan.konten_undangan`
+- **Selesai:** Admin form Layout & Tampilan (visibility toggle, reorder, custom label, color picker primary/secondary, auto-play musik)
+- **Selesai:** InvitationClient render dinamis berdasarkan layout_config (urutan, visibility, label kustom, CSS vars override)
+- **Selesai:** API route PUT konten-undangan terima & simpan layout_config + music_auto_play
 - **Belum selesai:** —
 
 ---
@@ -121,7 +124,8 @@ src/
 - **Export Data** — Belum ada export tamu/RSVP ke CSV
 - **Multi-language** — Belum ada i18n (saat ini hanya Bahasa Indonesia)
 - **WA Broadcast** — Belum ada fitur kirim WA massal
+- **Generate types** — `supabase gen:types --linked` gagal karena butuh `SUPABASE_DB_PASSWORD`, sementara env tidak tersedia. Update types harus manual
 
 ---
 
-*Terakhir diupdate: 2026-05-28 (sesi 22)*
+*Terakhir diupdate: 2026-05-28 (sesi 23)*
