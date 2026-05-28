@@ -96,12 +96,9 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-28 (sesi 21) — Admin baru + aturan database & MCP config**
-- **Selesai:** Menambahkan admin `admin.smpi@undangan.sch.id` (email + password)
-- **Selesai:** Update `src/app/api/signup/route.ts` — email + mapping sekolah `admin.smpi` → "SMP I Alabidin Surakarta"
-- **Selesai:** Insert "SMP I Alabidin Surakarta" ke `undangan.sekolah` (sebelumnya cuma ada "SMP ABBS Surakarta")
-- **Selesai:** Aturan wajib database — schema HANYA `undangan`, wajib jelaskan dampak sebelum akses
-- **Selesai:** Update MCP global config ke project ref `drlsnhnqxkcgcuskswwx`
+**Sesi: 2026-05-28 (sesi 22) — Landing page + demo page cleanup**
+- **Selesai:** Landing page baru `src/app/page.tsx` — platform landing (Undangan Digital, bukan spesifik Akhirusannah)
+- **Selesai:** Demo page di-sederhanakan — static fallback, tanpa query DB, nama sekolah jadi "Undangan Digital"
 - **Belum selesai:** —
 
 ---
@@ -127,4 +124,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-28 (sesi 21)*
+*Terakhir diupdate: 2026-05-28 (sesi 22)*
