@@ -63,13 +63,15 @@ function ClientPortal({ children }: { children: ReactNode }) {
 function DeleteModal({ id, onClose, onConfirm }: { id: string; onClose: () => void; onConfirm: (id: string) => void }) {
   return (
     <ClientPortal>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="glass-card p-6 max-w-sm mx-4">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Hapus Tamu?</h3>
-          <p className="text-gray-600 mb-4">Data yang dihapus tidak dapat dikembalikan.</p>
+      <div className="fixed inset-0 flex items-center justify-center z-50"
+        style={{ background: "rgba(20,12,4,0.6)", backdropFilter: "blur(8px)" }}>
+        <div className="w-full max-w-sm mx-4 p-6 rounded-[20px]"
+          style={{ background: "rgba(255,248,235,0.97)", backdropFilter: "blur(22px)", border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 20px 60px rgba(20,12,4,0.3)" }}>
+          <h3 className="text-lg font-bold" style={{ color: "#2A2520" }}>Hapus Tamu?</h3>
+          <p className="mb-4" style={{ color: "#5b4b3e" }}>Data yang dihapus tidak dapat dikembalikan.</p>
           <div className="flex gap-4">
-            <button onClick={onClose} className="glass flex-1 py-2 text-gray-700 rounded-lg font-medium">Batal</button>
-            <button onClick={() => onConfirm(id)} className="glass-button flex-1 py-2 text-white rounded-lg font-medium">Hapus</button>
+            <button onClick={onClose} className="flex-1 py-2 rounded-[12px] text-sm font-medium cursor-pointer" style={{ background: "rgba(122,102,85,0.12)", color: "#5b4b3e", border: "1px solid rgba(122,102,85,0.2)" }}>Batal</button>
+            <button onClick={() => onConfirm(id)} className="flex-1 py-2 rounded-[12px] text-sm font-medium cursor-pointer" style={{ background: "linear-gradient(135deg, #C26A4A, #8B4A2F)", color: "#F5EEE0", border: "1px solid rgba(255,255,255,0.2)", boxShadow: "0 6px 18px rgba(194,106,74,0.35)" }}>Hapus</button>
           </div>
         </div>
       </div>
@@ -662,19 +664,23 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
 
     {batchDeleteConfirm && (
       <ClientPortal>
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="glass-card p-6 max-w-sm mx-4">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Hapus {selectedIds.size} tamu?</h3>
-            <p className="text-gray-600 mb-4">Data yang dihapus tidak dapat dikembalikan.</p>
+        <div className="fixed inset-0 flex items-center justify-center z-50"
+          style={{ background: "rgba(20,12,4,0.6)", backdropFilter: "blur(8px)" }}>
+          <div className="w-full max-w-sm mx-4 p-6 rounded-[20px]"
+            style={{ background: "rgba(255,248,235,0.97)", backdropFilter: "blur(22px)", border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 20px 60px rgba(20,12,4,0.3)" }}>
+            <h3 className="text-lg font-bold" style={{ color: "#2A2520" }}>Hapus {selectedIds.size} tamu?</h3>
+            <p className="mb-4" style={{ color: "#5b4b3e" }}>Data yang dihapus tidak dapat dikembalikan.</p>
             <div className="flex gap-4">
               <button
                 onClick={() => setBatchDeleteConfirm(false)}
                 disabled={deleting}
-                className="glass flex-1 py-2 text-gray-700 rounded-lg font-medium disabled:opacity-50">Batal</button>
+                className="flex-1 py-2 rounded-[12px] text-sm font-medium cursor-pointer disabled:opacity-50"
+                style={{ background: "rgba(122,102,85,0.12)", color: "#5b4b3e", border: "1px solid rgba(122,102,85,0.2)" }}>Batal</button>
               <button
                 onClick={handleBatchDelete}
                 disabled={deleting}
-                className="glass-button flex-1 py-2 text-white rounded-lg font-medium disabled:opacity-50 flex items-center justify-center gap-2">
+                className="flex-1 py-2 rounded-[12px] text-sm font-medium cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                style={{ background: "linear-gradient(135deg, #C26A4A, #8B4A2F)", color: "#F5EEE0", border: "1px solid rgba(255,255,255,0.2)", boxShadow: "0 6px 18px rgba(194,106,74,0.35)" }}>
                 {deleting ? <><Loader2 className="w-4 h-4 animate-spin" /> Menghapus...</> : "Hapus"}
               </button>
             </div>
