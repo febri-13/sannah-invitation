@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import RSVPForm from "./RSVPForm";
 import MusicPlayer from "./MusicPlayer";
-import type { Tables } from "@/lib/database.types";
+import type { Tables, LayoutConfig } from "@/lib/database.types";
 
 interface AgendaItem {
   waktu: string;
@@ -112,6 +112,46 @@ function BgOrbs() {
   );
 }
 
+const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
+  sections: {
+    hero:     { visible: true, order: 1, label: "" },
+    greeting: { visible: true, order: 2, label: "KEPADA YANG TERHORMAT" },
+    countdown:{ visible: true, order: 3, label: "MENUJU HARI BAHAGIA" },
+    details:  { visible: true, order: 4, label: "DETAIL ACARA" },
+    agenda:   { visible: true, order: 5, label: "SUSUNAN ACARA" },
+    qr:       { visible: true, order: 6, label: "QR CHECK-IN" },
+    rsvp:     { visible: true, order: 7, label: "KONFIRMASI KEHADIRAN" },
+    footer:   { visible: true, order: 8, label: "" },
+  },
+  custom_css: {
+    primary_color: "",
+    secondary_color: "",
+  },
+};
+
+function parseLayoutConfig(json: unknown): LayoutConfig {
+  if (!json || typeof json !== "object") return DEFAULT_LAYOUT_CONFIG;
+  const cfg = json as Record<string, unknown>;
+  const sections = cfg.sections as Record<string, unknown> | undefined;
+  const merged: LayoutConfig = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
+  if (sections && typeof sections === "object") {
+    for (const key of Object.keys(merged.sections) as (keyof typeof merged.sections)[]) {
+      const s = sections[key] as Record<string, unknown> | undefined;
+      if (s && typeof s === "object") {
+        if (typeof s.visible === "boolean") merged.sections[key].visible = s.visible;
+        if (typeof s.order === "number") merged.sections[key].order = s.order;
+        if (typeof s.label === "string") merged.sections[key].label = s.label;
+      }
+    }
+  }
+  const css = cfg.custom_css as Record<string, unknown> | undefined;
+  if (css && typeof css === "object") {
+    if (typeof css.primary_color === "string") merged.custom_css.primary_color = css.primary_color;
+    if (typeof css.secondary_color === "string") merged.custom_css.secondary_color = css.secondary_color;
+  }
+  return merged;
+}
+
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
   visible: {
@@ -138,6 +178,11 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
 
   const agenda = (konten.agenda as unknown as AgendaItem[]) || [];
 
+  const layoutConfig = parseLayoutConfig(konten.layout_config);
+  const sortedSectionKeys = (Object.keys(layoutConfig.sections) as (keyof typeof layoutConfig.sections)[])
+    .sort((a, b) => layoutConfig.sections[a].order - layoutConfig.sections[b].order)
+    .filter((k) => layoutConfig.sections[k].visible);
+
   const targetISO = parseDateToISO(konten.tanggal);
   const c = useCountdown(targetISO);
   const countdownParts = [
@@ -145,6 +190,17 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
   ];
 
   const themeClass = konten.template_slug ? `theme-${konten.template_slug}` : "";
+
+  const sectionLabel = (key: keyof typeof layoutConfig.sections) =>
+    layoutConfig.sections[key].label || "";
+
+  const customCssVars: Record<string, string> = {};
+  if (layoutConfig.custom_css.primary_color) {
+    customCssVars["--color-primary"] = layoutConfig.custom_css.primary_color;
+  }
+  if (layoutConfig.custom_css.secondary_color) {
+    customCssVars["--color-secondary"] = layoutConfig.custom_css.secondary_color;
+  }
 
   useEffect(() => {
     fetch("/api/activity/track", {
@@ -154,14 +210,12 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
     }).catch(() => {});
   }, [token]);
 
-  return (
-    <div className={`min-h-screen relative ${themeClass} pb-20`} style={{ background: "var(--color-bg-gradient)" }}>
-      <div className="max-w-[390px] mx-auto relative overflow-hidden">
-        <BgOrbs />
-
-        <div className="relative">
-          {/* Hero */}
+  const renderSection = (key: keyof typeof layoutConfig.sections) => {
+    switch (key) {
+      case "hero":
+        return (
           <motion.div
+            key={key}
             className="px-[22px] pt-[30px] pb-[10px]"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -234,12 +288,14 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
               </div>
             </div>
           </motion.div>
+        );
 
-          {/* Greeting */}
-          <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
+      case "greeting":
+        return (
+          <motion.div key={key} className="px-[22px] py-[10px]" variants={itemVariants}>
             <div className="glass-card p-[26px_24px] text-center">
               <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "var(--color-secondary)", marginBottom: 14 }}>
-                KEPADA YANG TERHORMAT
+                {sectionLabel("greeting") || "KEPADA YANG TERHORMAT"}
               </p>
               <p className="text-[12px] leading-[1.6]" style={{ color: "var(--color-text-muted)" }}>
                 Ayah/Bunda dari ananda
@@ -254,38 +310,41 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
               )}
             </div>
           </motion.div>
+        );
 
-          {/* Countdown */}
-          {targetISO && (
-            <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
-              <div className="glass-card p-[24px_18px]">
-                <p className="font-mono-label text-[9px] tracking-[0.3em] text-center" style={{ color: "var(--color-secondary)", marginBottom: 4 }}>
-                  MENUJU HARI BAHAGIA
-                </p>
-                <p className="font-serif-display text-[18px] italic text-center" style={{ color: "var(--color-text)", marginBottom: 16 }}>
-                  Hitung mundur
-                </p>
-                <div className="grid grid-cols-4 gap-2">
-                  {countdownParts.map((p, i) => (
-                    <div key={i} className="glass-chip text-center p-[12px_4px_10px]" style={{ background: "var(--color-glass-chip-bg)" }}>
-                      <p className="font-serif-display text-[28px] leading-[1] font-medium" style={{ color: "var(--color-primary)" }}>
-                        {String(p.v).padStart(2, "0")}
-                      </p>
-                      <p className="font-mono-label text-[8px] tracking-[0.2em]" style={{ color: "var(--color-secondary)", marginTop: 6 }}>
-                        {p.l}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+      case "countdown":
+        if (!targetISO) return null;
+        return (
+          <motion.div key={key} className="px-[22px] py-[10px]" variants={itemVariants}>
+            <div className="glass-card p-[24px_18px]">
+              <p className="font-mono-label text-[9px] tracking-[0.3em] text-center" style={{ color: "var(--color-secondary)", marginBottom: 4 }}>
+                {sectionLabel("countdown") || "MENUJU HARI BAHAGIA"}
+              </p>
+              <p className="font-serif-display text-[18px] italic text-center" style={{ color: "var(--color-text)", marginBottom: 16 }}>
+                Hitung mundur
+              </p>
+              <div className="grid grid-cols-4 gap-2">
+                {countdownParts.map((p, i) => (
+                  <div key={i} className="glass-chip text-center p-[12px_4px_10px]" style={{ background: "var(--color-glass-chip-bg)" }}>
+                    <p className="font-serif-display text-[28px] leading-[1] font-medium" style={{ color: "var(--color-primary)" }}>
+                      {String(p.v).padStart(2, "0")}
+                    </p>
+                    <p className="font-mono-label text-[8px] tracking-[0.2em]" style={{ color: "var(--color-secondary)", marginTop: 6 }}>
+                      {p.l}
+                    </p>
+                  </div>
+                ))}
               </div>
-            </motion.div>
-          )}
+            </div>
+          </motion.div>
+        );
 
-          {/* Event Details */}
-          <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
+      case "details":
+        return (
+          <motion.div key={key} className="px-[22px] py-[10px]" variants={itemVariants}>
             <div className="glass-card p-[24px]">
               <p className="font-serif-display text-[22px] italic" style={{ color: "var(--color-text)", marginBottom: 2 }}>
-                Detail Acara
+                {sectionLabel("details") || "Detail Acara"}
               </p>
               <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)", marginBottom: 16 }}>
                 WAKTU &amp; TEMPAT
@@ -342,46 +401,49 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
               )}
             </div>
           </motion.div>
+        );
 
-          {/* Agenda */}
-          {agenda.length > 0 && (
-            <motion.div className="px-[22px] py-[10px]" variants={itemVariants}>
-              <div className="glass-card p-[24px_22px]">
-                <p className="font-serif-display text-[22px] italic" style={{ color: "var(--color-text)", marginBottom: 2 }}>
-                  Susunan Acara
-                </p>
-                <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)", marginBottom: 18 }}>
-                  RANGKAIAN ACARA
-                </p>
-                <div className="relative pl-[18px]">
-                  <div className="absolute left-[5px] top-[6px] bottom-[6px] w-px"
-                    style={{ background: "linear-gradient(180deg, var(--color-primary), rgba(194,106,74,0.1))" }} />
-                  {agenda.map((a, i) => (
-                    <div key={i} className="relative pb-4">
-                      <span className="absolute -left-[18px] top-[6px] w-[11px] h-[11px] rounded-full border-2"
-                        style={{
-                          background: "var(--color-primary)",
-                          borderColor: "var(--color-bg-start)",
-                          boxShadow: "0 0 0 1px var(--color-primary)",
-                        }} />
-                      <p className="font-mono-label text-[10px] tracking-[0.22em] font-semibold" style={{ color: "var(--color-primary)" }}>
-                        {a.waktu}
-                      </p>
-                      <p className="text-[14px] font-semibold mt-[2px]" style={{ color: "var(--color-text)" }}>
-                        {a.judul}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+      case "agenda":
+        if (agenda.length === 0) return null;
+        return (
+          <motion.div key={key} className="px-[22px] py-[10px]" variants={itemVariants}>
+            <div className="glass-card p-[24px_22px]">
+              <p className="font-serif-display text-[22px] italic" style={{ color: "var(--color-text)", marginBottom: 2 }}>
+                {sectionLabel("agenda") || "Susunan Acara"}
+              </p>
+              <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)", marginBottom: 18 }}>
+                RANGKAIAN ACARA
+              </p>
+              <div className="relative pl-[18px]">
+                <div className="absolute left-[5px] top-[6px] bottom-[6px] w-px"
+                  style={{ background: "linear-gradient(180deg, var(--color-primary), rgba(194,106,74,0.1))" }} />
+                {agenda.map((a, i) => (
+                  <div key={i} className="relative pb-4">
+                    <span className="absolute -left-[18px] top-[6px] w-[11px] h-[11px] rounded-full border-2"
+                      style={{
+                        background: "var(--color-primary)",
+                        borderColor: "var(--color-bg-start)",
+                        boxShadow: "0 0 0 1px var(--color-primary)",
+                      }} />
+                    <p className="font-mono-label text-[10px] tracking-[0.22em] font-semibold" style={{ color: "var(--color-primary)" }}>
+                      {a.waktu}
+                    </p>
+                    <p className="text-[14px] font-semibold mt-[2px]" style={{ color: "var(--color-text)" }}>
+                      {a.judul}
+                    </p>
+                  </div>
+                ))}
               </div>
-            </motion.div>
-          )}
+            </div>
+          </motion.div>
+        );
 
-          {/* QR Check-in */}
-          <motion.div className="px-[22px] py-[10px]" variants={qrVariants}>
+      case "qr":
+        return (
+          <motion.div key={key} className="px-[22px] py-[10px]" variants={qrVariants}>
             <div className="glass-card p-[26px_22px] text-center">
               <p className="font-serif-display text-[22px] italic" style={{ color: "var(--color-text)" }}>
-                QR Check-in
+                {sectionLabel("qr") || "QR Check-in"}
               </p>
               <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)", marginBottom: 18 }}>
                 PRESENSI DIGITAL
@@ -410,18 +472,22 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
               )}
             </div>
           </motion.div>
+        );
 
-          {/* RSVP Form */}
-          <motion.div variants={itemVariants}>
+      case "rsvp":
+        return (
+          <motion.div key={key} variants={itemVariants}>
             <RSVPForm
               token={token}
               existingRsvp={isLegacyRsvp ? null : latestRsvp}
               legacyRsvp={isLegacyRsvp ? latestRsvp : null}
             />
           </motion.div>
+        );
 
-          {/* Footer */}
-          <motion.div className="px-[22px] py-[10px_22px_30px]" variants={itemVariants}>
+      case "footer":
+        return (
+          <motion.div key={key} className="px-[22px] py-[10px_22px_30px]" variants={itemVariants}>
             <div className="glass-card p-[26px_22px] text-center">
               <p className="font-arabic text-[22px]" style={{ color: "var(--color-primary)", marginBottom: 6 }}>
                 {konten.header_arabic}
@@ -440,6 +506,20 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
               </p>
             </div>
           </motion.div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={`min-h-screen relative ${themeClass} pb-20`} style={{ background: "var(--color-bg-gradient)", ...customCssVars }}>
+      <div className="max-w-[390px] mx-auto relative overflow-hidden">
+        <BgOrbs />
+
+        <div className="relative">
+          {sortedSectionKeys.map(renderSection)}
         </div>
       </div>
 

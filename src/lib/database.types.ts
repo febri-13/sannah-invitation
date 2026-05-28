@@ -232,6 +232,7 @@ export type Database = {
           hero_desc: string
           id: string
           judul: string
+          layout_config: Json | null
           link_youtube: string
           lokasi_alamat: string
           lokasi_maps: string
@@ -255,6 +256,7 @@ export type Database = {
           hero_desc?: string
           id?: string
           judul?: string
+          layout_config?: Json | null
           link_youtube?: string
           lokasi_alamat?: string
           lokasi_maps?: string
@@ -278,6 +280,7 @@ export type Database = {
           hero_desc?: string
           id?: string
           judul?: string
+          layout_config?: Json | null
           link_youtube?: string
           lokasi_alamat?: string
           lokasi_maps?: string
@@ -652,3 +655,26 @@ export type Rsvp = Tables<"rsvp">;
 export type Checkin = Tables<"checkin">;
 export type Pengaturan = Tables<"pengaturan">;
 export type Sekolah = Tables<"sekolah">;
+
+export interface LayoutSectionConfig {
+  visible: boolean;
+  order: number;
+  label: string;
+}
+
+export interface LayoutConfig {
+  sections: {
+    hero: LayoutSectionConfig;
+    greeting: LayoutSectionConfig;
+    countdown: LayoutSectionConfig;
+    details: LayoutSectionConfig;
+    agenda: LayoutSectionConfig;
+    qr: LayoutSectionConfig;
+    rsvp: LayoutSectionConfig;
+    footer: LayoutSectionConfig;
+  };
+  custom_css: {
+    primary_color: string;
+    secondary_color: string;
+  };
+}

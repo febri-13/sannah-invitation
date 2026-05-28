@@ -27,6 +27,7 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "event_id" | "
   template_slug: "glass-premium",
   music_url: "",
   music_auto_play: false,
+  layout_config: null,
 };
 
 export default async function UndanganPage({

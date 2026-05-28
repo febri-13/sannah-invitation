@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/database.types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -95,6 +96,8 @@ export async function PUT(request: NextRequest) {
       logo_url,
       event_id,
       music_url,
+      music_auto_play,
+      layout_config,
     } = body;
 
     if (!judul || !tanggal || !waktu || !lokasi_nama) {
@@ -130,10 +133,10 @@ export async function PUT(request: NextRequest) {
       footer: footer || "",
       template_slug: template_slug || "glass-premium",
       music_url: music_url || "",
+      music_auto_play: music_auto_play ?? false,
+      layout_config: (layout_config as Json) || null,
       updated_at: now,
     };
-
-    const payload = event_id ? { ...basePayload, event_id } : basePayload;
 
     const lookupQuery = adminSupabase.from("konten_undangan").select("id");
     if (event_id) {
@@ -148,7 +151,7 @@ export async function PUT(request: NextRequest) {
     if (existing) {
       const { data, error } = await adminSupabase
         .from("konten_undangan")
-        .update(payload)
+        .update(basePayload)
         .eq("id", existing.id)
         .select()
         .single();
