@@ -1,6 +1,3 @@
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
 import InvitationClient from "../[token]/InvitationClient";
 import type { KontenUndangan } from "@/lib/database.types";
 
@@ -42,63 +39,17 @@ const SAMPLE_TAMU = {
   checkin: [],
 };
 
-export default async function DemoPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const sekolahId = user?.app_metadata?.sekolah_id as string | undefined;
+export default function DemoPage() {
+  const konten: KontenUndangan = {
+    ...FALLBACK_KONTEN,
+    id: "",
+    sekolah_id: "",
+    event_id: "",
+    created_at: null,
+    updated_at: null,
+  };
 
-  let konten: KontenUndangan;
-  let sekolahNama = "SDIT Al-Hikmah";
-
-  if (sekolahId) {
-    const adminSupabase = createAdminClient();
-
-    const { data: events } = await adminSupabase
-      .from("events")
-      .select("id")
-      .eq("sekolah_id", sekolahId)
-      .order("is_active", { ascending: false })
-      .limit(1);
-
-    const eventId = events?.[0]?.id;
-    const kontenQuery = adminSupabase.from("konten_undangan").select("*");
-    if (eventId) {
-      kontenQuery.eq("event_id", eventId);
-    } else {
-      kontenQuery.eq("sekolah_id", sekolahId);
-    }
-
-    const { data } = await kontenQuery.single();
-
-    if (data) {
-      konten = data;
-    } else {
-      konten = {
-        ...FALLBACK_KONTEN,
-        id: "",
-        sekolah_id: sekolahId,
-        event_id: eventId || "",
-        created_at: null,
-        updated_at: null,
-      };
-    }
-
-    const { data: sekolah } = await adminSupabase
-      .from("sekolah")
-      .select("nama")
-      .eq("id", sekolahId)
-      .single();
-    if (sekolah) sekolahNama = sekolah.nama;
-  } else {
-    konten = {
-      ...FALLBACK_KONTEN,
-      id: "",
-      sekolah_id: "",
-      event_id: "",
-      created_at: null,
-      updated_at: null,
-    };
-  }
+  const sekolahNama = "Undangan Digital";
 
   return (
     <div>
