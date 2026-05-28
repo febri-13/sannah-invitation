@@ -382,6 +382,210 @@ export default function KontenUndanganPage() {
         </AnimatePresence>
 
         <div className="glass-card p-6 space-y-6">
+          {/* Layout Settings */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              Layout & Tampilan
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+              <label className="flex items-center gap-3 p-3 glass rounded-xl cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={musicAutoPlay}
+                  onChange={(e) => setMusicAutoPlay(e.target.checked)}
+                  className="w-4 h-4 rounded"
+                  style={{ accentColor: "#C26A4A" }}
+                />
+                <div>
+                  <p className="text-sm font-medium text-gray-800">Auto-play Musik</p>
+                  <p className="text-xs text-gray-500">Musik langsung diputar saat halaman terbuka</p>
+                </div>
+              </label>
+            </div>
+
+            <div className="space-y-2">
+              {(() => {
+                const sectionKeys = Object.keys(layoutConfig.sections) as (keyof typeof layoutConfig.sections)[];
+                const sorted = [...sectionKeys].sort((a, b) => layoutConfig.sections[a].order - layoutConfig.sections[b].order);
+
+                const moveSection = (key: keyof typeof layoutConfig.sections, dir: -1 | 1) => {
+                  setLayoutConfig((prev) => {
+                    const current = prev.sections[key].order;
+                    const swapKey = sorted.find((k) => prev.sections[k].order === current + dir);
+                    if (!swapKey) return prev;
+                    const next = { ...prev, sections: { ...prev.sections } };
+                    next.sections = { ...next.sections };
+                    next.sections[key] = { ...next.sections[key], order: current + dir };
+                    next.sections[swapKey] = { ...next.sections[swapKey], order: current };
+                    return next;
+                  });
+                };
+
+                return sorted.map((key) => {
+                  const section = layoutConfig.sections[key];
+                  const labels: Record<string, string> = {
+                    hero: "Hero",
+                    greeting: "Sambutan",
+                    countdown: "Hitung Mundur",
+                    details: "Detail Acara",
+                    agenda: "Susunan Acara",
+                    qr: "QR Check-in",
+                    rsvp: "Konfirmasi Kehadiran",
+                    footer: "Footer",
+                  };
+                  const isFirst = section.order === 1;
+                  const isLast = section.order === sorted.length;
+
+                  return (
+                    <div key={key} className="glass p-3 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="flex flex-col gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => moveSection(key, -1)}
+                            disabled={isFirst}
+                            className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none"
+                          >
+                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7"/></svg>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveSection(key, 1)}
+                            disabled={isLast}
+                            className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none"
+                          >
+                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
+                          </button>
+                        </div>
+                        <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={section.visible}
+                            onChange={(e) => {
+                              setLayoutConfig((prev) => ({
+                                ...prev,
+                                sections: {
+                                  ...prev.sections,
+                                  [key]: { ...prev.sections[key], visible: e.target.checked },
+                                },
+                              }));
+                            }}
+                            className="w-4 h-4 rounded"
+                            style={{ accentColor: "#C26A4A" }}
+                          />
+                        </label>
+                        <span className="text-sm font-medium text-gray-700 w-28 shrink-0">{labels[key]}</span>
+                        <input
+                          value={section.label}
+                          onChange={(e) => {
+                            setLayoutConfig((prev) => ({
+                              ...prev,
+                              sections: {
+                                ...prev.sections,
+                                [key]: { ...prev.sections[key], label: e.target.value },
+                              },
+                            }));
+                          }}
+                          className="glass-input flex-1 px-3 py-1.5 text-xs outline-none rounded-lg"
+                          placeholder={`Label ${labels[key]}`}
+                        />
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Warna Utama (Primary)
+                </label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={layoutConfig.custom_css.primary_color || "#C26A4A"}
+                    onChange={(e) => {
+                      setLayoutConfig((prev) => ({
+                        ...prev,
+                        custom_css: { ...prev.custom_css, primary_color: e.target.value },
+                      }));
+                    }}
+                    className="w-10 h-10 rounded-lg cursor-pointer border border-gray-300"
+                  />
+                  <input
+                    value={layoutConfig.custom_css.primary_color}
+                    onChange={(e) => {
+                      setLayoutConfig((prev) => ({
+                        ...prev,
+                        custom_css: { ...prev.custom_css, primary_color: e.target.value },
+                      }));
+                    }}
+                    className="glass-input flex-1 px-3 py-2 text-xs outline-none rounded-lg"
+                    placeholder="#C26A4A"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLayoutConfig((prev) => ({
+                        ...prev,
+                        custom_css: { ...prev.custom_css, primary_color: "" },
+                      }));
+                    }}
+                    className="text-xs text-gray-400 hover:text-danger"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Warna Sekunder (Secondary)
+                </label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={layoutConfig.custom_css.secondary_color || "#8B4A2F"}
+                    onChange={(e) => {
+                      setLayoutConfig((prev) => ({
+                        ...prev,
+                        custom_css: { ...prev.custom_css, secondary_color: e.target.value },
+                      }));
+                    }}
+                    className="w-10 h-10 rounded-lg cursor-pointer border border-gray-300"
+                  />
+                  <input
+                    value={layoutConfig.custom_css.secondary_color}
+                    onChange={(e) => {
+                      setLayoutConfig((prev) => ({
+                        ...prev,
+                        custom_css: { ...prev.custom_css, secondary_color: e.target.value },
+                      }));
+                    }}
+                    className="glass-input flex-1 px-3 py-2 text-xs outline-none rounded-lg"
+                    placeholder="#8B4A2F"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLayoutConfig((prev) => ({
+                        ...prev,
+                        custom_css: { ...prev.custom_css, secondary_color: "" },
+                      }));
+                    }}
+                    className="text-xs text-gray-400 hover:text-danger"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Header Fields */}
           <div>
             <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
@@ -674,210 +878,6 @@ export default function KontenUndanganPage() {
               <p className="text-xs text-gray-400 mt-2">
                 Musik akan diputar otomatis di halaman undangan saat pengguna pertama kali tap.
               </p>
-            </div>
-          </div>
-
-          {/* Layout Settings */}
-          <div>
-            <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-              </svg>
-              Layout & Tampilan
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-              <label className="flex items-center gap-3 p-3 glass rounded-xl cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={musicAutoPlay}
-                  onChange={(e) => setMusicAutoPlay(e.target.checked)}
-                  className="w-4 h-4 rounded"
-                  style={{ accentColor: "#C26A4A" }}
-                />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">Auto-play Musik</p>
-                  <p className="text-xs text-gray-500">Musik langsung diputar saat halaman terbuka</p>
-                </div>
-              </label>
-            </div>
-
-            <div className="space-y-2">
-              {(() => {
-                const sectionKeys = Object.keys(layoutConfig.sections) as (keyof typeof layoutConfig.sections)[];
-                const sorted = [...sectionKeys].sort((a, b) => layoutConfig.sections[a].order - layoutConfig.sections[b].order);
-
-                const moveSection = (key: keyof typeof layoutConfig.sections, dir: -1 | 1) => {
-                  setLayoutConfig((prev) => {
-                    const current = prev.sections[key].order;
-                    const swapKey = sorted.find((k) => prev.sections[k].order === current + dir);
-                    if (!swapKey) return prev;
-                    const next = { ...prev, sections: { ...prev.sections } };
-                    next.sections = { ...next.sections };
-                    next.sections[key] = { ...next.sections[key], order: current + dir };
-                    next.sections[swapKey] = { ...next.sections[swapKey], order: current };
-                    return next;
-                  });
-                };
-
-                return sorted.map((key) => {
-                  const section = layoutConfig.sections[key];
-                  const labels: Record<string, string> = {
-                    hero: "Hero",
-                    greeting: "Sambutan",
-                    countdown: "Hitung Mundur",
-                    details: "Detail Acara",
-                    agenda: "Susunan Acara",
-                    qr: "QR Check-in",
-                    rsvp: "Konfirmasi Kehadiran",
-                    footer: "Footer",
-                  };
-                  const isFirst = section.order === 1;
-                  const isLast = section.order === sorted.length;
-
-                  return (
-                    <div key={key} className="glass p-3 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className="flex flex-col gap-0.5">
-                          <button
-                            type="button"
-                            onClick={() => moveSection(key, -1)}
-                            disabled={isFirst}
-                            className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none"
-                          >
-                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7"/></svg>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => moveSection(key, 1)}
-                            disabled={isLast}
-                            className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none"
-                          >
-                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
-                          </button>
-                        </div>
-                        <label className="flex items-center gap-2 cursor-pointer shrink-0">
-                          <input
-                            type="checkbox"
-                            checked={section.visible}
-                            onChange={(e) => {
-                              setLayoutConfig((prev) => ({
-                                ...prev,
-                                sections: {
-                                  ...prev.sections,
-                                  [key]: { ...prev.sections[key], visible: e.target.checked },
-                                },
-                              }));
-                            }}
-                            className="w-4 h-4 rounded"
-                            style={{ accentColor: "#C26A4A" }}
-                          />
-                        </label>
-                        <span className="text-sm font-medium text-gray-700 w-28 shrink-0">{labels[key]}</span>
-                        <input
-                          value={section.label}
-                          onChange={(e) => {
-                            setLayoutConfig((prev) => ({
-                              ...prev,
-                              sections: {
-                                ...prev.sections,
-                                [key]: { ...prev.sections[key], label: e.target.value },
-                              },
-                            }));
-                          }}
-                          className="glass-input flex-1 px-3 py-1.5 text-xs outline-none rounded-lg"
-                          placeholder={`Label ${labels[key]}`}
-                        />
-                      </div>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Warna Utama (Primary)
-                </label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={layoutConfig.custom_css.primary_color || "#C26A4A"}
-                    onChange={(e) => {
-                      setLayoutConfig((prev) => ({
-                        ...prev,
-                        custom_css: { ...prev.custom_css, primary_color: e.target.value },
-                      }));
-                    }}
-                    className="w-10 h-10 rounded-lg cursor-pointer border border-gray-300"
-                  />
-                  <input
-                    value={layoutConfig.custom_css.primary_color}
-                    onChange={(e) => {
-                      setLayoutConfig((prev) => ({
-                        ...prev,
-                        custom_css: { ...prev.custom_css, primary_color: e.target.value },
-                      }));
-                    }}
-                    className="glass-input flex-1 px-3 py-2 text-xs outline-none rounded-lg"
-                    placeholder="#C26A4A"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLayoutConfig((prev) => ({
-                        ...prev,
-                        custom_css: { ...prev.custom_css, primary_color: "" },
-                      }));
-                    }}
-                    className="text-xs text-gray-400 hover:text-danger"
-                  >
-                    Reset
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Warna Sekunder (Secondary)
-                </label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={layoutConfig.custom_css.secondary_color || "#8B4A2F"}
-                    onChange={(e) => {
-                      setLayoutConfig((prev) => ({
-                        ...prev,
-                        custom_css: { ...prev.custom_css, secondary_color: e.target.value },
-                      }));
-                    }}
-                    className="w-10 h-10 rounded-lg cursor-pointer border border-gray-300"
-                  />
-                  <input
-                    value={layoutConfig.custom_css.secondary_color}
-                    onChange={(e) => {
-                      setLayoutConfig((prev) => ({
-                        ...prev,
-                        custom_css: { ...prev.custom_css, secondary_color: e.target.value },
-                      }));
-                    }}
-                    className="glass-input flex-1 px-3 py-2 text-xs outline-none rounded-lg"
-                    placeholder="#8B4A2F"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLayoutConfig((prev) => ({
-                        ...prev,
-                        custom_css: { ...prev.custom_css, secondary_color: "" },
-                      }));
-                    }}
-                    className="text-xs text-gray-400 hover:text-danger"
-                  >
-                    Reset
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
 
