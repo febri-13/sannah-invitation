@@ -17,8 +17,9 @@ export async function POST(request: NextRequest) {
     const { token, kehadiran_ortu, kehadiran_anak, jumlah_ortu, pesan } = validation.data;
     const supabaseAdmin = createAdminClient();
 
-    const computedJumlahOrtu = (kehadiran_ortu === "Offline" || kehadiran_ortu === "Online")
-      ? (jumlah_ortu || 1) : 0;
+    const computedJumlahOrtu = kehadiran_ortu === "Offline"
+      ? (jumlah_ortu || 1)
+      : kehadiran_ortu === "Online" ? 1 : 0;
 
     const jumlah = computedJumlahOrtu + (kehadiran_anak === "Hadir" ? 1 : 0);
 

@@ -53,7 +53,8 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
   const [showNewForm, setShowNewForm] = useState(!legacyRsvp);
 
   const isOrtuHadir = kehadiranOrtu === "Offline" || kehadiranOrtu === "Online";
-  const totalHadir = (isOrtuHadir ? jumlahOrtu : 0) + (kehadiranAnak === "Hadir" ? 1 : 0);
+  const isOrtuOffline = kehadiranOrtu === "Offline";
+  const totalHadir = (kehadiranOrtu === "Offline" ? jumlahOrtu : isOrtuHadir ? 1 : 0) + (kehadiranAnak === "Hadir" ? 1 : 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +71,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
           token,
           kehadiran_ortu: kehadiranOrtu,
           kehadiran_anak: kehadiranAnak,
-          jumlah_ortu: isOrtuHadir ? jumlahOrtu : undefined,
+          jumlah_ortu: kehadiranOrtu === "Offline" ? jumlahOrtu : undefined,
           pesan: pesan || undefined,
         }),
       });
@@ -172,7 +173,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
             </p>
             <div className="flex gap-2">
               {(["Offline", "Online", "Tidak Hadir"] as const).map((opt) => (
-                <button key={opt} type="button" onClick={() => { setKehadiranOrtu(opt); if (opt === "Tidak Hadir") setJumlahOrtu(1); }} style={pillStyle(kehadiranOrtu === opt)}>
+                <button key={opt} type="button" onClick={() => { setKehadiranOrtu(opt); setJumlahOrtu(1); }} style={pillStyle(kehadiranOrtu === opt)}>
                   {opt === "Offline" && <MapPin size={16} style={{ color: kehadiranOrtu === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
                   {opt === "Online" && <Video size={16} style={{ color: kehadiranOrtu === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
                   {opt === "Tidak Hadir" && <X size={16} style={{ color: kehadiranOrtu === opt ? "var(--color-on-primary)" : "var(--color-text-muted)" }} />}
@@ -180,7 +181,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
                 </button>
               ))}
             </div>
-            {isOrtuHadir && (
+            {isOrtuOffline && (
               <div className="flex items-center justify-center gap-3 mt-3">
                 <button
                   type="button"
