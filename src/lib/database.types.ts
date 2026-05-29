@@ -365,6 +365,7 @@ export type Database = {
           event_id: string | null
           id: string
           jumlah: number
+          jumlah_ortu: number
           kehadiran: string
           kehadiran_anak: string | null
           kehadiran_ortu: string | null
@@ -377,6 +378,7 @@ export type Database = {
           event_id?: string | null
           id?: string
           jumlah?: number
+          jumlah_ortu?: number
           kehadiran: string
           kehadiran_anak?: string | null
           kehadiran_ortu?: string | null
@@ -389,6 +391,7 @@ export type Database = {
           event_id?: string | null
           id?: string
           jumlah?: number
+          jumlah_ortu?: number
           kehadiran?: string
           kehadiran_anak?: string | null
           kehadiran_ortu?: string | null

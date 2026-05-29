@@ -14,13 +14,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { token, kehadiran_ortu, kehadiran_anak, pesan } = validation.data;
+    const { token, kehadiran_ortu, kehadiran_anak, jumlah_ortu, pesan } = validation.data;
     const supabaseAdmin = createAdminClient();
 
-    // Compute total attending (1 for Offline/Online, 0 for Tidak Hadir)
-    const jumlah =
-      (kehadiran_ortu === "Offline" || kehadiran_ortu === "Online" ? 1 : 0) +
-      (kehadiran_anak === "Hadir" ? 1 : 0);
+    const computedJumlahOrtu = (kehadiran_ortu === "Offline" || kehadiran_ortu === "Online")
+      ? (jumlah_ortu || 1) : 0;
+
+    const jumlah = computedJumlahOrtu + (kehadiran_anak === "Hadir" ? 1 : 0);
 
     // Derive legacy kehadiran for backward compatibility
     const kehadiran = jumlah > 0 ? "Hadir" : "Tidak Hadir";
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
         .update({
           kehadiran_ortu,
           kehadiran_anak,
+          jumlah_ortu: computedJumlahOrtu,
           kehadiran,
           jumlah,
           pesan: pesan || null,
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
           sekolah_id: tamu.sekolah_id,
           kehadiran_ortu,
           kehadiran_anak,
+          jumlah_ortu: computedJumlahOrtu,
           kehadiran,
           jumlah,
           pesan: pesan || null,
@@ -87,6 +89,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         kehadiran_ortu,
         kehadiran_anak,
+        jumlah_ortu: computedJumlahOrtu,
         jumlah,
       },
     });

@@ -25,6 +25,7 @@ interface TamuRsvp {
   id: string;
   kehadiran: string;
   jumlah: number;
+  jumlah_ortu: number;
   kehadiran_ortu: string | null;
   kehadiran_anak: string | null;
   pesan: string | null;

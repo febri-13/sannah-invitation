@@ -1,0 +1,1 @@
+ALTER TABLE undangan.rsvp ADD COLUMN jumlah_ortu INTEGER NOT NULL DEFAULT 1;
