@@ -4,6 +4,13 @@ import { useState } from "react";
 import { Loader2, CheckCircle, AlertCircle, MapPin, Video, X, FileText, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface RsvpConfig {
+  max_jumlah_ortu: number;
+  show_offline: boolean;
+  show_online: boolean;
+  show_tidak_hadir: boolean;
+}
+
 interface RSVPFormProps {
   token: string;
   existingRsvp: {
@@ -19,6 +26,7 @@ interface RSVPFormProps {
     pesan: string | null;
     created_at: string | null;
   } | null;
+  rsvpConfig?: RsvpConfig;
 }
 
 const pillStyle = (active: boolean) => ({
@@ -38,7 +46,8 @@ const pillStyle = (active: boolean) => ({
   transition: "all 0.15s ease",
 });
 
-export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormProps) {
+export default function RSVPForm({ token, existingRsvp, legacyRsvp, rsvpConfig }: RSVPFormProps) {
+  const cfg = rsvpConfig || { max_jumlah_ortu: 2, show_offline: true, show_online: true, show_tidak_hadir: true };
   const [kehadiranOrtu, setKehadiranOrtu] = useState<"Offline" | "Online" | "Tidak Hadir" | "">(
     (existingRsvp?.kehadiran_ortu as "Offline" | "Online" | "Tidak Hadir" | null) || ""
   );
@@ -171,8 +180,12 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
             <p className="font-mono-label text-[9px] tracking-[0.22em] mb-2" style={{ color: "var(--color-secondary)" }}>
               ORANG TUA / PENDAMPING
             </p>
-            <div className="flex gap-2">
-              {(["Offline", "Online", "Tidak Hadir"] as const).map((opt) => (
+            <div className="flex gap-2 flex-wrap">
+              {([
+                ["Offline", cfg.show_offline],
+                ["Online", cfg.show_online],
+                ["Tidak Hadir", cfg.show_tidak_hadir],
+              ] as const).filter(([, show]) => show).map(([opt]) => (
                 <button key={opt} type="button" onClick={() => { setKehadiranOrtu(opt); setJumlahOrtu(1); }} style={pillStyle(kehadiranOrtu === opt)}>
                   {opt === "Offline" && <MapPin size={16} style={{ color: kehadiranOrtu === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
                   {opt === "Online" && <Video size={16} style={{ color: kehadiranOrtu === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
@@ -200,7 +213,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
                 <button
                   type="button"
                   onClick={() => setJumlahOrtu(Math.min(2, jumlahOrtu + 1))}
-                  disabled={jumlahOrtu >= 2}
+                  disabled={jumlahOrtu >= cfg.max_jumlah_ortu}
                   className="w-9 h-9 rounded-full flex items-center justify-center text-[16px] font-bold disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                   style={{
                     background: "rgba(122,102,85,0.12)",

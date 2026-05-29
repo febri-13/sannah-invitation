@@ -128,6 +128,12 @@ const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
     primary_color: "",
     secondary_color: "",
   },
+  rsvp_config: {
+    max_jumlah_ortu: 2,
+    show_offline: true,
+    show_online: true,
+    show_tidak_hadir: true,
+  },
 };
 
 function parseLayoutConfig(json: unknown): LayoutConfig {
@@ -149,6 +155,13 @@ function parseLayoutConfig(json: unknown): LayoutConfig {
   if (css && typeof css === "object") {
     if (typeof css.primary_color === "string") merged.custom_css.primary_color = css.primary_color;
     if (typeof css.secondary_color === "string") merged.custom_css.secondary_color = css.secondary_color;
+  }
+  const rsvpCfg = cfg.rsvp_config as Record<string, unknown> | undefined;
+  if (rsvpCfg && typeof rsvpCfg === "object" && merged.rsvp_config) {
+    if (typeof rsvpCfg.max_jumlah_ortu === "number") merged.rsvp_config.max_jumlah_ortu = rsvpCfg.max_jumlah_ortu;
+    if (typeof rsvpCfg.show_offline === "boolean") merged.rsvp_config.show_offline = rsvpCfg.show_offline;
+    if (typeof rsvpCfg.show_online === "boolean") merged.rsvp_config.show_online = rsvpCfg.show_online;
+    if (typeof rsvpCfg.show_tidak_hadir === "boolean") merged.rsvp_config.show_tidak_hadir = rsvpCfg.show_tidak_hadir;
   }
   return merged;
 }
@@ -478,11 +491,12 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
       case "rsvp":
         return (
           <motion.div key={key} variants={itemVariants}>
-            <RSVPForm
-              token={token}
-              existingRsvp={isLegacyRsvp ? null : latestRsvp}
-              legacyRsvp={isLegacyRsvp ? latestRsvp : null}
-            />
+      <RSVPForm
+        token={token}
+        existingRsvp={isLegacyRsvp ? null : latestRsvp}
+        legacyRsvp={isLegacyRsvp ? latestRsvp : null}
+        rsvpConfig={layoutConfig.rsvp_config}
+      />
           </motion.div>
         );
 

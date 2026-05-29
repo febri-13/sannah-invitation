@@ -665,6 +665,13 @@ export interface LayoutSectionConfig {
   label: string;
 }
 
+export interface RsvpConfig {
+  max_jumlah_ortu: number;
+  show_offline: boolean;
+  show_online: boolean;
+  show_tidak_hadir: boolean;
+}
+
 export interface LayoutConfig {
   sections: {
     hero: LayoutSectionConfig;
@@ -680,4 +687,5 @@ export interface LayoutConfig {
     primary_color: string;
     secondary_color: string;
   };
+  rsvp_config?: RsvpConfig;
 }
