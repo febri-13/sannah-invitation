@@ -20,18 +20,48 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const eventId = searchParams.get("event_id");
+    let eventId: string | null = searchParams.get("event_id");
 
     const adminSupabase = createAdminClient();
+
+    if (!eventId) {
+      const { data: defaultEvent } = await adminSupabase
+        .from("events")
+        .select("id")
+        .eq("sekolah_id", sekolahId)
+        .eq("is_active", true)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (defaultEvent?.id) {
+        eventId = defaultEvent.id;
+      } else {
+        const { data: anyEvent } = await adminSupabase
+          .from("events")
+          .select("id")
+          .eq("sekolah_id", sekolahId)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (anyEvent?.id) {
+          eventId = anyEvent.id;
+        }
+      }
+    }
+
+    if (!eventId) {
+      return NextResponse.json(
+        { error: "Tidak ada event aktif untuk sekolah ini" },
+        { status: 404 }
+      );
+    }
+
     const query = adminSupabase
       .from("konten_undangan")
-      .select("*");
-
-    if (eventId) {
-      query.eq("event_id", eventId);
-    } else {
-      query.eq("sekolah_id", sekolahId);
-    }
+      .select("*")
+      .eq("event_id", eventId);
 
     const { data, error } = await query.single();
 
@@ -138,12 +168,35 @@ export async function PUT(request: NextRequest) {
       updated_at: now,
     };
 
-    const lookupQuery = adminSupabase.from("konten_undangan").select("id");
-    if (event_id) {
-      lookupQuery.eq("event_id", event_id);
-    } else {
-      lookupQuery.eq("sekolah_id", sekolahId);
+    let resolvedEventId = event_id;
+    if (!resolvedEventId) {
+      const { data: defaultEvent } = await adminSupabase
+        .from("events")
+        .select("id")
+        .eq("sekolah_id", sekolahId)
+        .eq("is_active", true)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (defaultEvent?.id) {
+        resolvedEventId = defaultEvent.id;
+      } else {
+        const { data: anyEvent } = await adminSupabase
+          .from("events")
+          .select("id")
+          .eq("sekolah_id", sekolahId)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (anyEvent?.id) {
+          resolvedEventId = anyEvent.id;
+        }
+      }
     }
+
+    const lookupQuery = adminSupabase.from("konten_undangan").select("id").eq("event_id", resolvedEventId);
 
     const { data: existing } = await lookupQuery.maybeSingle();
 
@@ -159,19 +212,9 @@ export async function PUT(request: NextRequest) {
       if (error) throw error;
       result = data;
     } else {
-      let resolvedEventId = event_id;
-      if (!resolvedEventId) {
-        const { data: defaultEvent } = await adminSupabase
-          .from("events")
-          .select("id")
-          .eq("sekolah_id", sekolahId)
-          .eq("slug", "akhirusannah")
-          .single();
-        resolvedEventId = defaultEvent?.id || event_id;
-      }
       const { data, error } = await adminSupabase
         .from("konten_undangan")
-        .insert({ ...basePayload, sekolah_id: sekolahId, event_id: resolvedEventId! })
+        .insert({ ...basePayload, sekolah_id: sekolahId, event_id: resolvedEventId })
         .select()
         .single();
       if (error) throw error;

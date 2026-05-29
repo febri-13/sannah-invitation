@@ -15,9 +15,16 @@ import {
   Palette,
   Music,
   Settings,
+  HelpCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { THEMES } from "@/lib/themes";
+import dynamic from "next/dynamic";
+
+const KontenUndanganTour = dynamic(
+  () => import("@/components/KontenUndanganTour"),
+  { ssr: false }
+);
 
 interface AgendaItem {
   waktu: string;
@@ -381,7 +388,19 @@ export default function KontenUndanganPage() {
               Edit teks, tanggal, lokasi, dan susunan acara undangan
             </p>
           </div>
+          <div className="ml-auto">
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("start-tour"))}
+              className="glass px-3 py-2 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors rounded-xl"
+              title="Panduan penggunaan"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Panduan
+            </button>
+          </div>
         </div>
+
+        <KontenUndanganTour />
 
         <AnimatePresence>
           {error && (
@@ -409,7 +428,7 @@ export default function KontenUndanganPage() {
 
         <div className="glass-card p-6 space-y-6">
           {/* Template & Warna */}
-          <div>
+          <div data-driver="tour-template">
             <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
               <Palette className="w-4 h-4 inline mr-2" />
               Template & Warna
@@ -461,7 +480,7 @@ export default function KontenUndanganPage() {
           </div>
 
           {/* Music URL */}
-          <div>
+          <div data-driver="tour-music">
             <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
               <Music className="w-4 h-4 inline mr-2" />
               Musik Latar
@@ -536,7 +555,7 @@ export default function KontenUndanganPage() {
           </div>
 
           {/* Layout Settings */}
-          <div>
+          <div data-driver="tour-layout">
             <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
               <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -578,7 +597,7 @@ export default function KontenUndanganPage() {
                   const isLast = section.order === sorted.length;
 
                   return (
-                    <div key={key} className="glass p-3 rounded-xl">
+                    <div key={key} className="glass p-3 rounded-xl" data-driver={`tour-section-${key}`}>
                       <div className="flex items-center gap-3">
                         <div className="flex flex-col gap-0.5">
                           <button
@@ -951,7 +970,7 @@ export default function KontenUndanganPage() {
           </div>
 
           {/* Save Button */}
-          <div className="pt-4 border-t border-gray-200">
+          <div className="pt-4 border-t border-gray-200" data-driver="tour-save">
             <button
               onClick={handleSave}
               disabled={saving}

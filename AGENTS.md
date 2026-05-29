@@ -97,7 +97,11 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-29 (sesi 26) — Layout form reorganization**
+**Sesi: 2026-05-29 (sesi 27) — Fix konten undangan fallback event**
+
+- **Selesai:** GET handler sekarang auto-resolve event_id: jika tidak dikirim via query param, cari event aktif pertama sekolah → fallback ke event pertama. Sehingga tidak perlu cookie `active_event_id` untuk bisa ambil data konten.
+- **Selesai:** PUT handler juga di-sync dengan logic yang sama untuk lookup & insert konten undangan.
+- **Alasan:** Di komputer lain yang tidak punya cookie `active_event_id`, query fallback by `sekolah_id` bisa return 0 rows (data mismatch), menyebabkan error "Konten undangan belum dibuat".
 - **Selesai:** Semua editor section (Hero, Detail Acara, Susunan Acara, Konfirmasi Kehadiran, Footer) dipindah ke daftar Layout & Tampilan dengan icon gear untuk expand/collapse inline panel
 - **Selesai:** Section "Template & Warna" digabung jadi satu dan ditaruh di paling atas
 - **Selesai:** "Musik Latar" dipindah ke atas (setelah Template & Warna), auto-play checkbox digabung ke dalamnya
