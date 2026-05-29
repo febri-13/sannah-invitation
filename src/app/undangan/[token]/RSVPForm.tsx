@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, CheckCircle, AlertCircle, MapPin, Video, X, FileText } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, MapPin, Video, X, FileText, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface RSVPFormProps {
@@ -41,8 +41,8 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
   const [kehadiranOrtu, setKehadiranOrtu] = useState<"Offline" | "Online" | "Tidak Hadir" | "">(
     (existingRsvp?.kehadiran_ortu as "Offline" | "Online" | "Tidak Hadir" | null) || ""
   );
-  const [kehadiranAnak, setKehadiranAnak] = useState<"Offline" | "Online" | "Tidak Hadir" | "">(
-    (existingRsvp?.kehadiran_anak as "Offline" | "Online" | "Tidak Hadir" | null) || ""
+  const [kehadiranAnak, setKehadiranAnak] = useState<"Hadir" | "Tidak Hadir" | "">(
+    (existingRsvp?.kehadiran_anak as "Hadir" | "Tidak Hadir" | null) || ""
   );
   const [pesan, setPesan] = useState(existingRsvp?.pesan || "");
   const [loading, setLoading] = useState(false);
@@ -52,7 +52,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
 
   const totalHadir =
     (kehadiranOrtu === "Offline" || kehadiranOrtu === "Online" ? 1 : 0) +
-    (kehadiranAnak === "Offline" || kehadiranAnak === "Online" ? 1 : 0);
+    (kehadiranAnak === "Hadir" ? 1 : 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,7 +166,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <p className="font-mono-label text-[9px] tracking-[0.22em] mb-2" style={{ color: "var(--color-secondary)" }}>
-              ORANG TUA
+              ORANG TUA / PENDAMPING
             </p>
             <div className="flex gap-2">
               {(["Offline", "Online", "Tidak Hadir"] as const).map((opt) => (
@@ -178,6 +178,9 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
                 </button>
               ))}
             </div>
+            <p className="font-mono-label text-[8px] tracking-[0.18em] mt-2" style={{ color: "var(--color-text-muted)" }}>
+              <Users size={10} className="inline mr-1" />Maksimal 2 orang
+            </p>
           </div>
 
           <div>
@@ -185,10 +188,9 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp }: RSVPFormPr
               ANAK
             </p>
             <div className="flex gap-2">
-              {(["Offline", "Online", "Tidak Hadir"] as const).map((opt) => (
+              {(["Hadir", "Tidak Hadir"] as const).map((opt) => (
                 <button key={opt} type="button" onClick={() => setKehadiranAnak(opt)} style={pillStyle(kehadiranAnak === opt)}>
-                  {opt === "Offline" && <MapPin size={16} style={{ color: kehadiranAnak === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
-                  {opt === "Online" && <Video size={16} style={{ color: kehadiranAnak === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
+                  {opt === "Hadir" && <CheckCircle size={16} style={{ color: kehadiranAnak === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
                   {opt === "Tidak Hadir" && <X size={16} style={{ color: kehadiranAnak === opt ? "var(--color-on-primary)" : "var(--color-text-muted)" }} />}
                   <span className="font-mono-label text-[9px] tracking-[0.16em] font-semibold">{opt.toUpperCase()}</span>
                 </button>

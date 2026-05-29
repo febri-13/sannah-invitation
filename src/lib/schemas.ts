@@ -22,7 +22,7 @@ export const rsvpSchema = z.object({
 export const rsvpNewSchema = z.object({
   token: z.string(),
   kehadiran_ortu: z.enum(["Offline", "Online", "Tidak Hadir"]),
-  kehadiran_anak: z.enum(["Offline", "Online", "Tidak Hadir"]),
+  kehadiran_anak: z.enum(["Hadir", "Tidak Hadir"]),
   pesan: z.string().max(200).optional(),
 });
 

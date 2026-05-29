@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     // Compute total attending (1 for Offline/Online, 0 for Tidak Hadir)
     const jumlah =
       (kehadiran_ortu === "Offline" || kehadiran_ortu === "Online" ? 1 : 0) +
-      (kehadiran_anak === "Offline" || kehadiran_anak === "Online" ? 1 : 0);
+      (kehadiran_anak === "Hadir" ? 1 : 0);
 
     // Derive legacy kehadiran for backward compatibility
     const kehadiran = jumlah > 0 ? "Hadir" : "Tidak Hadir";
