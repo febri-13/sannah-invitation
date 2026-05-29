@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, type ReactNode } from "react";
+import { useState, useMemo, useEffect, useCallback, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Search, Trash2, Users, QrCode, Send, Pencil, Loader2 } from "lucide-react";
@@ -199,6 +199,37 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
 
   const [tamuVisible, setTamuVisible] = useState<Set<string>>(new Set(["status", "token", "nama_siswa", "kelas", "nama_ortu", "no_wa", "aksi"]));
   const [undanganVisible, setUndanganVisible] = useState<Set<string>>(new Set(["nama_siswa", "kelas", "jenis_kelamin", "rsvp", "checkin", "aksi"]));
+  const [visibilityLoaded, setVisibilityLoaded] = useState(false);
+
+  const saveColumnVisibility = useCallback((tamu: Set<string>, undangan: Set<string>) => {
+    fetch("/api/admin/admin-memories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        key: "tamu_column_visibility",
+        value: { tamu: Array.from(tamu), undangan: Array.from(undangan) },
+      }),
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/admin/admin-memories?key=tamu_column_visibility")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.memories?.[0]?.value) {
+          const v = data.memories[0].value as { tamu?: string[]; undangan?: string[] };
+          if (v.tamu) setTamuVisible(new Set(v.tamu));
+          if (v.undangan) setUndanganVisible(new Set(v.undangan));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setVisibilityLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    if (!visibilityLoaded) return;
+    saveColumnVisibility(tamuVisible, undanganVisible);
+  }, [tamuVisible, undanganVisible, visibilityLoaded, saveColumnVisibility]);
 
   useEffect(() => {
     if (initialTab && initialTab !== activeTab) {
