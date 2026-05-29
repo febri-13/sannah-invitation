@@ -91,18 +91,17 @@ src/
 | Column visibility toggle (pilih kolom tabel tamu) | ✅ |
 | Edit tamu (inline modal + PUT API) | ✅ |
 | Batch delete tamu (multi-select + konfirmasi) | ✅ |
-| Layout config (admin UI: visibility, urutan, label, warna; dynamic render) | ✅ |
+| Layout config (admin UI: visibility, urutan, label, warna; inline panel editor per section; dynamic render) | ✅ |
 
 ---
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-29 (sesi 25) — RSVP form redesign + jumlah_ortu**
-- **Selesai:** Opsi anak diubah dari Offline/Online/Tidak Hadir menjadi Hadir/Tidak Hadir
-- **Selesai:** Label orang tua diubah menjadi "Orang Tua/Pendamping" dengan keterangan maksimal 2 orang
-- **Selesai:** Migration tambah kolom `jumlah_ortu` (INTEGER, default 1) di tabel rsvp
-- **Selesai:** Stepper jumlah (1-2) untuk kehadiran Offline orang tua; Online auto 1 tanpa stepper
-- **Selesai:** Backend API + Zod schema update untuk proses jumlah_ortu
+**Sesi: 2026-05-29 (sesi 26) — Layout form reorganization**
+- **Selesai:** Semua editor section (Hero, Detail Acara, Susunan Acara, Konfirmasi Kehadiran, Footer) dipindah ke daftar Layout & Tampilan dengan icon gear untuk expand/collapse inline panel
+- **Selesai:** Section "Template & Warna" digabung jadi satu dan ditaruh di paling atas
+- **Selesai:** "Musik Latar" dipindah ke atas (setelah Template & Warna), auto-play checkbox digabung ke dalamnya
+- **Selesai:** Standalone form section (Header, Detail Acara, Agenda, Footer, Musik) dihapus — semua diakses via layout section list
 - **Belum selesai:** —
 
 ---
@@ -129,4 +128,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-29 (sesi 25)*
+*Terakhir diupdate: 2026-05-29 (sesi 26)*
