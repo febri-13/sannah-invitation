@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import TamuTable from "@/components/TamuTable";
 
 const icons = {
@@ -158,6 +159,15 @@ export default async function TamuPage() {
       }}>
       <div className="relative w-full p-5">
         <div className="mx-auto" style={{ maxWidth: 1200 }}>
+          <Link
+            href="/admin/dashboard"
+            className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-3"
+            style={{ color: "#8a7a6a", fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Kembali ke Dashboard
+          </Link>
+
           <div className="flex items-end gap-[18px] flex-wrap mb-4">
             <div className="flex-1 min-w-[280px]">
               <div className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "#C26A4A" }}>——— DATA TAMU</div>
