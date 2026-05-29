@@ -75,7 +75,7 @@ src/
 | Auth admin (email/password + proxy guard) | ✅ |
 | CRUD tamu (tambah manual + CSV upload + hapus) | ✅ |
 | Halaman undangan guest (glassmorphism, 3 tema) | ✅ |
-| RSVP dual-selection (ortu: Offline/Online/Tidak Hadir, anak: sama) | ✅ |
+| RSVP orang tua (Offline/Online/Tidak Hadir) + jumlah stepper, anak (Hadir/Tidak Hadir) | ✅ |
 | QR check-in scanner | ✅ |
 | Dashboard admin (statistik, donut charts, daftar tamu) | ✅ |
 | Template WhatsApp (editable, event-scoped) | ✅ |
@@ -97,9 +97,12 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-29 (sesi 24) — Back button + column visibility persist**
-- **Selesai:** Tombol "Kembali ke Dashboard" di halaman daftar tamu (admin/tamu)
-- **Selesai:** Column visibility chip state di-persist ke admin_memories, tidak reset saat refresh
+**Sesi: 2026-05-29 (sesi 25) — RSVP form redesign + jumlah_ortu**
+- **Selesai:** Opsi anak diubah dari Offline/Online/Tidak Hadir menjadi Hadir/Tidak Hadir
+- **Selesai:** Label orang tua diubah menjadi "Orang Tua/Pendamping" dengan keterangan maksimal 2 orang
+- **Selesai:** Migration tambah kolom `jumlah_ortu` (INTEGER, default 1) di tabel rsvp
+- **Selesai:** Stepper jumlah (1-2) untuk kehadiran Offline orang tua; Online auto 1 tanpa stepper
+- **Selesai:** Backend API + Zod schema update untuk proses jumlah_ortu
 - **Belum selesai:** —
 
 ---
@@ -126,4 +129,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-29 (sesi 24)*
+*Terakhir diupdate: 2026-05-29 (sesi 25)*
