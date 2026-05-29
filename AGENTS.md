@@ -97,11 +97,9 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-28 (sesi 23) — Layout config feature**
-- **Selesai:** Layout config — migration tambah kolom `layout_config` (JSONB) di `undangan.konten_undangan`
-- **Selesai:** Admin form Layout & Tampilan (visibility toggle, reorder, custom label, color picker primary/secondary, auto-play musik)
-- **Selesai:** InvitationClient render dinamis berdasarkan layout_config (urutan, visibility, label kustom, CSS vars override)
-- **Selesai:** API route PUT konten-undangan terima & simpan layout_config + music_auto_play
+**Sesi: 2026-05-29 (sesi 24) — Back button + column visibility persist**
+- **Selesai:** Tombol "Kembali ke Dashboard" di halaman daftar tamu (admin/tamu)
+- **Selesai:** Column visibility chip state di-persist ke admin_memories, tidak reset saat refresh
 - **Belum selesai:** —
 
 ---
@@ -128,4 +126,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-28 (sesi 23)*
+*Terakhir diupdate: 2026-05-29 (sesi 24)*
