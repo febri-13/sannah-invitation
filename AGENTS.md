@@ -92,16 +92,18 @@ src/
 | Edit tamu (inline modal + PUT API) | ✅ |
 | Batch delete tamu (multi-select + konfirmasi) | ✅ |
 | Layout config (admin UI: visibility, urutan, label, warna; inline panel editor per section; dynamic render) | ✅ |
+| Footer sub-item editor (5 item: header_arabic, footer_text, hormat_label, keluarga_label, sekolah_nama — urutan, visibilitas, teks editable) | ✅ |
 
 ---
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-31 (sesi 29) — Integrasi konten undangan ke template WA**
+**Sesi: 2026-05-31 (sesi 30) — Footer sub-item editor (full editable)**
 
-- **Selesai:** `POST /api/generate-wa` sekarang fetch `konten_undangan` (tanggal, waktu, lokasi_nama, lokasi_maps) per event tamu untuk mengisi placeholder `{tanggalAcara}`, `{waktuAcara}`, `{lokasiAcara}` secara otomatis (sebelumnya fallback ke string hardcoded)
-- **Selesai:** Tambah placeholder `{lokasiMaps}` — bisa dipakai di template WA, otomatis terisi dari `konten_undangan.lokasi_maps`
-- **Selesai:** Update halaman pengaturan WA — tombol placeholder + info + preview untuk `{lokasiMaps}`
+- **Selesai:** Tambah migration `footer_hormat_label` & `footer_keluarga_label` di tabel `konten_undangan`
+- **Selesai:** Tambah `FooterConfig` di `layout_config` JSON — 5 sub-item footer (header_arabic, footer_text, hormat_label, keluarga_label, sekolah_nama) bisa diatur urutan, visibilitas, dan teks
+- **Selesai:** Update admin Konten Undangan — footer editor jadi sub-item list dengan panah urutan, checkbox visibilitas, dan input teks per item
+- **Selesai:** Update `InvitationClient` — render footer sub-item dinamis dari `footer_config`
 - **Belum selesai:** —
 
 ---
@@ -129,4 +131,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-31 (sesi 29)*
+*Terakhir diupdate: 2026-05-31 (sesi 30)*
