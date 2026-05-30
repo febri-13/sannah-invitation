@@ -97,15 +97,13 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-29 (sesi 27) — Fix konten undangan fallback event**
+**Sesi: 2026-05-31 (sesi 28) — Debug CSV upload & fix data format**
 
-- **Selesai:** GET handler sekarang auto-resolve event_id: jika tidak dikirim via query param, cari event aktif pertama sekolah → fallback ke event pertama. Sehingga tidak perlu cookie `active_event_id` untuk bisa ambil data konten.
-- **Selesai:** PUT handler juga di-sync dengan logic yang sama untuk lookup & insert konten undangan.
-- **Alasan:** Di komputer lain yang tidak punya cookie `active_event_id`, query fallback by `sekolah_id` bisa return 0 rows (data mismatch), menyebabkan error "Konten undangan belum dibuat".
-- **Selesai:** Semua editor section (Hero, Detail Acara, Susunan Acara, Konfirmasi Kehadiran, Footer) dipindah ke daftar Layout & Tampilan dengan icon gear untuk expand/collapse inline panel
-- **Selesai:** Section "Template & Warna" digabung jadi satu dan ditaruh di paling atas
-- **Selesai:** "Musik Latar" dipindah ke atas (setelah Template & Warna), auto-play checkbox digabung ke dalamnya
-- **Selesai:** Standalone form section (Header, Detail Acara, Agenda, Footer, Musik) dihapus — semua diakses via layout section list
+- **Selesai:** Debug penyebab CSV tidak bisa diupload — 3 masalah ditemukan:
+  1. Delimiter koma (`,`) — harus titik koma (`;`) sesuai format standar
+  2. Gender `Laki-Laki` (kapital L kedua) — harus `Laki-laki` (huruf kecil) agar lolos DB CHECK constraint
+  3. Nama `Fatimah Az-Zahra Sutapa` mengandung karakter `-` yang tidak diizinkan Zod regex `/^[a-zA-Z\s.']+$/` di `src/lib/schemas.ts:4`
+- **Selesai:** Memperbaiki file `DataUndanganAkhirussannah.csv` (delimiter, case gender, hapus hyphen)
 - **Belum selesai:** —
 
 ---
@@ -129,7 +127,8 @@ src/
 - **Multi-language** — Belum ada i18n (saat ini hanya Bahasa Indonesia)
 - **WA Broadcast** — Belum ada fitur kirim WA massal
 - **Generate types** — `supabase gen:types --linked` gagal karena butuh `SUPABASE_DB_PASSWORD`, sementara env tidak tersedia. Update types harus manual
+- **Zod regex nama_siswa terlalu ketat** — `src/lib/schemas.ts:4` regex `/^[a-zA-Z\s.']+$/` tidak izinkan karakter `-` (hyphen), padahal beberapa nama Indonesia mengandung hyphen (contoh: Az-Zahra)
 
 ---
 
-*Terakhir diupdate: 2026-05-29 (sesi 26)*
+*Terakhir diupdate: 2026-05-31 (sesi 28)*
