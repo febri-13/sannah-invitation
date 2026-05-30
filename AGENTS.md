@@ -97,13 +97,11 @@ src/
 
 ## 🔄 Sesi Terakhir
 
-**Sesi: 2026-05-31 (sesi 28) — Debug CSV upload & fix data format**
+**Sesi: 2026-05-31 (sesi 29) — Integrasi konten undangan ke template WA**
 
-- **Selesai:** Debug penyebab CSV tidak bisa diupload — 3 masalah ditemukan:
-  1. Delimiter koma (`,`) — harus titik koma (`;`) sesuai format standar
-  2. Gender `Laki-Laki` (kapital L kedua) — harus `Laki-laki` (huruf kecil) agar lolos DB CHECK constraint
-  3. Nama `Fatimah Az-Zahra Sutapa` mengandung karakter `-` yang tidak diizinkan Zod regex `/^[a-zA-Z\s.']+$/` di `src/lib/schemas.ts:4`
-- **Selesai:** Memperbaiki file `DataUndanganAkhirussannah.csv` (delimiter, case gender, hapus hyphen)
+- **Selesai:** `POST /api/generate-wa` sekarang fetch `konten_undangan` (tanggal, waktu, lokasi_nama, lokasi_maps) per event tamu untuk mengisi placeholder `{tanggalAcara}`, `{waktuAcara}`, `{lokasiAcara}` secara otomatis (sebelumnya fallback ke string hardcoded)
+- **Selesai:** Tambah placeholder `{lokasiMaps}` — bisa dipakai di template WA, otomatis terisi dari `konten_undangan.lokasi_maps`
+- **Selesai:** Update halaman pengaturan WA — tombol placeholder + info + preview untuk `{lokasiMaps}`
 - **Belum selesai:** —
 
 ---
@@ -131,4 +129,4 @@ src/
 
 ---
 
-*Terakhir diupdate: 2026-05-31 (sesi 28)*
+*Terakhir diupdate: 2026-05-31 (sesi 29)*
