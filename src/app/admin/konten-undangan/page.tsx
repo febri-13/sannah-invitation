@@ -63,6 +63,31 @@ interface LayoutConfig {
   rsvp_config?: RsvpConfig;
 }
 
+interface FooterItemConfig {
+  visible: boolean;
+  order: number;
+}
+
+interface FooterConfig {
+  items: {
+    header_arabic: FooterItemConfig;
+    footer_text: FooterItemConfig;
+    hormat_label: FooterItemConfig;
+    keluarga_label: FooterItemConfig;
+    sekolah_nama: FooterItemConfig;
+  };
+}
+
+const DEFAULT_FOOTER_CONFIG: FooterConfig = {
+  items: {
+    header_arabic: { visible: true, order: 1 },
+    footer_text:   { visible: true, order: 2 },
+    hormat_label:  { visible: true, order: 3 },
+    keluarga_label:{ visible: true, order: 4 },
+    sekolah_nama:  { visible: true, order: 5 },
+  },
+};
+
 const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   sections: {
     hero:     { visible: true, order: 1, label: "" },
@@ -181,6 +206,9 @@ export default function KontenUndanganPage() {
   const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>(DEFAULT_LAYOUT_CONFIG);
   const [rsvpConfig, setRsvpConfig] = useState<RsvpConfig>(DEFAULT_LAYOUT_CONFIG.rsvp_config!);
   const [rsvpConfigOpen, setRsvpConfigOpen] = useState(false);
+  const [footerHormatLabel, setFooterHormatLabel] = useState("");
+  const [footerKeluargaLabel, setFooterKeluargaLabel] = useState("");
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>(DEFAULT_FOOTER_CONFIG);
   const [agendaOpen, setAgendaOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [headerOpen, setHeaderOpen] = useState(false);
@@ -216,6 +244,8 @@ export default function KontenUndanganPage() {
         );
         setHeaderArabic(result.header_arabic || "");
         setFooter(result.footer || "");
+        setFooterHormatLabel(result.footer_hormat_label || "");
+        setFooterKeluargaLabel(result.footer_keluarga_label || "");
         setTemplateSlug(result.template_slug || "glass-premium");
         setLogoUrl(result.logo_url || "");
         setMusicUrl(result.music_url || "");
@@ -224,6 +254,26 @@ export default function KontenUndanganPage() {
           const merged = mergeLayoutConfig(result.layout_config);
           setLayoutConfig(merged);
           if (merged.rsvp_config) setRsvpConfig(merged.rsvp_config);
+          const lc = result.layout_config as Record<string, unknown>;
+          if (lc.footer_config && typeof lc.footer_config === "object") {
+            const fc = lc.footer_config as Record<string, unknown>;
+            if (fc.items && typeof fc.items === "object") {
+              const items = fc.items as Record<string, unknown>;
+              const mergedItems = { ...DEFAULT_FOOTER_CONFIG.items };
+              for (const key of Object.keys(mergedItems) as (keyof typeof mergedItems)[]) {
+                const item = items[key] as Record<string, unknown> | undefined;
+                if (item) {
+                  if (typeof item.visible === "boolean") mergedItems[key].visible = item.visible;
+                  if (typeof item.order === "number") mergedItems[key].order = item.order;
+                }
+              }
+              setFooterConfig({ items: mergedItems });
+            } else {
+              setFooterConfig(DEFAULT_FOOTER_CONFIG);
+            }
+          } else {
+            setFooterConfig(DEFAULT_FOOTER_CONFIG);
+          }
         } else {
           setLayoutConfig(DEFAULT_LAYOUT_CONFIG);
         }
@@ -313,11 +363,13 @@ export default function KontenUndanganPage() {
           agenda,
           header_arabic: headerArabic,
           footer,
+          footer_hormat_label: footerHormatLabel,
+          footer_keluarga_label: footerKeluargaLabel,
           template_slug: templateSlug,
           logo_url: logoUrl,
           music_url: musicUrl,
           music_auto_play: musicAutoPlay,
-          layout_config: { ...layoutConfig, rsvp_config: rsvpConfig },
+          layout_config: { ...layoutConfig, rsvp_config: rsvpConfig, footer_config: footerConfig },
           event_id: eventId,
         }),
       });
@@ -939,27 +991,90 @@ export default function KontenUndanganPage() {
                         </div>
                       )}
                       {key === "footer" && footerOpen && (
-                        <div className="mt-3 pt-3 border-t border-gray-200 space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Teks Header Arab</label>
-                              <input
-                                value={headerArabic}
-                                onChange={(e) => setHeaderArabic(e.target.value)}
-                                className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary font-noto-arabic"
-                                placeholder="© 2025"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Footer</label>
-                              <input
-                                value={footer}
-                                onChange={(e) => setFooter(e.target.value)}
-                                className="glass-input w-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
-                                placeholder="Akhirusannah. Semua hak dilindungi."
-                              />
-                            </div>
-                          </div>
+                        <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                          {(() => {
+                            const keys = Object.keys(footerConfig.items) as (keyof typeof footerConfig.items)[];
+                            const sorted = [...keys].sort((a, b) => footerConfig.items[a].order - footerConfig.items[b].order);
+                            const labels: Record<string, string> = {
+                              header_arabic: "Header Arab",
+                              footer_text: "Teks Footer",
+                              hormat_label: "Label Hormat",
+                              keluarga_label: "Label Keluarga",
+                              sekolah_nama: "Nama Sekolah",
+                            };
+                            const placeholders: Record<string, string> = {
+                              header_arabic: "© 2025",
+                              footer_text: "Akhirusannah. Semua hak dilindungi.",
+                              hormat_label: "HORMAT KAMI,",
+                              keluarga_label: "Keluarga Besar",
+                              sekolah_nama: "(Nama Sekolah - otomatis)",
+                            };
+                            const moveItem = (k: keyof typeof footerConfig.items, dir: -1 | 1) => {
+                              setFooterConfig((prev) => {
+                                const current = prev.items[k].order;
+                                const swap = sorted.find((s) => prev.items[s].order === current + dir);
+                                if (!swap) return prev;
+                                const next = { ...prev, items: { ...prev.items } };
+                                next.items[k] = { ...next.items[k], order: current + dir };
+                                next.items[swap] = { ...next.items[swap], order: current };
+                                return next;
+                              });
+                            };
+                            const toggleItem = (k: keyof typeof footerConfig.items, visible: boolean) => {
+                              setFooterConfig((prev) => ({
+                                ...prev,
+                                items: { ...prev.items, [k]: { ...prev.items[k], visible } },
+                              }));
+                            };
+                            return sorted.map((k) => {
+                              const item = footerConfig.items[k];
+                              const isFirst = item.order === 1;
+                              const isLast = item.order === sorted.length;
+                              return (
+                                <div key={k} className="glass p-2.5 rounded-xl">
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex flex-col gap-0.5">
+                                      <button type="button" onClick={() => moveItem(k, -1)} disabled={isFirst}
+                                        className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none">
+                                        <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7"/></svg>
+                                      </button>
+                                      <button type="button" onClick={() => moveItem(k, 1)} disabled={isLast}
+                                        className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed leading-none">
+                                        <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
+                                      </button>
+                                    </div>
+                                    <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                                      <input type="checkbox" checked={item.visible}
+                                        onChange={(e) => toggleItem(k, e.target.checked)}
+                                        className="w-3.5 h-3.5 rounded" style={{ accentColor: "#C26A4A" }} />
+                                    </label>
+                                    <span className="text-xs font-medium text-gray-700 w-20 shrink-0">{labels[k]}</span>
+                                    {k === "sekolah_nama" ? (
+                                      <span className="text-xs text-gray-400 italic px-3 py-1.5">(Nama Sekolah — otomatis)</span>
+                                    ) : (
+                                      <input
+                                        value={
+                                          k === "header_arabic" ? headerArabic :
+                                          k === "footer_text" ? footer :
+                                          k === "hormat_label" ? footerHormatLabel :
+                                          footerKeluargaLabel
+                                        }
+                                        onChange={(e) => {
+                                          const val = e.target.value;
+                                          if (k === "header_arabic") setHeaderArabic(val);
+                                          else if (k === "footer_text") setFooter(val);
+                                          else if (k === "hormat_label") setFooterHormatLabel(val);
+                                          else setFooterKeluargaLabel(val);
+                                        }}
+                                        className="glass-input flex-1 px-2.5 py-1.5 text-xs outline-none rounded-lg"
+                                        placeholder={placeholders[k]}
+                                      />
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            });
+                          })()}
                         </div>
                       )}
                     </div>

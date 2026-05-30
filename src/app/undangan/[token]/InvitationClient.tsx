@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import RSVPForm from "./RSVPForm";
 import MusicPlayer from "./MusicPlayer";
-import type { Tables, LayoutConfig } from "@/lib/database.types";
+import type { Tables, LayoutConfig, FooterConfig } from "@/lib/database.types";
 
 interface AgendaItem {
   waktu: string;
@@ -113,6 +113,16 @@ function BgOrbs() {
   );
 }
 
+const DEFAULT_FOOTER_CONFIG: FooterConfig = {
+  items: {
+    header_arabic: { visible: true, order: 1 },
+    footer_text:   { visible: true, order: 2 },
+    hormat_label:  { visible: true, order: 3 },
+    keluarga_label:{ visible: true, order: 4 },
+    sekolah_nama:  { visible: true, order: 5 },
+  },
+};
+
 const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   sections: {
     hero:     { visible: true, order: 1, label: "" },
@@ -166,6 +176,22 @@ function parseLayoutConfig(json: unknown): LayoutConfig {
   return merged;
 }
 
+function parseFooterConfig(json: unknown): FooterConfig {
+  if (!json || typeof json !== "object") return DEFAULT_FOOTER_CONFIG;
+  const cfg = json as Record<string, unknown>;
+  const items = cfg.items as Record<string, unknown> | undefined;
+  if (!items || typeof items !== "object") return DEFAULT_FOOTER_CONFIG;
+  const merged: FooterConfig = JSON.parse(JSON.stringify(DEFAULT_FOOTER_CONFIG));
+  for (const key of Object.keys(merged.items) as (keyof typeof merged.items)[]) {
+    const item = items[key] as Record<string, unknown> | undefined;
+    if (item && typeof item === "object") {
+      if (typeof item.visible === "boolean") merged.items[key].visible = item.visible;
+      if (typeof item.order === "number") merged.items[key].order = item.order;
+    }
+  }
+  return merged;
+}
+
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
   visible: {
@@ -193,6 +219,7 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
   const agenda = (konten.agenda as unknown as AgendaItem[]) || [];
 
   const layoutConfig = parseLayoutConfig(konten.layout_config);
+  const footerConfig = parseFooterConfig(layoutConfig.footer_config ?? null);
   const sortedSectionKeys = (Object.keys(layoutConfig.sections) as (keyof typeof layoutConfig.sections)[])
     .sort((a, b) => layoutConfig.sections[a].order - layoutConfig.sections[b].order)
     .filter((k) => layoutConfig.sections[k].visible);
@@ -501,24 +528,42 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
         );
 
       case "footer":
+        const footerItemKeys = (Object.keys(footerConfig.items) as (keyof typeof footerConfig.items)[])
+          .sort((a, b) => footerConfig.items[a].order - footerConfig.items[b].order)
+          .filter((k) => footerConfig.items[k].visible);
         return (
           <motion.div key={key} className="px-[22px] py-[10px_22px_30px]" variants={itemVariants}>
-            <div className="glass-card p-[26px_22px] text-center">
-              <p className="font-arabic text-[22px]" style={{ color: "var(--color-primary)", marginBottom: 6 }}>
-                {konten.header_arabic}
-              </p>
-              <p className="font-serif-display text-[14px] italic" style={{ color: "var(--color-text)", marginBottom: 18 }}>
-                {konten.footer}
-              </p>
-              <p className="font-mono-label text-[9px] tracking-[0.28em]" style={{ color: "var(--color-secondary)", marginBottom: 4 }}>
-                HORMAT KAMI,
-              </p>
-              <p className="font-serif-display text-[18px] italic" style={{ color: "var(--color-text)" }}>
-                Keluarga Besar
-              </p>
-              <p className="font-serif-display text-[22px] font-semibold" style={{ color: "var(--color-primary)" }}>
-                {sekolahNama}
-              </p>
+            <div className="glass-card p-[26px_22px] text-center space-y-3">
+              {footerItemKeys.map((fk) => {
+                const content = (() => {
+                  switch (fk) {
+                    case "header_arabic": return konten.header_arabic;
+                    case "footer_text": return konten.footer;
+                    case "hormat_label": return konten.footer_hormat_label || "HORMAT KAMI,";
+                    case "keluarga_label": return konten.footer_keluarga_label || "Keluarga Besar";
+                    case "sekolah_nama": return sekolahNama;
+                  }
+                })();
+                const classNames: Record<string, string> = {
+                  header_arabic: "font-arabic text-[22px]",
+                  footer_text: "font-serif-display text-[14px] italic",
+                  hormat_label: "font-mono-label text-[9px] tracking-[0.28em]",
+                  keluarga_label: "font-serif-display text-[18px] italic",
+                  sekolah_nama: "font-serif-display text-[22px] font-semibold",
+                };
+                const colorStyles: Record<string, React.CSSProperties> = {
+                  header_arabic: { color: "var(--color-primary)" },
+                  footer_text: { color: "var(--color-text)" },
+                  hormat_label: { color: "var(--color-secondary)" },
+                  keluarga_label: { color: "var(--color-text)" },
+                  sekolah_nama: { color: "var(--color-primary)" },
+                };
+                return (
+                  <p key={fk} className={classNames[fk]} style={colorStyles[fk]}>
+                    {content}
+                  </p>
+                );
+              })}
             </div>
           </motion.div>
         );

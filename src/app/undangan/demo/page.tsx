@@ -22,6 +22,8 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "event_id" | "
   ],
   header_arabic: "© 2025",
   footer: "Akhirusannah. Semua hak dilindungi.",
+  footer_hormat_label: "HORMAT KAMI,",
+  footer_keluarga_label: "Keluarga Besar",
   template_slug: "glass-premium",
   music_url: "",
   music_auto_play: false,

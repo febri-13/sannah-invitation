@@ -228,6 +228,8 @@ export type Database = {
           created_at: string | null
           event_id: string
           footer: string
+          footer_hormat_label: string
+          footer_keluarga_label: string
           header_arabic: string
           hero_desc: string
           id: string
@@ -252,6 +254,8 @@ export type Database = {
           created_at?: string | null
           event_id: string
           footer?: string
+          footer_hormat_label?: string
+          footer_keluarga_label?: string
           header_arabic?: string
           hero_desc?: string
           id?: string
@@ -276,6 +280,8 @@ export type Database = {
           created_at?: string | null
           event_id?: string
           footer?: string
+          footer_hormat_label?: string
+          footer_keluarga_label?: string
           header_arabic?: string
           hero_desc?: string
           id?: string
@@ -672,6 +678,21 @@ export interface RsvpConfig {
   show_tidak_hadir: boolean;
 }
 
+export interface FooterItemConfig {
+  visible: boolean;
+  order: number;
+}
+
+export interface FooterConfig {
+  items: {
+    header_arabic: FooterItemConfig;
+    footer_text: FooterItemConfig;
+    hormat_label: FooterItemConfig;
+    keluarga_label: FooterItemConfig;
+    sekolah_nama: FooterItemConfig;
+  };
+}
+
 export interface LayoutConfig {
   sections: {
     hero: LayoutSectionConfig;
@@ -688,4 +709,5 @@ export interface LayoutConfig {
     secondary_color: string;
   };
   rsvp_config?: RsvpConfig;
+  footer_config?: FooterConfig;
 }
