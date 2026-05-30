@@ -32,6 +32,7 @@ export default function PengaturanPage() {
     tanggalAcara: "Sabtu, 21 Juni 2025",
     waktuAcara: "08.00 - 12.00 WIB",
     lokasiAcara: "MTsN 1 Kota",
+    lokasiMaps: "https://maps.google.com/?q=MTsN+1+Kota",
     link: "https://sannah-inv.vercel.app/undangan/ABC123",
   };
 
@@ -183,6 +184,7 @@ export default function PengaturanPage() {
                 "{tanggalAcara}",
                 "{waktuAcara}",
                 "{lokasiAcara}",
+                "{lokasiMaps}",
               ].map((ph) => (
                 <button
                   key={ph}
@@ -264,6 +266,10 @@ export default function PengaturanPage() {
               <li>
                 <code className="glass px-2 py-0.5 rounded text-primary">{'{lokasiAcara}'}</code> — Lokasi acara</li>
               </ul>
+          <ul className="text-sm text-gray-600 space-y-1">
+              <li>
+                <code className="glass px-2 py-0.5 rounded text-primary">{'{lokasiMaps}'}</code> — Link Google Maps</li>
+              </ul>
           </div>
 
         {/* Preview Modal */}
@@ -304,13 +310,14 @@ export default function PengaturanPage() {
                     <div className="flex-1">
                       <p className="font-semibold text-gray-800 text-sm">Admin Akhirusannah</p>
                       <div className="mt-1 whitespace-pre-wrap text-gray-700 text-sm leading-relaxed">
-                        {value
-                          .replace(/{namaOrtu}/g, previewData.namaOrtu)
-                          .replace(/{namaSiswa}/g, previewData.namaSiswa)
-                          .replace(/{link}/g, previewData.link)
-                          .replace(/{tanggalAcara}/g, previewData.tanggalAcara)
-                          .replace(/{waktuAcara}/g, previewData.waktuAcara)
-                          .replace(/{lokasiAcara}/g, previewData.lokasiAcara)}
+                         {value
+                           .replace(/{namaOrtu}/g, previewData.namaOrtu)
+                           .replace(/{namaSiswa}/g, previewData.namaSiswa)
+                           .replace(/{link}/g, previewData.link)
+                           .replace(/{tanggalAcara}/g, previewData.tanggalAcara)
+                           .replace(/{waktuAcara}/g, previewData.waktuAcara)
+                           .replace(/{lokasiAcara}/g, previewData.lokasiAcara)
+                           .replace(/{lokasiMaps}/g, previewData.lokasiMaps)}
                       </div>
                     </div>
                   </div>

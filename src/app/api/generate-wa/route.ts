@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
     const body = await request.json();
-    const { namaOrtu, token, namaSiswa, tanggalAcara, waktuAcara, lokasiAcara, phoneNumber } = body;
+    const { namaOrtu, token, namaSiswa, tanggalAcara, waktuAcara, lokasiAcara, lokasiMaps, phoneNumber } = body;
 
     if (!namaOrtu || !token) {
       return NextResponse.json(
@@ -60,13 +60,35 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
     const link = `${baseUrl}/undangan/${token}`;
 
+    // Fetch konten_undangan for event details if not provided in body
+    let resolvedTanggal = tanggalAcara;
+    let resolvedWaktu = waktuAcara;
+    let resolvedLokasi = lokasiAcara;
+    let resolvedLokasiMaps = lokasiMaps;
+
+    if (!resolvedTanggal || !resolvedWaktu || !resolvedLokasi || !resolvedLokasiMaps) {
+      const { data: konten } = await supabaseAdmin
+        .from("konten_undangan")
+        .select("tanggal, waktu, lokasi_nama, lokasi_maps")
+        .eq("event_id", templateEventId || "00000000-0000-0000-0000-000000000000")
+        .maybeSingle();
+
+      if (konten) {
+        resolvedTanggal = resolvedTanggal || konten.tanggal;
+        resolvedWaktu = resolvedWaktu || konten.waktu;
+        resolvedLokasi = resolvedLokasi || konten.lokasi_nama;
+        resolvedLokasiMaps = resolvedLokasiMaps || konten.lokasi_maps;
+      }
+    }
+
     const message = template
       .replace(/{namaOrtu}/g, namaOrtu)
       .replace(/{namaSiswa}/g, namaSiswa || "")
       .replace(/{link}/g, link)
-      .replace(/{tanggalAcara}/g, tanggalAcara || "Sabtu, 21 Juni 2025")
-      .replace(/{waktuAcara}/g, waktuAcara || "08.00 - 12.00 WIB")
-      .replace(/{lokasiAcara}/g, lokasiAcara || "MTsN 1 Kota");
+      .replace(/{tanggalAcara}/g, resolvedTanggal || "Sabtu, 21 Juni 2025")
+      .replace(/{waktuAcara}/g, resolvedWaktu || "08.00 - 12.00 WIB")
+      .replace(/{lokasiAcara}/g, resolvedLokasi || "MTsN 1 Kota")
+      .replace(/{lokasiMaps}/g, resolvedLokasiMaps || "");
 
     const cleanPhone = phoneNumber?.replace(/[^0-9]/g, "");
     const internationalPhone = cleanPhone?.startsWith("0") ? `62${cleanPhone.slice(1)}` : cleanPhone;
