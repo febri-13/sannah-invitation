@@ -20,26 +20,29 @@ async function getStats(eventId?: string, sekolahId?: string) {
       supabase.from("tamu").select("*", { count: "exact", head: true })
     );
 
-    const { data: rsvps } = await tamuFilter(
-      supabase.from("rsvp").select("kehadiran")
-    );
+    // Dapatkan semua tamu_id untuk filter RSVP + checkin (hindari filter event_id langsung di rsvp)
+    let tamuIds: string[] = [];
+    if (eventId || sekolahId) {
+      let tamuIdQuery = supabase.from("tamu").select("id");
+      if (eventId) tamuIdQuery = tamuIdQuery.eq("event_id", eventId);
+      else if (sekolahId) tamuIdQuery = tamuIdQuery.eq("sekolah_id", sekolahId);
+      const { data: ids } = await tamuIdQuery;
+      tamuIds = ids?.map((t: { id: string }) => t.id) || [];
+    }
+
+    // RSVP — filter by tamu_id (rsvp tidak punya event_id)
+    let rsvpQuery = supabase.from("rsvp").select("kehadiran");
+    if (tamuIds.length > 0) rsvpQuery = rsvpQuery.in("tamu_id", tamuIds);
+    const { data: rsvps } = await rsvpQuery;
     const hadir = rsvps?.filter((r: { kehadiran: string }) => r.kehadiran === "Hadir").length || 0;
     const tidakHadir = rsvps?.filter((r: { kehadiran: string }) => r.kehadiran === "Tidak Hadir").length || 0;
 
+    // Checkin
     const checkinQuery = supabase.from("checkin").select("*", { count: "exact", head: true });
-    if (eventId || sekolahId) {
-      let tamuIdQuery = supabase.from("tamu").select("id");
-      if (eventId) {
-        tamuIdQuery = tamuIdQuery.eq("event_id", eventId);
-      } else if (sekolahId) {
-        tamuIdQuery = tamuIdQuery.eq("sekolah_id", sekolahId);
-      }
-      const { data: tamuIds } = await tamuIdQuery;
-      const ids = tamuIds?.map((t: { id: string }) => t.id) || [];
-      if (ids.length === 0) {
-        return { totalTamu: totalTamu || 0, hadir, tidakHadir, totalCheckin: 0 };
-      }
-      checkinQuery.in("tamu_id", ids);
+    if (tamuIds.length > 0) {
+      checkinQuery.in("tamu_id", tamuIds);
+    } else if (eventId || sekolahId) {
+      return { totalTamu: totalTamu || 0, hadir, tidakHadir, totalCheckin: 0 };
     }
     const { count: totalCheckin } = await checkinQuery;
 
@@ -86,12 +89,18 @@ async function getAttendanceStats(eventId?: string, sekolahId?: string) {
     }
     const { count: totalTamu } = await tamuQuery;
 
-    const rsvpQuery = supabase.from("rsvp").select("kehadiran_ortu, kehadiran_anak");
-    if (eventId) {
-      rsvpQuery.eq("event_id", eventId);
-    } else if (sekolahId) {
-      rsvpQuery.eq("sekolah_id", sekolahId);
+    // Dapatkan tamu_id untuk filter RSVP (hindari filter event_id langsung)
+    let tamuIds: string[] = [];
+    if (eventId || sekolahId) {
+      let tamuIdQuery = supabase.from("tamu").select("id");
+      if (eventId) tamuIdQuery = tamuIdQuery.eq("event_id", eventId);
+      else if (sekolahId) tamuIdQuery = tamuIdQuery.eq("sekolah_id", sekolahId);
+      const { data: ids } = await tamuIdQuery;
+      tamuIds = ids?.map((t: { id: string }) => t.id) || [];
     }
+
+    let rsvpQuery = supabase.from("rsvp").select("kehadiran_ortu, kehadiran_anak");
+    if (tamuIds.length > 0) rsvpQuery = rsvpQuery.in("tamu_id", tamuIds);
     const { data: rsvps } = await rsvpQuery;
 
     let offline = 0, online = 0, tidakHadir = 0;
