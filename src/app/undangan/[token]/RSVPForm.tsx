@@ -47,7 +47,12 @@ const pillStyle = (active: boolean) => ({
 });
 
 export default function RSVPForm({ token, existingRsvp, legacyRsvp, rsvpConfig }: RSVPFormProps) {
-  const cfg = rsvpConfig || { max_jumlah_ortu: 2, show_offline: true, show_online: true, show_tidak_hadir: true };
+  const cfg = {
+    max_jumlah_ortu: rsvpConfig?.max_jumlah_ortu ?? 2,
+    show_offline: rsvpConfig?.show_offline ?? true,
+    show_online: rsvpConfig?.show_online ?? true,
+    show_tidak_hadir: rsvpConfig?.show_tidak_hadir ?? true,
+  };
   const [kehadiranOrtu, setKehadiranOrtu] = useState<"Offline" | "Online" | "Tidak Hadir" | "">(
     (existingRsvp?.kehadiran_ortu as "Offline" | "Online" | "Tidak Hadir" | null) || ""
   );
@@ -212,7 +217,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp, rsvpConfig }
                 </span>
                 <button
                   type="button"
-                  onClick={() => setJumlahOrtu(Math.min(2, jumlahOrtu + 1))}
+                  onClick={() => setJumlahOrtu(Math.min(cfg.max_jumlah_ortu, jumlahOrtu + 1))}
                   disabled={jumlahOrtu >= cfg.max_jumlah_ortu}
                   className="w-9 h-9 rounded-full flex items-center justify-center text-[16px] font-bold disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                   style={{
@@ -227,7 +232,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp, rsvpConfig }
               </div>
             )}
             <p className="font-mono-label text-[8px] tracking-[0.18em] mt-2 text-center" style={{ color: "var(--color-text-muted)" }}>
-              <Users size={10} className="inline mr-1" />Maksimal 2 orang
+              <Users size={10} className="inline mr-1" />Maksimal {cfg.max_jumlah_ortu} orang
             </p>
           </div>
 

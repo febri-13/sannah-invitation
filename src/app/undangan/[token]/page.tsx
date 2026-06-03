@@ -32,54 +32,72 @@ const FALLBACK_KONTEN: Omit<KontenUndangan, "id" | "sekolah_id" | "event_id" | "
   layout_config: null,
 };
 
+/** Buat objek KontenUndangan fallback dengan sekolah_id yang sesuai */
+function makeFallback(sekolah_id: string): KontenUndangan {
+  return {
+    ...FALLBACK_KONTEN,
+    id: "",
+    sekolah_id,
+    event_id: "",
+    created_at: null,
+    updated_at: null,
+  };
+}
+
 export default async function UndanganPage({
   params,
 }: {
   params: Promise<{ token: string }>;
 }) {
-  try {
-    const { token } = await params;
+  const { token } = await params;
+  const supabase = createAdminClient();
 
-    const supabase = createAdminClient();
-    const { data: tamu, error } = await supabase
-      .from("tamu")
-      .select("*, rsvp(*), checkin(*)")
-      .eq("token", token)
+  // 1. Lookup tamu — hanya ini yang trigger 404
+  const { data: tamu, error: tamuError } = await supabase
+    .from("tamu")
+    .select("*, rsvp(*), checkin(*)")
+    .eq("token", token)
+    .single();
+
+  if (tamuError || !tamu) {
+    notFound();
+  }
+
+  // 2. Load konten dengan fallback: event → sekolah → hardcoded
+  let konten: KontenUndangan | null = null;
+
+  // 2a. Coba event-level
+  if (tamu.event_id) {
+    const { data } = await supabase
+      .from("konten_undangan")
+      .select("*")
+      .eq("event_id", tamu.event_id)
       .single();
+    konten = data;
+  }
 
-    if (error || !tamu) {
-      notFound();
-    }
+  // 2b. Fallback ke sekolah-level (default konten tanpa event)
+  if (!konten && tamu.sekolah_id) {
+    const { data } = await supabase
+      .from("konten_undangan")
+      .select("*")
+      .eq("sekolah_id", tamu.sekolah_id)
+      .is("event_id", null)
+      .single();
+    konten = data;
+  }
 
-    let konten: KontenUndangan;
-    let sekolahNama = "SDIT Al-Hikmah";
-    let sekolahLogo = "";
+  // 2c. Fallback terakhir: hardcoded
+  if (!konten) {
+    konten = makeFallback(tamu.sekolah_id || "");
+  }
 
-    const kontenQuery = supabase.from("konten_undangan").select("*");
-    if (tamu.event_id) {
-      kontenQuery.eq("event_id", tamu.event_id);
-    } else if (tamu.sekolah_id) {
-      kontenQuery.eq("sekolah_id", tamu.sekolah_id);
-    }
+  // 3. Load data sekolah (graceful — error tidak bikin 404)
+  let sekolahNama = "SDIT Al-Hikmah";
+  let sekolahLogo = "";
 
-    const { data: kontenData } = await kontenQuery.single();
-
-    if (kontenData) {
-      konten = kontenData;
-    } else {
-      konten = {
-        ...FALLBACK_KONTEN,
-        id: "",
-        sekolah_id: tamu.sekolah_id || "",
-        event_id: "",
-        created_at: null,
-        updated_at: null,
-      };
-    }
-
-    let musicUrl = "";
-    let musicAutoPlay = false;
-    if (tamu.sekolah_id) {
+  if (tamu.sekolah_id) {
+    try {
       const { data: sekolah } = await supabase
         .from("sekolah")
         .select("nama, logo_url")
@@ -89,18 +107,24 @@ export default async function UndanganPage({
         sekolahNama = sekolah.nama;
         sekolahLogo = sekolah.logo_url || "";
       }
+    } catch (err) {
+      console.error("Gagal memuat data sekolah:", err);
     }
-
-    if (kontenData?.music_url) {
-      musicUrl = kontenData.music_url;
-      musicAutoPlay = kontenData.music_auto_play ?? false;
-    }
-
-    return (
-      <InvitationClient tamu={tamu} token={token} konten={konten} sekolahNama={sekolahNama} sekolahLogo={sekolahLogo} musicUrl={musicUrl} musicAutoPlay={musicAutoPlay} />
-    );
-  } catch (error) {
-    console.error("Gagal memuat undangan:", error);
-    notFound();
   }
+
+  // 4. Music dari konten terpilih
+  const musicUrl = konten.music_url || "";
+  const musicAutoPlay = konten.music_auto_play ?? false;
+
+  return (
+    <InvitationClient
+      tamu={tamu}
+      token={token}
+      konten={konten}
+      sekolahNama={sekolahNama}
+      sekolahLogo={sekolahLogo}
+      musicUrl={musicUrl}
+      musicAutoPlay={musicAutoPlay}
+    />
+  );
 }

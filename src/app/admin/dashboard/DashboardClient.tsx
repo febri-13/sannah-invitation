@@ -717,6 +717,13 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
   const akanHadirPct = totalTamu > 0 ? Math.round((akanHadir / totalTamu) * 100) : 0;
   const activeEventSlug = eventsList?.find(e => e.id === activeEventId)?.slug;
 
+  // Sync active event cookie on mount so other pages (konten, tamu, etc.) auto-detect
+  useEffect(() => {
+    if (activeEventId) {
+      setActiveEvent(activeEventId);
+    }
+  }, [activeEventId]);
+
   return (
     <div className="min-h-screen flex relative overflow-hidden"
       style={{
