@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth check — only logged-in admins can generate WA links
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -12,65 +11,59 @@ export async function POST(request: NextRequest) {
     }
 
     const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
+    if (!sekolahId) {
+      return NextResponse.json({ error: "Admin account is not linked to a sekolah" }, { status: 400 });
+    }
+
     const body = await request.json();
     const { namaOrtu, token, namaSiswa, tanggalAcara, waktuAcara, lokasiAcara, lokasiMaps, phoneNumber } = body;
 
     if (!namaOrtu || !token) {
-      return NextResponse.json(
-        { error: "Missing required fields: namaOrtu, token" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required fields: namaOrtu, token" }, { status: 400 });
     }
 
     const supabaseAdmin = createAdminClient();
 
-    // Fetch template from pengaturan, scoped to this admin's sekolah + event
-    let templateEventId: string | undefined;
+    // Look up tamu to get event_id
+    const { data: tamu } = await supabaseAdmin
+      .from("tamu")
+      .select("event_id")
+      .eq("token", token)
+      .maybeSingle();
 
-    // If the tamu has an event_id, use it; otherwise fall back to body.event_id
-    if (token) {
-      const { data: tamu } = await supabaseAdmin
-        .from("tamu")
-        .select("event_id")
-        .eq("token", token)
-        .maybeSingle();
-      templateEventId = tamu?.event_id || body.event_id;
-    } else {
-      templateEventId = body.event_id;
-    }
+    const templateEventId = tamu?.event_id || body.event_id;
 
+    // Fetch template — scoped to this admin's sekolah
     let settingQuery = supabaseAdmin
       .from("pengaturan")
       .select("value")
       .eq("key", "wa_template_invitation")
-      .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000");
+      .eq("sekolah_id", sekolahId);
 
     if (templateEventId) {
       settingQuery = settingQuery.eq("event_id", templateEventId);
-    } else if (sekolahId) {
+    } else {
       settingQuery = settingQuery.is("event_id", null);
     }
 
-    const { data: setting, error } = await settingQuery.limit(1).maybeSingle();
-
-    if (error) throw error;
+    const { data: setting } = await settingQuery.limit(1).maybeSingle();
 
     const template = setting?.value || `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu {namaOrtu},\n\nDengan hormat, kami mengundang Anda untuk menghadiri acara perpisahan sekolah Akhirusannah untuk Ananda {namaSiswa}.\n\n📅 Tanggal: {tanggalAcara}\n🕐 Waktu: {waktuAcara}\n📍 Lokasi: {lokasiAcara}\n\nSilakan klik link berikut untuk melihat undangan lengkap:\n{link}\n\nKami tunggu kehadiran Anda.\n\nWassalamu'alaikum Wr. Wb.`;
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
     const link = `${baseUrl}/undangan/${token}`;
 
-    // Fetch konten_undangan for event details if not provided in body
+    // Fetch konten_undangan for event details if not provided
     let resolvedTanggal = tanggalAcara;
     let resolvedWaktu = waktuAcara;
     let resolvedLokasi = lokasiAcara;
     let resolvedLokasiMaps = lokasiMaps;
 
-    if (!resolvedTanggal || !resolvedWaktu || !resolvedLokasi || !resolvedLokasiMaps) {
+    if (templateEventId && (!resolvedTanggal || !resolvedWaktu || !resolvedLokasi || !resolvedLokasiMaps)) {
       const { data: konten } = await supabaseAdmin
         .from("konten_undangan")
         .select("tanggal, waktu, lokasi_nama, lokasi_maps")
-        .eq("event_id", templateEventId || "00000000-0000-0000-0000-000000000000")
+        .eq("event_id", templateEventId)
         .maybeSingle();
 
       if (konten) {
@@ -99,10 +92,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: waLink });
   } catch (error) {
     console.error("Error generating WA link:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { error: "Failed to generate WhatsApp link", message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate WhatsApp link" }, { status: 500 });
   }
 }

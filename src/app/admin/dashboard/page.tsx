@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import type { KontenUndangan } from "@/lib/database.types";
 import DashboardClient from "./DashboardClient";
 
@@ -211,7 +212,10 @@ async function getTamu(eventId?: string, sekolahId?: string) {
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const sekolahId = user?.app_metadata?.sekolah_id as string | undefined;
+
+  if (!user) redirect("/admin/login");
+
+  const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
 
   let stats = defaultStats;
   let genderStats = defaultGenderStats;

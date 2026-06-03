@@ -20,13 +20,17 @@ export async function GET(request: NextRequest) {
     }
 
     const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
+    if (!sekolahId) {
+      return NextResponse.json({ error: "Admin account is not linked to a sekolah" }, { status: 400 });
+    }
+
     const adminSupabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const key = searchParams.get("key");
     let eventId = searchParams.get("event_id");
 
     // If no event_id provided, resolve to first event for this sekolah
-    if (!eventId && sekolahId) {
+    if (!eventId) {
       const { data: firstEvent } = await adminSupabase
         .from("events")
         .select("id")
@@ -34,23 +38,19 @@ export async function GET(request: NextRequest) {
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle();
-      if (firstEvent) {
-        eventId = firstEvent.id;
-      }
+      if (firstEvent) eventId = firstEvent.id;
     }
 
     if (key) {
       // Try with event_id first
       if (eventId) {
-        const { data, error } = await adminSupabase
+        const { data } = await adminSupabase
           .from("pengaturan")
           .select("*")
           .eq("key", key)
-          .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000")
+          .eq("sekolah_id", sekolahId)
           .eq("event_id", eventId)
           .maybeSingle();
-
-        if (error) throw error;
         if (data) return NextResponse.json(data);
 
         // Fallback: try global (null event_id)
@@ -58,83 +58,64 @@ export async function GET(request: NextRequest) {
           .from("pengaturan")
           .select("*")
           .eq("key", key)
-          .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000")
+          .eq("sekolah_id", sekolahId)
           .is("event_id", null)
           .maybeSingle();
-
         if (fallback) return NextResponse.json(fallback);
       }
 
       // Auto-create default setting if none exists
-      if (sekolahId) {
-        const { data: firstEvent } = await adminSupabase
-          .from("events")
-          .select("id")
-          .eq("sekolah_id", sekolahId)
-          .order("created_at", { ascending: true })
-          .limit(1)
-          .maybeSingle();
+      const { data: firstEvent } = await adminSupabase
+        .from("events")
+        .select("id")
+        .eq("sekolah_id", sekolahId)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
 
-        const resolvedEventId = eventId || firstEvent?.id;
-
-        if (!resolvedEventId) {
-          return NextResponse.json(
-            { error: "Buat event terlebih dahulu sebelum mengakses pengaturan" },
-            { status: 400 }
-          );
-        }
-
-        const defaults = DEFAULTS[key];
-        const { data: created, error: createError } = await adminSupabase
-          .from("pengaturan")
-          .insert({
-            key,
-            value: "Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu {namaOrtu},\n\nSilakan klik link berikut:\n{link}\n\nTerima kasih.",
-            label: defaults?.label || "Custom Setting",
-            description: defaults?.description || "",
-            sekolah_id: sekolahId,
-            event_id: resolvedEventId,
-            updated_at: new Date().toISOString(),
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        return NextResponse.json(created);
+      const resolvedEventId = eventId || firstEvent?.id;
+      if (!resolvedEventId) {
+        return NextResponse.json(
+          { error: "Buat event terlebih dahulu sebelum mengakses pengaturan" },
+          { status: 400 }
+        );
       }
 
-      return NextResponse.json(null);
+      const defaults = DEFAULTS[key];
+      const { data: created, error: createError } = await adminSupabase
+        .from("pengaturan")
+        .insert({
+          key,
+          value: "Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu {namaOrtu},\n\nSilakan klik link berikut:\n{link}\n\nTerima kasih.",
+          label: defaults?.label || "Custom Setting",
+          description: defaults?.description || "",
+          sekolah_id: sekolahId,
+          event_id: resolvedEventId,
+          updated_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+      return NextResponse.json(created);
     }
 
     // No specific key requested — return all settings for this event
     let allQuery = adminSupabase
       .from("pengaturan")
       .select("*")
-      .eq("sekolah_id", sekolahId || "00000000-0000-0000-0000-000000000000");
+      .eq("sekolah_id", sekolahId);
 
     if (eventId) {
       allQuery = allQuery.eq("event_id", eventId);
     }
 
     const { data, error: allError } = await allQuery;
-
     if (allError) throw allError;
-
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching settings:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    const detail =
-      error &&
-      typeof error === "object" &&
-      "code" in error &&
-      "message" in error
-        ? { code: (error as any).code, message: (error as any).message, hint: (error as any).hint }
-        : {};
-    return NextResponse.json(
-      { error: "Failed to fetch settings", message, ...detail },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
   }
 }
 
@@ -165,10 +146,7 @@ export async function PUT(request: NextRequest) {
     }
 
     if (!ALLOWED_KEYS.includes(key)) {
-      return NextResponse.json(
-        { error: "Invalid setting key" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid setting key" }, { status: 400 });
     }
 
     if (typeof value !== "string" || value.length > 5000) {
@@ -209,7 +187,6 @@ export async function PUT(request: NextRequest) {
       }
 
       const { data, error } = await updateQuery.select().single();
-
       if (error) throw error;
       return NextResponse.json(data);
     } else {
@@ -233,14 +210,6 @@ export async function PUT(request: NextRequest) {
     }
   } catch (error) {
     console.error("Error updating setting:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      {
-        error: "Failed to update setting",
-        message,
-        stack: process.env.NODE_ENV === "development" && error instanceof Error ? error.stack : undefined
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update setting" }, { status: 500 });
   }
 }

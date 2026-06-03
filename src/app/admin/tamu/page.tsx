@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import TamuTable from "@/components/TamuTable";
@@ -132,7 +133,10 @@ async function getRsvpStats(eventId?: string, sekolahId?: string) {
 export default async function TamuPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const sekolahId = user?.app_metadata?.sekolah_id as string | undefined;
+
+  if (!user) redirect("/admin/login");
+
+  const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
 
   let tamuList: unknown[] = [];
   let eventsList: { id: string; nama: string; slug: string; is_active: boolean | null }[] = [];

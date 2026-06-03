@@ -17,7 +17,7 @@ export default function TambahTamuPage() {
   const [error, setError] = useState("");
   
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" }>({ show: false, message: "", type: "success" });
-  const [lastCreated, setLastCreated] = useState<{ token: string; namaSiswa: string; noWaAyah: string; noWaIbu: string } | null>(null);
+  const [lastCreated, setLastCreated] = useState<{ token: string; namaSiswa: string; noWaAyah: string; noWaIbu: string; namaAyah: string; namaIbu: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const getActiveEvent = () => {
@@ -51,7 +51,7 @@ export default function TambahTamuPage() {
       const data = await res.json();
 
       if (res.ok) {
-        setLastCreated({ token: data.token, namaSiswa, noWaAyah: noWaAyah || "", noWaIbu: noWaIbu || "" });
+        setLastCreated({ token: data.token, namaSiswa, noWaAyah: noWaAyah || "", noWaIbu: noWaIbu || "", namaAyah, namaIbu });
         setToast({ show: true, message: "Tamu berhasil ditambahkan!", type: "success" });
         
         setNamaSiswa("");
@@ -258,7 +258,7 @@ export default function TambahTamuPage() {
               {lastCreated.noWaAyah && (
                 <button
                   onClick={async () => {
-                    const namaOrtu = namaAyah || lastCreated.namaSiswa;
+                    const namaOrtu = lastCreated.namaAyah || lastCreated.namaSiswa;
                     const cleanPhone = lastCreated.noWaAyah.replace(/[^0-9]/g, "").replace(/^0/, "62");
                     const body = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu ${namaOrtu},\n\nDengan hormat, kami mengundang Anda untuk menghadiri acara perpisahan sekolah Akhirusannah untuk Ananda ${lastCreated.namaSiswa}.\n\nSilakan klik link berikut untuk melihat undangan:\n${typeof window !== "undefined" ? window.location.origin : ""}/undangan/${lastCreated.token}\n\nKami tunggu kehadiran Anda.\nWassalamu'alaikum Wr. Wb.`;
                     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(body)}`, "_blank");
@@ -272,7 +272,7 @@ export default function TambahTamuPage() {
               {lastCreated.noWaIbu && (
                 <button
                   onClick={async () => {
-                    const namaOrtu = namaIbu || lastCreated.namaSiswa;
+                    const namaOrtu = lastCreated.namaIbu || lastCreated.namaSiswa;
                     const cleanPhone = lastCreated.noWaIbu.replace(/[^0-9]/g, "").replace(/^0/, "62");
                     const body = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu ${namaOrtu},\n\nDengan hormat, kami mengundang Anda untuk menghadiri acara perpisahan sekolah Akhirusannah untuk Ananda ${lastCreated.namaSiswa}.\n\nSilakan klik link berikut untuk melihat undangan:\n${typeof window !== "undefined" ? window.location.origin : ""}/undangan/${lastCreated.token}\n\nKami tunggu kehadiran Anda.\nWassalamu'alaikum Wr. Wb.`;
                     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(body)}`, "_blank");
