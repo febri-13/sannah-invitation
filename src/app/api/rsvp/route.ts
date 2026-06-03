@@ -14,7 +14,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { token, kehadiran_ortu, kehadiran_anak, jumlah_ortu, pesan } = validation.data;
+    const { token, kehadiran_ortu, kehadiran_anak: rawKehadiranAnak, jumlah_ortu, pesan } = validation.data;
+
+    // Backward compat: "Hadir" → "Offline" (legacy frontend cache)
+    const kehadiran_anak = rawKehadiranAnak === "Hadir" ? "Offline" as const : rawKehadiranAnak;
     const supabaseAdmin = createAdminClient();
 
     const computedJumlahOrtu = kehadiran_ortu === "Offline"
