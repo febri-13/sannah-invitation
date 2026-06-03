@@ -239,9 +239,9 @@ function Sidebar({ activeKey = "dashboard", sekolahNama = "Sekolah", eventsList,
 }
 
 /* ─── Top bar ─── */
-function TopBar({ totalTamu }: { totalTamu: number }) {
+function TopBar({ totalTamu, onMenuClick }: { totalTamu: number; onMenuClick?: () => void }) {
   return (
-    <div className="mx-5 mt-5 px-6 py-4 flex items-center gap-[18px]"
+    <div className="mx-2 sm:mx-5 mt-2 sm:mt-5 px-3 sm:px-6 py-2 sm:py-4 flex items-center gap-[10px] sm:gap-[18px]"
       style={{
         background: "rgba(255, 248, 235, 0.55)", backdropFilter: "blur(22px) saturate(1.1)",
         WebkitBackdropFilter: "blur(22px) saturate(1.1)",
@@ -249,6 +249,13 @@ function TopBar({ totalTamu }: { totalTamu: number }) {
         boxShadow: "0 10px 40px rgba(58, 36, 20, 0.10), inset 0 1px 0 rgba(255,255,255,0.6)",
       }}>
       <div className="flex-1">
+        {onMenuClick && (
+          <button onClick={onMenuClick} className="lg:hidden mr-3 p-1 -ml-1" style={{ color: "#8B4A2F" }}>
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" d="M3 6h18M3 12h18M3 18h18"/>
+            </svg>
+          </button>
+        )}
         <div className="font-mono-label text-[9px] tracking-[0.28em]" style={{ color: "#8B4A2F" }}>
           DASHBOARD / OVERVIEW
         </div>
@@ -671,7 +678,7 @@ function QuickActions() {
     { icon: icons.file, label: "KONTEN", caption: "Edit teks & detail undangan", href: "/admin/konten-undangan" },
   ];
   return (
-    <div className="grid grid-cols-5 gap-[14px]">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-[10px] sm:gap-[14px]">
       {items.map((a, i) => (
         <Link key={i} href={a.href}
           className="flex flex-col gap-[10px] p-[18px_20px] rounded-[24px] cursor-pointer"
@@ -716,6 +723,7 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, viewStats, genderStats, attendanceStats, tamuList, sekolahNama, konten, eventsList, activeEventId, initialTab }: DashboardClientProps) {
   const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const totalRsvp = hadir + tidakHadir;
   const rsvpPct = totalTamu > 0 ? Math.round((totalRsvp / totalTamu) * 100) : 0;
   const akanHadir = hadir;
@@ -738,14 +746,21 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
       }}>
       <BgOrbs />
       <div className="relative flex h-full w-full">
-        <Sidebar activeKey="dashboard" sekolahNama={sekolahNama} eventsList={eventsList} activeEventId={activeEventId} onCreateEvent={() => setShowCreateEvent(true)} />
+        {/* Mobile sidebar overlay */}
+        {sidebarOpen && (
+          <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setSidebarOpen(false)} />
+        )}
+        {/* Sidebar — hidden on mobile unless toggled */}
+        <div className={`${sidebarOpen ? "fixed left-0 top-0 z-50 h-full" : "hidden"} lg:relative lg:block`}>
+          <Sidebar activeKey="dashboard" sekolahNama={sekolahNama} eventsList={eventsList} activeEventId={activeEventId} onCreateEvent={() => { setShowCreateEvent(true); setSidebarOpen(false); }} />
+        </div>
         <div className="flex-1 min-w-0 flex flex-col overflow-auto">
-          <TopBar totalTamu={totalTamu} />
-          <div className="p-5 pt-4 flex flex-col gap-4">
+          <TopBar totalTamu={totalTamu} onMenuClick={() => setSidebarOpen(true)} />
+          <div className="p-2 sm:p-5 pt-1 sm:pt-4 flex flex-col gap-3 sm:gap-4">
             <EventBanner konten={konten} />
 
             {/* Stats row */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
               <StatCard label="TOTAL UNDANGAN" value={String(totalTamu)} delta={`+${totalTamu > 0 ? Math.round(totalTamu * 0.1) : 0}`} caption="Bertambah sejak minggu lalu." accent="#C26A4A" />
               <StatCard label="RSVP KONFIRMASI" value={String(totalRsvp)} delta={`${rsvpPct}%`} caption={`${rsvpPct}% sudah mengisi konfirmasi kehadiran.`} accent="#5C7058" />
               <StatCard label="AKAN HADIR" value={String(akanHadir)} delta={`+${akanHadir > 0 ? Math.round(akanHadir * 0.06) : 0}`} caption={`Termasuk online via livestream.`} accent="#C9A35E" />
@@ -753,14 +768,14 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
             </div>
 
             {/* View stats row */}
-            <div className="flex gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
               <StatCard label="TOTAL DILIHAT" value={String(viewStats.totalViews)} caption={`${viewStats.viewedCount} dari ${totalTamu} tamu pernah buka undangan.`} accent="#C9A35E" />
               <StatCard label="RATA-RATA" value={String(viewStats.avgViews)} caption={`Kali per tamu.`} accent="#5C7058" />
               <StatCard label="BELUM DILIHAT" value={String(totalTamu - viewStats.viewedCount)} caption="Belum pernah buka link undangan." accent="#7a6655" />
             </div>
 
             {/* Charts row */}
-            <div className="flex gap-4 items-stretch">
+            <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-stretch">
               <ChartCard
                 eyebrow="DEMOGRAFI"
                 title="Distribusi gender siswa."
