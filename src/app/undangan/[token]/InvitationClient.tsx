@@ -61,6 +61,7 @@ interface InvitationClientProps {
 
 function useCountdown(targetISO: string) {
   const calc = useCallback(() => {
+    if (!targetISO) return { d: 0, h: 0, m: 0, s: 0 };
     const diff = new Date(targetISO).getTime() - Date.now();
     if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
     return {

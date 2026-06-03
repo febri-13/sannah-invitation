@@ -761,9 +761,9 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
 
             {/* Stats row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-              <StatCard label="TOTAL UNDANGAN" value={String(totalTamu)} delta={`+${totalTamu > 0 ? Math.round(totalTamu * 0.1) : 0}`} caption="Bertambah sejak minggu lalu." accent="#C26A4A" />
-              <StatCard label="RSVP KONFIRMASI" value={String(totalRsvp)} delta={`${rsvpPct}%`} caption={`${rsvpPct}% sudah mengisi konfirmasi kehadiran.`} accent="#5C7058" />
-              <StatCard label="AKAN HADIR" value={String(akanHadir)} delta={`+${akanHadir > 0 ? Math.round(akanHadir * 0.06) : 0}`} caption={`Termasuk online via livestream.`} accent="#C9A35E" />
+              <StatCard label="TOTAL UNDANGAN" value={String(totalTamu)} caption={`${totalTamu} tamu terdaftar.`} accent="#C26A4A" />
+              <StatCard label="RSVP KONFIRMASI" value={String(totalRsvp)} caption={`${rsvpPct}% sudah mengisi konfirmasi kehadiran.`} accent="#5C7058" />
+              <StatCard label="AKAN HADIR" value={String(akanHadir)} caption={`Termasuk online via livestream.`} accent="#C9A35E" />
               <StatCard label="SUDAH CHECK-IN" value={String(totalCheckin)} caption={totalCheckin === 0 ? "Belum hari H — check-in dibuka 08:00 WIB." : "Sudah melakukan check-in."} accent="#7a6655" />
             </div>
 

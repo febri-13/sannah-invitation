@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 export function generateToken(): string {
-  return crypto.randomBytes(4).toString("hex");
+  return crypto.randomBytes(8).toString("hex");
 }
 
 export function formatDate(date: Date | string): string {

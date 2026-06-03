@@ -37,15 +37,22 @@ export default function MusicPlayer({ src, autoPlay = false }: MusicPlayerProps)
     };
   }, [autoPlay]);
 
+  // Throttled scroll handler: update visibility at most once per 150ms
   useEffect(() => {
+    let ticking = false;
     const onScroll = () => {
-      const sy = window.scrollY;
-      if (sy > lastScroll.current && sy > 200) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
-      lastScroll.current = sy;
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const sy = window.scrollY;
+        if (sy > lastScroll.current && sy > 200) {
+          setVisible(false);
+        } else {
+          setVisible(true);
+        }
+        lastScroll.current = sy;
+        ticking = false;
+      });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -113,7 +120,7 @@ export default function MusicPlayer({ src, autoPlay = false }: MusicPlayerProps)
               className="text-sm font-medium tracking-wide"
               style={{ color: playing ? "var(--color-primary, #C26A4A)" : "rgba(255,255,255,0.9)" }}
             >
-              {playing ? "PUTAR" : "PUTAR MUSIK"}
+              {playing ? "JEDA" : "PUTAR MUSIK"}
             </span>
 
             {playing && (
