@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback, type ReactNode } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Search, Trash2, Users, QrCode, Send, Pencil, Loader2 } from "lucide-react";
@@ -200,8 +200,11 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
   const [tamuVisible, setTamuVisible] = useState<Set<string>>(new Set(["status", "token", "nama_siswa", "kelas", "nama_ortu", "no_wa", "aksi"]));
   const [undanganVisible, setUndanganVisible] = useState<Set<string>>(new Set(["nama_siswa", "kelas", "jenis_kelamin", "rsvp", "checkin", "aksi"]));
   const [visibilityLoaded, setVisibilityLoaded] = useState(false);
+  const initialLoad = useRef(true);
 
   const saveColumnVisibility = useCallback((tamu: Set<string>, undangan: Set<string>) => {
+    // Skip save on initial load — only save when user explicitly changes
+    if (initialLoad.current) return;
     fetch("/api/admin/admin-memories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -229,6 +232,8 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
   useEffect(() => {
     if (!visibilityLoaded) return;
     saveColumnVisibility(tamuVisible, undanganVisible);
+    // After first save attempt, allow future saves
+    initialLoad.current = false;
   }, [tamuVisible, undanganVisible, visibilityLoaded, saveColumnVisibility]);
 
   useEffect(() => {
@@ -238,7 +243,7 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
   }, [initialTab]);
 
   useEffect(() => {
-    const interval = setInterval(() => router.refresh(), 15000);
+    const interval = setInterval(() => router.refresh(), 60000);
     return () => clearInterval(interval);
   }, [router]);
 

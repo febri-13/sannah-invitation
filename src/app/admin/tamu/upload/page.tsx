@@ -212,31 +212,38 @@ export default function UploadPage() {
 
     let successCount = 0;
     let failedCount = 0;
+    const total = parsedData.length;
 
-    for (const row of parsedData) {
-      try {
-        const res = await fetch("/api/tamu", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nama_siswa: row.nama_siswa,
-            jenis_kelamin: row.jenis_kelamin,
-            kelas: row.kelas || undefined,
-            nama_ayah: row.nama_ayah || undefined,
-            nama_ibu: row.nama_ibu || undefined,
-            no_wa_ayah: row.no_wa_ayah || undefined,
-            no_wa_ibu: row.no_wa_ibu || undefined,
-            event_id: eventId,
-          }),
-        });
+    // Upload in concurrent batches of 5
+    const CONCURRENCY = 5;
+    for (let i = 0; i < parsedData.length; i += CONCURRENCY) {
+      const batch = parsedData.slice(i, i + CONCURRENCY);
+      const results = await Promise.allSettled(
+        batch.map(async (row) => {
+          const res = await fetch("/api/tamu", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              nama_siswa: row.nama_siswa,
+              jenis_kelamin: row.jenis_kelamin,
+              kelas: row.kelas || undefined,
+              nama_ayah: row.nama_ayah || undefined,
+              nama_ibu: row.nama_ibu || undefined,
+              no_wa_ayah: row.no_wa_ayah || undefined,
+              no_wa_ibu: row.no_wa_ibu || undefined,
+              event_id: eventId,
+            }),
+          });
+          return res.ok;
+        })
+      );
 
-        if (res.ok) {
+      for (const r of results) {
+        if (r.status === "fulfilled" && r.value) {
           successCount++;
         } else {
           failedCount++;
         }
-      } catch {
-        failedCount++;
       }
     }
 
