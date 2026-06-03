@@ -27,13 +27,9 @@ export async function POST(request: NextRequest) {
 
     const ext = file.name.split(".").pop()?.toLowerCase() || "mp3";
     const allowedExts = ["mp3", "wav", "ogg", "aac", "flac", "m4a"];
-    const allowedMimes = [
-      "audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg",
-      "audio/aac", "audio/flac", "audio/x-m4a", "audio/m4a",
-    ];
-    if (!allowedExts.includes(ext) || !allowedMimes.includes(file.type)) {
+    if (!allowedExts.includes(ext)) {
       return NextResponse.json(
-        { error: "File must be MP3, WAV, OGG, AAC, FLAC, or M4A" },
+        { error: "File harus MP3, WAV, OGG, AAC, FLAC, atau M4A" },
         { status: 400 }
       );
     }
