@@ -79,19 +79,38 @@ function useCountdown(targetISO: string) {
   return c;
 }
 
-function parseDateToISO(dateStr: string): string {
+/** Parse date + time string into ISO datetime. Returns empty string if unparseable. */
+function parseDateTimeToISO(dateStr: string, waktuStr: string): string {
   const months: Record<string, string> = {
     januari:"01",februari:"02",maret:"03",april:"04",mei:"05",juni:"06",
     juli:"07",agustus:"08",september:"09",oktober:"10",november:"11",desember:"12",
   };
-  const parts = dateStr.toLowerCase().split(" ");
-  const day = parts.find(p => /^\d+$/.test(p));
-  const month = parts.find(p => months[p]);
-  if (day && month) {
-    const y = parts.find(p => /^\d{4}$/.test(p)) || "2025";
-    return `${y}-${months[month]!}-${day!.padStart(2,"0")}T08:00:00`;
+
+  // Try ISO / yyyy-mm-dd first
+  const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  let y: string, m: string, d: string;
+  if (isoMatch) {
+    [, y, m, d] = isoMatch;
+  } else {
+    // Indonesian: "Ahad, 21 Juni 2026" or "21 Juni 2026"
+    const parts = dateStr.toLowerCase().split(/[\s,]+/).filter(Boolean);
+    const dayPart = parts.find(p => /^\d{1,2}$/.test(p));
+    const monthPart = parts.find(p => months[p]);
+    if (!dayPart || !monthPart) return "";
+    d = dayPart.padStart(2, "0");
+    m = months[monthPart]!;
+    y = parts.find(p => /^\d{4}$/.test(p)) || String(new Date().getFullYear());
   }
-  return "";
+
+  // Parse start time from waktu: "Pukul 07.00 - 11.30 WIB" → 07:00
+  let hh = "08", mm = "00";
+  const timeMatch = waktuStr.match(/Pukul\s+(\d{1,2})[.:](\d{2})/i) || waktuStr.match(/(\d{1,2})[.:](\d{2})/);
+  if (timeMatch) {
+    hh = timeMatch[1]!.padStart(2, "0");
+    mm = timeMatch[2]!;
+  }
+
+  return `${y}-${m}-${d}T${hh}:${mm}:00`;
 }
 
 function BgOrbs() {
@@ -224,7 +243,8 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
     .sort((a, b) => layoutConfig.sections[a].order - layoutConfig.sections[b].order)
     .filter((k) => layoutConfig.sections[k].visible);
 
-  const targetISO = parseDateToISO(konten.tanggal);
+  const targetISO = parseDateTimeToISO(konten.tanggal, konten.waktu || "");
+  const hasPassed = targetISO ? new Date(targetISO).getTime() <= Date.now() : false;
   const c = useCountdown(targetISO);
   const countdownParts = [
     { v: c.d, l: "HARI" }, { v: c.h, l: "JAM" }, { v: c.m, l: "MENIT" }, { v: c.s, l: "DETIK" },
@@ -357,25 +377,38 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
         if (!targetISO) return null;
         return (
           <motion.div key={key} className="px-[22px] py-[10px]" variants={itemVariants}>
-            <div className="glass-card p-[24px_18px]">
-              <p className="font-mono-label text-[9px] tracking-[0.3em] text-center" style={{ color: "var(--color-secondary)", marginBottom: 4 }}>
+            <div className="glass-card p-[24px_18px] text-center">
+              <p className="font-mono-label text-[9px] tracking-[0.3em]" style={{ color: "var(--color-secondary)", marginBottom: 4 }}>
                 {sectionLabel("countdown") || "MENUJU HARI BAHAGIA"}
               </p>
-              <p className="font-serif-display text-[18px] italic text-center" style={{ color: "var(--color-text)", marginBottom: 16 }}>
-                Hitung mundur
-              </p>
-              <div className="grid grid-cols-4 gap-2">
-                {countdownParts.map((p, i) => (
-                  <div key={i} className="glass-chip text-center p-[12px_4px_10px]" style={{ background: "var(--color-glass-chip-bg)" }}>
-                    <p className="font-serif-display text-[28px] leading-[1] font-medium" style={{ color: "var(--color-primary)" }}>
-                      {String(p.v).padStart(2, "0")}
-                    </p>
-                    <p className="font-mono-label text-[8px] tracking-[0.2em]" style={{ color: "var(--color-secondary)", marginTop: 6 }}>
-                      {p.l}
-                    </p>
+              {hasPassed ? (
+                <>
+                  <p className="font-serif-display text-[20px] italic" style={{ color: "var(--color-text)", marginBottom: 8 }}>
+                    Alhamdulillah
+                  </p>
+                  <p className="font-mono-label text-[10px] tracking-[0.18em]" style={{ color: "var(--color-text-muted)" }}>
+                    Acara telah dimulai ✦
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-serif-display text-[18px] italic" style={{ color: "var(--color-text)", marginBottom: 16 }}>
+                    Hitung mundur
+                  </p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {countdownParts.map((p, i) => (
+                      <div key={i} className="glass-chip text-center p-[12px_4px_10px]" style={{ background: "var(--color-glass-chip-bg)" }}>
+                        <p className="font-serif-display text-[28px] leading-[1] font-medium" style={{ color: "var(--color-primary)" }}>
+                          {String(p.v).padStart(2, "0")}
+                        </p>
+                        <p className="font-mono-label text-[8px] tracking-[0.2em]" style={{ color: "var(--color-secondary)", marginTop: 6 }}>
+                          {p.l}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
           </motion.div>
         );
