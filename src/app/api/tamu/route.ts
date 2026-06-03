@@ -14,9 +14,24 @@ export async function GET(request: NextRequest) {
 
     const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
     const { searchParams } = new URL(request.url);
-    const eventId = searchParams.get("event_id");
+    let eventId: string | null = searchParams.get("event_id");
 
     const supabaseAdmin = createAdminClient();
+
+    // If event_id provided, verify it belongs to admin's sekolah
+    if (eventId && sekolahId) {
+      const { data: event } = await supabaseAdmin
+        .from("events")
+        .select("id")
+        .eq("id", eventId)
+        .eq("sekolah_id", sekolahId)
+        .maybeSingle();
+
+      if (!event) {
+        return NextResponse.json({ error: "Event not found or forbidden" }, { status: 403 });
+      }
+    }
+
     const query = supabaseAdmin
       .from("tamu")
       .select(`

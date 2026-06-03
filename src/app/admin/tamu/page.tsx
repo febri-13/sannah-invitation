@@ -93,10 +93,25 @@ async function getGenderStats(eventId?: string, sekolahId?: string) {
 async function getRsvpStats(eventId?: string, sekolahId?: string) {
   try {
     const supabase = createAdminClient();
-    const rsvpQuery = supabase.from("rsvp").select("kehadiran_ortu, kehadiran_anak");
-    if (eventId) rsvpQuery.eq("event_id", eventId);
-    else if (sekolahId) rsvpQuery.eq("sekolah_id", sekolahId);
-    const { data: rsvps } = await rsvpQuery;
+
+    // Get tamu IDs for the event/sekolah (rsvp doesn't have event_id)
+    let tamuIds: string[] = [];
+    if (eventId || sekolahId) {
+      let tamuIdQuery = supabase.from("tamu").select("id");
+      if (eventId) tamuIdQuery = tamuIdQuery.eq("event_id", eventId);
+      else if (sekolahId) tamuIdQuery = tamuIdQuery.eq("sekolah_id", sekolahId);
+      const { data: ids } = await tamuIdQuery;
+      tamuIds = ids?.map((t: { id: string }) => t.id) || [];
+    }
+
+    if (tamuIds.length === 0) {
+      return { total: 0, offline: 0, online: 0, tidakHadir: 0, belum: 0 };
+    }
+
+    const { data: rsvps } = await supabase
+      .from("rsvp")
+      .select("kehadiran_ortu, kehadiran_anak")
+      .in("tamu_id", tamuIds);
 
     let offline = 0, online = 0, tidakHadir = 0;
     for (const r of rsvps || []) {

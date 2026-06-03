@@ -339,10 +339,10 @@ export default function InvitationClient({ tamu, token, konten, sekolahNama = "S
                   <div className="text-left">
                     <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)" }}>WAKTU</p>
                     <p className="font-serif-display text-[22px] leading-[1.1] font-medium italic" style={{ color: "var(--color-text)" }}>
-                      {konten.waktu.split(" ")[1] || konten.waktu.split(" ")[0] || "08.00"}
+                      {konten.waktu?.split(" ")[1] || konten.waktu?.split(" ")[0] || "08.00"}
                     </p>
                     <p className="font-mono-label text-[9px] tracking-[0.22em]" style={{ color: "var(--color-secondary)" }}>
-                      {konten.waktu.includes("WIB") ? "WIB — SELESAI" : konten.waktu}
+                      {konten.waktu?.includes("WIB") ? "WIB — SELESAI" : konten.waktu}
                     </p>
                   </div>
                 </div>

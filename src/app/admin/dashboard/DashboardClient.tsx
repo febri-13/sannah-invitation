@@ -7,6 +7,7 @@ import DonutChart from "./DonutChart";
 import TamuTable from "@/components/TamuTable";
 import type { KontenUndangan } from "@/lib/database.types";
 import { setActiveEvent } from "@/lib/event-cookie";
+import { createClient } from "@/lib/supabase/client";
 
 /* ─── Inline SVG icons ─── */
 const icons = {
@@ -217,8 +218,13 @@ function Sidebar({ activeKey = "dashboard", sekolahNama = "Sekolah", eventsList,
       </div>
 
       <div className="px-[18px] pt-4 pb-[26px]" style={{ borderTop: "1px solid rgba(245,238,224,0.12)" }}>
-        <form action="/admin/login" method="post">
-          <button style={{
+        <button
+          onClick={async () => {
+            const supabase = createClient();
+            await supabase.auth.signOut();
+            window.location.href = "/admin/login";
+          }}
+          style={{
             width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             padding: 10, background: "rgba(245,238,224,0.06)", border: "1px solid rgba(245,238,224,0.18)",
             borderRadius: 12, color: "rgba(245,238,224,0.85)", cursor: "pointer",
@@ -227,7 +233,6 @@ function Sidebar({ activeKey = "dashboard", sekolahNama = "Sekolah", eventsList,
           }}>
             {icons.out} LOG OUT
           </button>
-        </form>
       </div>
     </aside>
   );

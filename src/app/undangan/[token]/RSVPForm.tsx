@@ -60,7 +60,7 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp, rsvpConfig }
     (existingRsvp?.kehadiran_anak as "Offline" | "Online" | "Tidak Hadir" | null) || ""
   );
   const [pesan, setPesan] = useState(existingRsvp?.pesan || "");
-  const [jumlahOrtu, setJumlahOrtu] = useState(existingRsvp?.jumlah_ortu || 1);
+  const [jumlahOrtu, setJumlahOrtu] = useState(existingRsvp?.jumlah_ortu ?? 1);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");

@@ -32,7 +32,20 @@ export async function GET(request: NextRequest) {
 
     const adminSupabase = createAdminClient();
 
-    const { data: total, error: countError } = await adminSupabase
+    // Verify event belongs to admin's sekolah (cross-sekolah guard)
+    const { data: event } = await adminSupabase
+      .from("events")
+      .select("id")
+      .eq("id", eventId)
+      .eq("sekolah_id", sekolahId)
+      .maybeSingle();
+
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    // Fix: use `count` from response, not `data.length` (head:true → data is null)
+    const { count: totalCount, error: countError } = await adminSupabase
       .from("guest_activity_log")
       .select("*", { count: "exact", head: true })
       .eq("event_id", eventId);
@@ -53,7 +66,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       activities,
-      total: total?.length || 0,
+      total: totalCount || 0,
       limit,
       offset,
     });

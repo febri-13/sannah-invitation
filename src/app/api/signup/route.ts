@@ -26,6 +26,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Password strength: min 8 characters
+    if (typeof password !== "string" || password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
+        { status: 400 }
+      );
+    }
+
     // Only pre-approved admin emails are accepted
     if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,7 +42,17 @@ export async function POST(request: NextRequest) {
     const supabaseAdmin = createAdminClient();
 
     // Look up sekolah_id from sekolah table if not provided
-    let resolvedSekolahId: string | null = sekolah_id || null;
+    let resolvedSekolahId: string | null = null;
+    if (sekolah_id) {
+      // Validate provided sekolah_id exists
+      const { data: existing } = await supabaseAdmin
+        .from("sekolah")
+        .select("id")
+        .eq("id", sekolah_id)
+        .maybeSingle();
+      resolvedSekolahId = existing?.id || null;
+    }
+
     if (!resolvedSekolahId) {
       const { data: sekolahData, error: sekolahError } = await supabaseAdmin
         .from("sekolah")
@@ -59,7 +77,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, user: data.user });
+    // Don't expose full user object — return minimal response
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(

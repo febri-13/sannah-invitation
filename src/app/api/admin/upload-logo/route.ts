@@ -26,10 +26,10 @@ export async function POST(request: NextRequest) {
     }
 
     const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-    const allowedExts = ["png", "jpg", "jpeg", "webp", "svg"];
+    const allowedExts = ["png", "jpg", "jpeg", "webp"];
     if (!allowedExts.includes(ext)) {
       return NextResponse.json(
-        { error: "File must be PNG, JPG, WebP, or SVG" },
+        { error: "File must be PNG, JPG, or WebP" },
         { status: 400 }
       );
     }

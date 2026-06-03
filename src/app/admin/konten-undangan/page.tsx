@@ -979,7 +979,7 @@ export default function KontenUndanganPage() {
                               </div>
                               <div className="flex-1">
                                 <label className="cursor-pointer inline-block">
-                                  <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg" className="hidden" disabled={uploading} onChange={(e) => { const file = e.target.files?.[0]; if (file) handleUploadLogo(file); e.target.value = ""; }} />
+                                  <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp" className="hidden" disabled={uploading} onChange={(e) => { const file = e.target.files?.[0]; if (file) handleUploadLogo(file); e.target.value = ""; }} />
                                   <span className="glass px-4 py-2.5 inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-primary/10 cursor-pointer transition-colors rounded-xl">
                                     {uploading ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div> Mengupload...</>) : (<>Pilih Logo</>)}
                                   </span>

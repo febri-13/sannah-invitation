@@ -10,6 +10,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const sekolahId = user.app_metadata?.sekolah_id as string | undefined;
+    if (!sekolahId) {
+      return NextResponse.json({ error: "Admin account is not linked to a sekolah" }, { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get("event_id");
     const tamuId = searchParams.get("tamu_id");
@@ -19,6 +24,18 @@ export async function GET(request: NextRequest) {
     }
 
     const adminSupabase = createAdminClient();
+
+    // Verify event belongs to admin's sekolah (cross-sekolah guard)
+    const { data: event } = await adminSupabase
+      .from("events")
+      .select("id")
+      .eq("id", eventId)
+      .eq("sekolah_id", sekolahId)
+      .maybeSingle();
+
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
 
     const { data: tamuIds } = await adminSupabase
       .from("tamu")
