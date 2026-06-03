@@ -3,3 +3,4 @@ onlyBuiltDependencies:
   - unrs-resolver
   - esbuild
   - vercel
+storeDir: /home/bangcs/.local/share/pnpm/store/v11
