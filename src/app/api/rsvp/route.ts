@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       ? (jumlah_ortu || 1)
       : kehadiran_ortu === "Online" ? 1 : 0;
 
-    const jumlah = computedJumlahOrtu + (kehadiran_anak === "Hadir" ? 1 : 0);
+    const jumlah = computedJumlahOrtu + (kehadiran_anak === "Tidak Hadir" ? 0 : 1);
 
     // Derive legacy kehadiran for backward compatibility
     const kehadiran = jumlah > 0 ? "Hadir" : "Tidak Hadir";

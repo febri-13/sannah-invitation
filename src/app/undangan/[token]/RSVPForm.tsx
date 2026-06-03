@@ -56,8 +56,8 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp, rsvpConfig }
   const [kehadiranOrtu, setKehadiranOrtu] = useState<"Offline" | "Online" | "Tidak Hadir" | "">(
     (existingRsvp?.kehadiran_ortu as "Offline" | "Online" | "Tidak Hadir" | null) || ""
   );
-  const [kehadiranAnak, setKehadiranAnak] = useState<"Hadir" | "Tidak Hadir" | "">(
-    (existingRsvp?.kehadiran_anak as "Hadir" | "Tidak Hadir" | null) || ""
+  const [kehadiranAnak, setKehadiranAnak] = useState<"Offline" | "Online" | "Tidak Hadir" | "">(
+    (existingRsvp?.kehadiran_anak as "Offline" | "Online" | "Tidak Hadir" | null) || ""
   );
   const [pesan, setPesan] = useState(existingRsvp?.pesan || "");
   const [jumlahOrtu, setJumlahOrtu] = useState(existingRsvp?.jumlah_ortu || 1);
@@ -68,7 +68,8 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp, rsvpConfig }
 
   const isOrtuHadir = kehadiranOrtu === "Offline" || kehadiranOrtu === "Online";
   const isOrtuOffline = kehadiranOrtu === "Offline";
-  const totalHadir = (kehadiranOrtu === "Offline" ? jumlahOrtu : isOrtuHadir ? 1 : 0) + (kehadiranAnak === "Hadir" ? 1 : 0);
+  const isAnakHadir = kehadiranAnak === "Offline" || kehadiranAnak === "Online";
+  const totalHadir = (kehadiranOrtu === "Offline" ? jumlahOrtu : isOrtuHadir ? 1 : 0) + (isAnakHadir ? 1 : 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,10 +241,15 @@ export default function RSVPForm({ token, existingRsvp, legacyRsvp, rsvpConfig }
             <p className="font-mono-label text-[9px] tracking-[0.22em] mb-2" style={{ color: "var(--color-secondary)" }}>
               ANAK
             </p>
-            <div className="flex gap-2">
-              {(["Hadir", "Tidak Hadir"] as const).map((opt) => (
+            <div className="flex gap-2 flex-wrap">
+              {([
+                ["Offline", cfg.show_offline],
+                ["Online", cfg.show_online],
+                ["Tidak Hadir", cfg.show_tidak_hadir],
+              ] as const).filter(([, show]) => show).map(([opt]) => (
                 <button key={opt} type="button" onClick={() => setKehadiranAnak(opt)} style={pillStyle(kehadiranAnak === opt)}>
-                  {opt === "Hadir" && <CheckCircle size={16} style={{ color: kehadiranAnak === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
+                  {opt === "Offline" && <MapPin size={16} style={{ color: kehadiranAnak === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
+                  {opt === "Online" && <Video size={16} style={{ color: kehadiranAnak === opt ? "var(--color-on-primary)" : "var(--color-primary)" }} />}
                   {opt === "Tidak Hadir" && <X size={16} style={{ color: kehadiranAnak === opt ? "var(--color-on-primary)" : "var(--color-text-muted)" }} />}
                   <span className="font-mono-label text-[9px] tracking-[0.16em] font-semibold">{opt.toUpperCase()}</span>
                 </button>
