@@ -100,14 +100,14 @@ async function getAttendanceStats(eventId?: string, sekolahId?: string) {
       tamuIds = ids?.map((t: { id: string }) => t.id) || [];
     }
 
-    let rsvpQuery = supabase.from("rsvp").select("kehadiran_ortu, kehadiran_anak");
+    let rsvpQuery = supabase.from("rsvp").select("kehadiran_ortu, kehadiran_anak, jumlah_ortu");
     if (tamuIds.length > 0) rsvpQuery = rsvpQuery.in("tamu_id", tamuIds);
     const { data: rsvps } = await rsvpQuery;
 
     let offline = 0, online = 0, tidakHadir = 0;
 
     for (const r of rsvps || []) {
-      if (r.kehadiran_ortu === "Offline") offline++;
+      if (r.kehadiran_ortu === "Offline") offline += (r.jumlah_ortu || 1);
       else if (r.kehadiran_ortu === "Online") online++;
       else if (r.kehadiran_ortu === "Tidak Hadir") tidakHadir++;
 
@@ -151,7 +151,7 @@ async function getAttendanceSplitStats(eventId?: string, sekolahId?: string): Pr
 
     const { data: rsvps } = await supabase
       .from("rsvp")
-      .select("kehadiran_ortu, kehadiran_anak")
+      .select("kehadiran_ortu, kehadiran_anak, jumlah_ortu")
       .in("tamu_id", tamuIds);
 
     const split: AttendanceSplit = {
@@ -160,7 +160,7 @@ async function getAttendanceSplitStats(eventId?: string, sekolahId?: string): Pr
     };
 
     for (const r of rsvps || []) {
-      if (r.kehadiran_ortu === "Offline") split.ortu.offline++;
+      if (r.kehadiran_ortu === "Offline") split.ortu.offline += (r.jumlah_ortu || 1);
       else if (r.kehadiran_ortu === "Online") split.ortu.online++;
       else if (r.kehadiran_ortu === "Tidak Hadir") split.ortu.tidakHadir++;
 
