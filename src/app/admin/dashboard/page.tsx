@@ -127,6 +127,55 @@ async function getAttendanceStats(eventId?: string, sekolahId?: string) {
   }
 }
 
+interface AttendanceSplit {
+  ortu: { offline: number; online: number; tidakHadir: number };
+  anak: { offline: number; online: number; tidakHadir: number };
+}
+
+async function getAttendanceSplitStats(eventId?: string, sekolahId?: string): Promise<AttendanceSplit> {
+  const empty = { ortu: { offline: 0, online: 0, tidakHadir: 0 }, anak: { offline: 0, online: 0, tidakHadir: 0 } };
+  try {
+    const supabase = createAdminClient();
+
+    // Get tamu IDs
+    let tamuIds: string[] = [];
+    if (eventId || sekolahId) {
+      let q = supabase.from("tamu").select("id");
+      if (eventId) q = q.eq("event_id", eventId);
+      else if (sekolahId) q = q.eq("sekolah_id", sekolahId);
+      const { data: ids } = await q;
+      tamuIds = ids?.map((t: { id: string }) => t.id) || [];
+    }
+
+    if (tamuIds.length === 0) return empty;
+
+    const { data: rsvps } = await supabase
+      .from("rsvp")
+      .select("kehadiran_ortu, kehadiran_anak")
+      .in("tamu_id", tamuIds);
+
+    const split: AttendanceSplit = {
+      ortu: { offline: 0, online: 0, tidakHadir: 0 },
+      anak: { offline: 0, online: 0, tidakHadir: 0 },
+    };
+
+    for (const r of rsvps || []) {
+      if (r.kehadiran_ortu === "Offline") split.ortu.offline++;
+      else if (r.kehadiran_ortu === "Online") split.ortu.online++;
+      else if (r.kehadiran_ortu === "Tidak Hadir") split.ortu.tidakHadir++;
+
+      if (r.kehadiran_anak === "Offline") split.anak.offline++;
+      else if (r.kehadiran_anak === "Online") split.anak.online++;
+      else if (r.kehadiran_anak === "Tidak Hadir") split.anak.tidakHadir++;
+    }
+
+    return split;
+  } catch (error) {
+    console.error("Gagal mengambil split statistik:", error);
+    return empty;
+  }
+}
+
 async function getViewStats(eventId?: string) {
   try {
     const supabase = createAdminClient();
@@ -220,6 +269,7 @@ export default async function DashboardPage() {
   let stats = defaultStats;
   let genderStats = defaultGenderStats;
   let attendanceStats = defaultAttendanceStats;
+  let attendanceSplit: AttendanceSplit = { ortu: { offline: 0, online: 0, tidakHadir: 0 }, anak: { offline: 0, online: 0, tidakHadir: 0 } };
   let viewStats = defaultViewStats;
   let tamuList: Awaited<ReturnType<typeof getTamu>> = [];
   let sekolahNama = "Sekolah";
@@ -264,6 +314,7 @@ export default async function DashboardPage() {
       stats = await getStats(activeEventId, sekolahId);
       genderStats = await getGenderStats(activeEventId, sekolahId);
       attendanceStats = await getAttendanceStats(activeEventId, sekolahId);
+      attendanceSplit = await getAttendanceSplitStats(activeEventId, sekolahId);
       viewStats = await getViewStats(activeEventId);
       tamuList = await getTamu(activeEventId, sekolahId);
 
@@ -285,6 +336,7 @@ export default async function DashboardPage() {
       viewStats={viewStats}
       genderStats={genderStats}
       attendanceStats={attendanceStats}
+      attendanceSplit={attendanceSplit}
       tamuList={tamuList}
       sekolahNama={sekolahNama}
       konten={konten}

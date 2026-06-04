@@ -713,6 +713,7 @@ interface DashboardClientProps {
   viewStats: { totalViews: number; avgViews: number; viewedCount: number };
   genderStats: { total: number; laki: number; perempuan: number; belum: number };
   attendanceStats: { total: number; offline: number; online: number; tidakHadir: number; belum: number };
+  attendanceSplit: { ortu: { offline: number; online: number; tidakHadir: number }; anak: { offline: number; online: number; tidakHadir: number } };
   tamuList: unknown[];
   sekolahNama?: string;
   konten?: KontenUndangan | null;
@@ -721,7 +722,7 @@ interface DashboardClientProps {
   initialTab?: string;
 }
 
-export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, viewStats, genderStats, attendanceStats, tamuList, sekolahNama, konten, eventsList, activeEventId, initialTab }: DashboardClientProps) {
+export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalCheckin, viewStats, genderStats, attendanceStats, attendanceSplit, tamuList, sekolahNama, konten, eventsList, activeEventId, initialTab }: DashboardClientProps) {
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const totalRsvp = hadir + tidakHadir;
@@ -798,6 +799,30 @@ export default function DashboardClient({ totalTamu, hadir, tidakHadir, totalChe
                 footnote={`Total ${totalRsvp} konfirmasi dari ${totalTamu} undangan terkirim`}
               />
               <ActivityCard eventId={activeEventId} />
+            </div>
+
+            {/* Ortu vs Anak split charts */}
+            <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-stretch">
+              <ChartCard
+                eyebrow="ORANG TUA"
+                title="Kehadiran orang tua."
+                segments={[
+                  { label: "Offline", value: attendanceSplit.ortu.offline, color: "#C26A4A" },
+                  { label: "Online", value: attendanceSplit.ortu.online, color: "#C9A35E" },
+                  { label: "Tidak Hadir", value: attendanceSplit.ortu.tidakHadir, color: "#B5403B" },
+                ]}
+                footnote={`Total ${attendanceSplit.ortu.offline + attendanceSplit.ortu.online + attendanceSplit.ortu.tidakHadir} orang tua`}
+              />
+              <ChartCard
+                eyebrow="ANAK"
+                title="Kehadiran anak."
+                segments={[
+                  { label: "Offline", value: attendanceSplit.anak.offline, color: "#C26A4A" },
+                  { label: "Online", value: attendanceSplit.anak.online, color: "#C9A35E" },
+                  { label: "Tidak Hadir", value: attendanceSplit.anak.tidakHadir, color: "#B5403B" },
+                ]}
+                footnote={`Total ${attendanceSplit.anak.offline + attendanceSplit.anak.online + attendanceSplit.anak.tidakHadir} anak`}
+              />
             </div>
 
             {/* Quick actions */}
