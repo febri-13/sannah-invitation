@@ -57,7 +57,7 @@ async function getTamu(eventId?: string, sekolahId?: string) {
       .from("tamu")
       .select(`
         *,
-        rsvp (kehadiran, jumlah),
+        rsvp (kehadiran, kehadiran_ortu, kehadiran_anak, jumlah, jumlah_ortu),
         checkin (waktu),
         guest_activity_log (activity_type)
       `)

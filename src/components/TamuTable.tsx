@@ -16,7 +16,7 @@ interface TamuData {
   no_wa_ibu: string | null;
   jenis_kelamin: string | null;
   token: string;
-  rsvp: { kehadiran: string; jumlah: number }[] | null;
+  rsvp: { kehadiran: string; kehadiran_ortu?: string; kehadiran_anak?: string; jumlah: number; jumlah_ortu?: number }[] | null;
   checkin: { waktu: string | null }[] | null;
   guest_activity_log?: { activity_type: string }[] | null;
 }
@@ -363,29 +363,44 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
     );
   };
 
-  const getStatusInfo = (tamu: TamuData): { text: string; className: string } => {
+  const getStatusInfo = (tamu: TamuData) => {
     // Normalize: Supabase returns single rsvp as object, multiple as array
     const rsvpList = tamu.rsvp
       ? (Array.isArray(tamu.rsvp) ? tamu.rsvp : [tamu.rsvp])
       : [];
     const hasRsvp = rsvpList.length > 0;
+
     if (hasRsvp) {
-      const hadir = rsvpList[0].kehadiran === "Hadir";
+      const r = rsvpList[0];
+      const ortu = r.kehadiran_ortu as string;
+      const anak = r.kehadiran_anak as string;
+      const jmlOrtu = r.jumlah_ortu ?? (ortu === "Offline" ? 1 : ortu === "Online" ? 1 : 0);
+      const jmlAnak = anak === "Tidak Hadir" ? 0 : 1;
+      const totalOffline = (ortu === "Offline" ? jmlOrtu : 0) + (anak === "Offline" ? jmlAnak : 0);
+      const totalOnline = (ortu === "Online" ? 1 : 0) + (anak === "Online" ? jmlAnak : 0);
+
       return {
-        text: hadir ? "Hadir" : "Tidak Hadir",
-        className: hadir ? "bg-success/10 text-success" : "bg-danger/10 text-danger",
+        ortu: ortu || "-",
+        anak: anak || "-",
+        totalOffline,
+        totalOnline,
+        hasRsvp: true,
       };
     }
+
     const activityLog = tamu.guest_activity_log
       ? (Array.isArray(tamu.guest_activity_log) ? tamu.guest_activity_log : [tamu.guest_activity_log])
       : [];
-    const hasViewed = activityLog.some(
-      (log) => log.activity_type === "invitation_viewed"
-    );
-    if (hasViewed) {
-      return { text: "Terkirim", className: "bg-warning/10 text-warning" };
-    }
-    return { text: "Belum", className: "bg-gray-100 text-gray-400" };
+    const hasViewed = activityLog.some((log) => log.activity_type === "invitation_viewed");
+
+    return {
+      ortu: "-",
+      anak: "-",
+      totalOffline: 0,
+      totalOnline: 0,
+      hasRsvp: false,
+      hasViewed,
+    };
   };
 
   return (
@@ -518,11 +533,36 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
                   </td>
                   {visibleCols.map((col) => {
                     if (col.key === "status") {
+                      const s = getStatusInfo(tamu);
+                      if (!s.hasRsvp) {
+                        const text = s.hasViewed ? "Terkirim" : "Belum";
+                        const cls = s.hasViewed ? "bg-warning/10 text-warning" : "bg-gray-100 text-gray-400";
+                        return (
+                          <td key={col.key} className="px-3 py-3">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${cls}`}>{text}</span>
+                          </td>
+                        );
+                      }
                       return (
                         <td key={col.key} className="px-3 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-xs ${status.className}`}>
-                            {status.text}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            {/* Ortu badge */}
+                            <span className={`px-2 py-0.5 rounded-full text-xs inline-flex items-center gap-1 ${
+                              s.ortu === "Offline" ? "bg-success/10 text-success"
+                              : s.ortu === "Online" ? "bg-blue-100 text-blue-700"
+                              : "bg-danger/10 text-danger"
+                            }`}>
+                              {s.ortu === "Offline" ? "🏠" : s.ortu === "Online" ? "📱" : "✕"} Ortu: {s.ortu}
+                            </span>
+                            {/* Anak badge */}
+                            <span className={`px-2 py-0.5 rounded-full text-xs inline-flex items-center gap-1 ${
+                              s.anak === "Offline" ? "bg-success/10 text-success"
+                              : s.anak === "Online" ? "bg-blue-100 text-blue-700"
+                              : "bg-danger/10 text-danger"
+                            }`}>
+                              {s.anak === "Offline" ? "🏠" : s.anak === "Online" ? "📱" : "✕"} Anak: {s.anak}
+                            </span>
+                          </div>
                         </td>
                       );
                     }

@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       .from("tamu")
       .select(`
         *,
-        rsvp (kehadiran, jumlah),
+        rsvp (kehadiran, kehadiran_ortu, kehadiran_anak, jumlah, jumlah_ortu),
         checkin (waktu)
       `)
       .order("created_at", { ascending: false });
