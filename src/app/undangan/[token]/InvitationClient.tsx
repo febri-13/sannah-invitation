@@ -231,9 +231,11 @@ const qrVariants = {
 } as const;
 
 export default function InvitationClient({ tamu, token, konten, sekolahNama = "SDIT Al-Hikmah", sekolahLogo = "", musicUrl = "", musicAutoPlay = false }: InvitationClientProps) {
-  const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
-  const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
-  const latestRsvp = hasRsvp ? tamu.rsvp[0]! : null;
+  const normalizeArray = <T,>(v: T[] | T | null | undefined): T[] =>
+    v ? (Array.isArray(v) ? v : [v]) : [];
+  const hasRsvp = normalizeArray(tamu.rsvp).length > 0;
+  const hasCheckin = normalizeArray(tamu.checkin).length > 0;
+  const latestRsvp = hasRsvp ? normalizeArray(tamu.rsvp)[0]! : null;
   const isLegacyRsvp = latestRsvp ? !latestRsvp.kehadiran_ortu : false;
 
   const agenda = (konten.agenda as unknown as AgendaItem[]) || [];

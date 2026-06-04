@@ -364,15 +364,22 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
   };
 
   const getStatusInfo = (tamu: TamuData): { text: string; className: string } => {
-    const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
-    if (hasRsvp && tamu.rsvp?.[0]) {
-      const hadir = tamu.rsvp[0].kehadiran === "Hadir";
+    // Normalize: Supabase returns single rsvp as object, multiple as array
+    const rsvpList = tamu.rsvp
+      ? (Array.isArray(tamu.rsvp) ? tamu.rsvp : [tamu.rsvp])
+      : [];
+    const hasRsvp = rsvpList.length > 0;
+    if (hasRsvp) {
+      const hadir = rsvpList[0].kehadiran === "Hadir";
       return {
         text: hadir ? "Hadir" : "Tidak Hadir",
         className: hadir ? "bg-success/10 text-success" : "bg-danger/10 text-danger",
       };
     }
-    const hasViewed = tamu.guest_activity_log?.some(
+    const activityLog = tamu.guest_activity_log
+      ? (Array.isArray(tamu.guest_activity_log) ? tamu.guest_activity_log : [tamu.guest_activity_log])
+      : [];
+    const hasViewed = activityLog.some(
       (log) => log.activity_type === "invitation_viewed"
     );
     if (hasViewed) {
@@ -493,8 +500,8 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
           <tbody className="divide-y">
             {filteredData.map((tamu) => {
               const status = getStatusInfo(tamu);
-              const hasRsvp = tamu.rsvp && tamu.rsvp.length > 0;
-              const hasCheckin = tamu.checkin && tamu.checkin.length > 0;
+              const hasRsvp = tamu.rsvp ? (Array.isArray(tamu.rsvp) ? tamu.rsvp.length > 0 : true) : false;
+              const hasCheckin = tamu.checkin ? (Array.isArray(tamu.checkin) ? tamu.checkin.length > 0 : true) : false;
               const hasWa = tamu.no_wa_ayah || tamu.no_wa_ibu;
               const visibleCols = currentColumns.filter((c) => currentVisible.has(c.key));
 
