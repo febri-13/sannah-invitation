@@ -10,8 +10,8 @@ const ALLOWED_ADMIN_EMAILS = [
 
 const EMAIL_TO_SCHOOL: Record<string, string> = {
   "admin.abbs@undangan.sch.id": "SMP ABBS Surakarta",
-  "admin.alabidin@undangan.sch.id": "SMP I Alabidin Surakarta",
-  "admin.smpi@undangan.sch.id": "SMP I Alabidin Surakarta",
+  "admin.alabidin@undangan.sch.id": "SMPI Alabidin Surakarta",
+  "admin.smpi@undangan.sch.id": "SMPI Alabidin Surakarta",
 };
 
 export async function POST(request: NextRequest) {
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       const { data: sekolahData, error: sekolahError } = await supabaseAdmin
         .from("sekolah")
         .select("id")
-        .eq("nama", EMAIL_TO_SCHOOL[email] || "SMP I Alabidin Surakarta")
+        .eq("nama", EMAIL_TO_SCHOOL[email] || "SMPI Alabidin Surakarta")
         .single();
       resolvedSekolahId = sekolahData?.id || null;
       if (sekolahError) {
