@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback, useRef, type ReactNode } fro
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Search, Trash2, Users, QrCode, Send, Pencil, Loader2 } from "lucide-react";
-import { generateWhatsAppLink } from "@/lib/utils";
+import { generateWhatsAppLink, formatDate, formatTime } from "@/lib/utils";
 
 interface TamuData {
   id: string;
@@ -686,9 +686,19 @@ export default function TamuTable({ data, eventSlug, initialTab }: TamuTableProp
                       );
                     }
                     if (col.key === "checkin") {
+                      // Normalize: Supabase returns single object for one record, array for multiple
+                      const checkinData = tamu.checkin
+                        ? (Array.isArray(tamu.checkin) ? tamu.checkin : [tamu.checkin])
+                        : [];
+                      const checkinWaktu = checkinData.length > 0 ? checkinData[0]?.waktu : null;
                       return (
                         <td key={col.key} className="px-3 py-3">
-                          {hasCheckin ? (
+                          {checkinWaktu ? (
+                            <div className="flex flex-col">
+                              <span className="text-[11px] text-gray-500 leading-tight">{formatDate(checkinWaktu)}</span>
+                              <span className="text-xs font-medium text-success leading-tight">{formatTime(checkinWaktu)}</span>
+                            </div>
+                          ) : hasCheckin ? (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-success/10 text-success">
                               ✓
                             </span>
